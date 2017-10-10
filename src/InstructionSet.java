@@ -1,15 +1,15 @@
-public enum InstructionSet {
+public class InstructionSet {
     // Register loading
-    LOAD,
+    String LOAD = "LOAD";
 
-    // Logical
-    AND,
-    OR,
-    XOR,
+    //Logical
+    String AND = "AND";
+    String OR = "OR";
+    String XOR = "XOR";
 
     // Arithmetic
-    ADD,
-    ADDCY,
-    SUB,
-    SUBCY,
+    String ADD = "ADD";
+    String ADDCY = "ADDCY";
+    String SUB = "SUB";
+    String SUBCY = "SUBCY";
 }
