@@ -20,6 +20,21 @@ public class Parser {
         }
     }
 
+    private void OR(Instruction instruction) {
+        System.out.println(Integer.toBinaryString(instruction.arg0.getValue()) + " OR");
+        System.out.println(Integer.toBinaryString(instruction.arg1.getValue()) + " EQUALS");
+        instruction.arg0.setValue(instruction.arg0.getValue() | instruction.arg1.getValue());
+        System.out.println(Integer.toBinaryString(instruction.arg0.getValue()) + " (" + Integer.toHexString(instruction.arg0.getValue()) + ")");
+
+        registers.setCarry(false);
+
+        if (instruction.arg0.getValue() == 0) {
+            registers.setZero(true);
+        } else {
+            registers.setZero(false);
+        }
+    }
+
     private void ADD(Instruction instruction) {
         InstructionArgument arg0 = instruction.arg0;
         InstructionArgument arg1 = instruction.arg1;
@@ -77,6 +92,9 @@ public class Parser {
                 // Logical
                 case AND:
                     AND(instruction);
+                    break;
+                case OR:
+                    OR(instruction);
                     break;
 
                 // Arithmetic
