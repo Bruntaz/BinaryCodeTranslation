@@ -2,15 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c9569247-316e-4950-afcc-49ca79a2d501" name="Default" comment="Break logic into multiple files">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/out/production/Picoblaze Interpreter/Constant.class" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/out/production/Picoblaze Interpreter/Parser$1.class" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Constant.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.gitignore" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/InstructionArgument.java" afterPath="$PROJECT_DIR$/src/InstructionArgument.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Parser.java" afterPath="$PROJECT_DIR$/src/Parser.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/PicoblazeInterpreter.java" afterPath="$PROJECT_DIR$/src/PicoblazeInterpreter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Register.java" afterPath="$PROJECT_DIR$/src/Register.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Registers.java" afterPath="$PROJECT_DIR$/src/Registers.java" />
     </list>
     <ignored path="Picoblaze Interpreter.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -186,6 +179,7 @@
         <option value="$PROJECT_DIR$/src/Parser.java" />
         <option value="$PROJECT_DIR$/src/Register.java" />
         <option value="$PROJECT_DIR$/src/PicoblazeInterpreter.java" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -936,6 +930,14 @@
             <element signature="e#261#262#0" expanded="true" />
             <element signature="e#295#296#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="22" column="0" lean-forward="true" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
