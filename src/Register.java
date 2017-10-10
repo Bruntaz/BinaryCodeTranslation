@@ -6,44 +6,6 @@ public class Register implements InstructionArgument {
     RegisterName registerName;
     int value;
 
-    public int add(InstructionArgument other) {
-        int result = this.getValue() + other.getValue();
-
-        if (result >= MAX_VALUE) {
-            registers.setCarry(true);
-            result = result % MAX_VALUE;
-        } else {
-            registers.setCarry(false);
-        }
-
-        if (result == MIN_VALUE) {
-            registers.setZero(true);
-        } else {
-            registers.setZero(false);
-        }
-
-        return result;
-    }
-
-    public int subtract(InstructionArgument other) {
-        int result = this.getValue() - other.getValue();
-
-        if (result < MIN_VALUE) {
-            result += MAX_VALUE;
-            registers.setCarry(true);
-        } else {
-            registers.setCarry(false);
-        }
-
-        if (result == MIN_VALUE) {
-            registers.setZero(true);
-        } else {
-            registers.setZero(false);
-        }
-
-        return result;
-    }
-
     public RegisterName getRegisterName() {
         return registerName;
     }

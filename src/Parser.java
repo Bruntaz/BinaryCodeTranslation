@@ -21,11 +21,47 @@ public class Parser {
     }
 
     private void ADD(Instruction instruction) {
-        instruction.arg0.setValue(instruction.arg0.add(instruction.arg1));
+        InstructionArgument arg0 = instruction.arg0;
+        InstructionArgument arg1 = instruction.arg1;
+
+        int result = arg0.getValue() + arg1.getValue();
+
+        if (result >= Register.MAX_VALUE) {
+            registers.setCarry(true);
+            result = result % Register.MAX_VALUE;
+        } else {
+            registers.setCarry(false);
+        }
+
+        if (result == Register.MIN_VALUE) {
+            registers.setZero(true);
+        } else {
+            registers.setZero(false);
+        }
+
+        arg0.setValue(result);
     }
 
     private void SUB(Instruction instruction) {
-        instruction.arg0.setValue(instruction.arg0.subtract(instruction.arg1));
+        InstructionArgument arg0 = instruction.arg0;
+        InstructionArgument arg1 = instruction.arg1;
+
+        int result = arg0.getValue() - arg1.getValue();
+
+        if (result < Register.MIN_VALUE) {
+            result += Register.MAX_VALUE;
+            registers.setCarry(true);
+        } else {
+            registers.setCarry(false);
+        }
+
+        if (result == Register.MIN_VALUE) {
+            registers.setZero(true);
+        } else {
+            registers.setZero(false);
+        }
+
+        arg0.setValue(result);
     }
 
     public void parse(Instruction[] program) {
