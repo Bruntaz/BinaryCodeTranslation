@@ -1,4 +1,7 @@
 public class Register implements InstructionArgument {
+    static int MAX_VALUE = 256;
+    static int MIN_VALUE = 0;
+
     Registers registers;
     RegisterName registerName;
     int value;
@@ -6,14 +9,33 @@ public class Register implements InstructionArgument {
     public int add(InstructionArgument other) {
         int result = this.getValue() + other.getValue();
 
-        if (result > 255) {
+        if (result >= MAX_VALUE) {
             registers.setCarry(true);
-            result = result % 256;
+            result = result % MAX_VALUE;
         } else {
             registers.setCarry(false);
         }
 
-        if (result == 0) {
+        if (result == MIN_VALUE) {
+            registers.setZero(true);
+        } else {
+            registers.setZero(false);
+        }
+
+        return result;
+    }
+
+    public int subtract(InstructionArgument other) {
+        int result = this.getValue() - other.getValue();
+
+        if (result < MIN_VALUE) {
+            result += MAX_VALUE;
+            registers.setCarry(true);
+        } else {
+            registers.setCarry(false);
+        }
+
+        if (result == MIN_VALUE) {
             registers.setZero(true);
         } else {
             registers.setZero(false);
@@ -39,6 +61,6 @@ public class Register implements InstructionArgument {
     public Register(Registers registers, RegisterName registerName) {
         this.registers = registers;
         this.registerName = registerName;
-        this.value = 0;
+        this.value = MIN_VALUE;
     }
 }
