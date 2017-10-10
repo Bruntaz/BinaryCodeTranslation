@@ -22,11 +22,11 @@ public class PicoblazeInterpreter {
 //        Parser parser = new Parser();
 //        parser.parse(program);
 
-        Instruction instruction = new Instruction(InstructionSet.LOAD, registers.getRegister(RegisterName.s0), new Constant(0xCA));
-        Instruction instruction2 = new Instruction(InstructionSet.AND, registers.getRegister(RegisterName.s0), new Constant(0x14));
+        Instruction i1 = new Instruction(InstructionSet.LOAD, registers.getRegister(RegisterName.s0), new Constant(0x7B));
+        Instruction i2 = new Instruction(InstructionSet.LOAD, registers.getRegister(RegisterName.s1), new Constant(0xA2));
+        Instruction i3 = new Instruction(InstructionSet.SUB, registers.getRegister(RegisterName.s0), new Constant(0x7B));
+        Instruction i4 = new Instruction(InstructionSet.SUBCY, registers.getRegister(RegisterName.s1), new Constant(0xA2));
         Parser parser = new Parser(registers);
-        parser.parse(new Instruction[] {instruction, instruction2});
-
-        System.out.format("%d: %s, C=%b, Z=%b\n", registers.getRegister(RegisterName.s0).getValue(), Integer.toBinaryString(registers.getRegister(RegisterName.s0).getValue()), registers.C, registers.Z);
+        parser.parse(new Instruction[] {i1, i2, i3, i4});
     }
 }

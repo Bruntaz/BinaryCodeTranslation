@@ -44,6 +44,23 @@ public class Parser {
         arg0.setValue(result);
     }
 
+    /*
+      This was just copied from the Python implementation. It could likely be implemented better.
+     */
+    private void ADDCY(Instruction instruction) {
+        boolean beforeZ = registers.Z;
+
+        if (registers.C) {
+            ADD(new Instruction(instruction.instruction, instruction.arg0, new Constant(1)));
+        }
+
+        ADD(instruction);
+
+        if (!beforeZ) {
+            registers.setZero(false);
+        }
+    }
+
     private void SUB(Instruction instruction) {
         InstructionArgument arg0 = instruction.arg0;
         InstructionArgument arg1 = instruction.arg1;
@@ -62,10 +79,25 @@ public class Parser {
         arg0.setValue(result);
     }
 
+    /*
+      This was just copied from the Python implementation. It could likely be implemented better.
+     */
+    private void SUBCY(Instruction instruction) {
+        boolean beforeZ = registers.Z;
+
+        if (registers.C) {
+            SUB(new Instruction(instruction.instruction, instruction.arg0, new Constant(1)));
+        }
+
+        SUB(instruction);
+
+        if (!beforeZ) {
+            registers.setZero(false);
+        }
+    }
+
     public void parse(Instruction[] program) {
         for (Instruction instruction : program) {
-            System.out.format("%d: %s, C=%b, Z=%b\n", registers.getRegister(RegisterName.s0).getValue(), Integer.toBinaryString(registers.getRegister(RegisterName.s0).getValue()), registers.C, registers.Z);
-
             switch (instruction.instruction) {
                 // Register loading
                 case LOAD:
@@ -87,10 +119,20 @@ public class Parser {
                 case ADD:
                     ADD(instruction);
                     break;
+                case ADDCY:
+                    ADDCY(instruction);
+                    break;
                 case SUB:
                     SUB(instruction);
                     break;
+                case SUBCY:
+                    SUBCY(instruction);
+                    break;
             }
+
+            System.out.format("%s: %s, C=%b, Z=%b\n", Integer.toHexString(registers.getRegister(RegisterName.s0).getValue()), Integer.toBinaryString(registers.getRegister(RegisterName.s0).getValue()), registers.C, registers.Z);
+            System.out.format("%s: %s, C=%b, Z=%b\n", Integer.toHexString(registers.getRegister(RegisterName.s1).getValue()), Integer.toBinaryString(registers.getRegister(RegisterName.s1).getValue()), registers.C, registers.Z);
+            System.out.println();
         }
     }
 
