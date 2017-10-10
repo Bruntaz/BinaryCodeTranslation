@@ -9,36 +9,21 @@ public class Parser {
         instruction.arg0.setValue(instruction.arg0.getValue() & instruction.arg1.getValue());
 
         registers.setCarry(false);
-
-        if (instruction.arg0.getValue() == 0) {
-            registers.setZero(true);
-        } else {
-            registers.setZero(false);
-        }
+        registers.setZero(instruction.arg0.getValue() == Register.MIN_VALUE);
     }
 
     private void OR(Instruction instruction) {
         instruction.arg0.setValue(instruction.arg0.getValue() | instruction.arg1.getValue());
 
         registers.setCarry(false);
-
-        if (instruction.arg0.getValue() == 0) {
-            registers.setZero(true);
-        } else {
-            registers.setZero(false);
-        }
+        registers.setZero(instruction.arg0.getValue() == Register.MIN_VALUE);
     }
 
     private void XOR(Instruction instruction) {
         instruction.arg0.setValue(instruction.arg0.getValue() ^ instruction.arg1.getValue());
 
         registers.setCarry(false);
-
-        if (instruction.arg0.getValue() == 0) {
-            registers.setZero(true);
-        } else {
-            registers.setZero(false);
-        }
+        registers.setZero(instruction.arg0.getValue() == Register.MIN_VALUE);
     }
 
     private void ADD(Instruction instruction) {
@@ -54,11 +39,7 @@ public class Parser {
             registers.setCarry(false);
         }
 
-        if (result == Register.MIN_VALUE) {
-            registers.setZero(true);
-        } else {
-            registers.setZero(false);
-        }
+        registers.setZero(result == Register.MIN_VALUE);
 
         arg0.setValue(result);
     }
@@ -76,11 +57,7 @@ public class Parser {
             registers.setCarry(false);
         }
 
-        if (result == Register.MIN_VALUE) {
-            registers.setZero(true);
-        } else {
-            registers.setZero(false);
-        }
+        registers.setZero(result == Register.MIN_VALUE);
 
         arg0.setValue(result);
     }
