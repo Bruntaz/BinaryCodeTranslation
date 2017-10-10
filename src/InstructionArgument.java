@@ -1,4 +1,4 @@
 public interface InstructionArgument {
-    byte getValue();
-    void setValue(byte newValue);
+    int getValue();
+    void setValue(int newValue);
 }

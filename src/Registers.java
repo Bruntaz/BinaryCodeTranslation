@@ -12,36 +12,43 @@ public class Registers {
 
     public Registers() {
         for (RegisterName registerName : RegisterName.values()) {
-            this.registers.put(registerName, new Register());
+            this.registers.put(registerName, new Register(this, registerName));
         }
     }
 
-    public int getRegister(RegisterName register) {
-        return registers.get(register).value + Byte.MAX_VALUE + 1;
+    public Register getRegister(RegisterName register) {
+        return registers.get(register);
     }
 
     public void setRegister(RegisterName register, int value) {
-        registers.get(register).value = (byte)(value + Byte.MIN_VALUE);
-//        registers.put(register, (byte)(value + Byte.MIN_VALUE));
+        registers.get(register).value = value;
     }
 
-    public void addToRegister(RegisterName register, int value) {
-        int currentRegisterValue = getRegister(register);
-        int newRegisterValue = currentRegisterValue + value;
-
-        setRegister(register, newRegisterValue);
-
-        C = newRegisterValue > 255;
-        Z = newRegisterValue == 256;
+    public void setCarry(boolean newState) {
+        C = newState;
     }
 
-    public void subtractFromRegister(RegisterName register, int value) {
-        int currentRegisterValue = getRegister(register);
-        int newRegisterValue = currentRegisterValue - value;
-
-        setRegister(register, newRegisterValue);
-
-        C = newRegisterValue < 0;
-        Z = newRegisterValue == 0;
+    public void setZero(boolean newState) {
+        Z = newState;
     }
+
+//    public void addToRegister(RegisterName register, int value) {
+//        int currentRegisterValue = getRegister(register);
+//        int newRegisterValue = currentRegisterValue + value;
+//
+//        setRegister(register, newRegisterValue);
+//
+//        C = newRegisterValue > 255;
+//        Z = newRegisterValue == 256;
+//    }
+//
+//    public void subtractFromRegister(RegisterName register, int value) {
+//        int currentRegisterValue = getRegister(register);
+//        int newRegisterValue = currentRegisterValue - value;
+//
+//        setRegister(register, newRegisterValue);
+//
+//        C = newRegisterValue < 0;
+//        Z = newRegisterValue == 0;
+//    }
 }
