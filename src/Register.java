@@ -1,6 +1,6 @@
 public class Register implements InstructionArgument {
-    static int MAX_VALUE = 256;
-    static int MIN_VALUE = 0;
+    static final int MAX_VALUE = 256;
+    static final int MIN_VALUE = 0;
 
     Registers registers;
     RegisterName registerName;

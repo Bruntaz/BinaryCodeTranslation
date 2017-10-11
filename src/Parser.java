@@ -1,10 +1,12 @@
 public class Parser {
     Registers registers;
 
+    // Register loading
     private void LOAD(Instruction instruction) {
         instruction.arg0.setValue(instruction.arg1.getValue());
     }
 
+    // Logical
     private void AND(Instruction instruction) {
         instruction.arg0.setValue(instruction.arg0.getValue() & instruction.arg1.getValue());
 
@@ -26,6 +28,7 @@ public class Parser {
         registers.setZero(instruction.arg0.getValue() == Register.MIN_VALUE);
     }
 
+    // Arithmetic
     private void ADD(Instruction instruction) {
         InstructionArgument arg0 = instruction.arg0;
         InstructionArgument arg1 = instruction.arg1;
@@ -96,6 +99,7 @@ public class Parser {
         }
     }
 
+    // Test and Compare
     private void TEST(Instruction instruction) {
         int result = instruction.arg0.getValue() & instruction.arg1.getValue();
 
@@ -119,6 +123,24 @@ public class Parser {
         }
 
         registers.setCarry(carry);
+        registers.setZero(result == Register.MIN_VALUE && registers.Z);
+    }
+
+    private void COMPARE(Instruction instruction) {
+        int result = instruction.arg0.getValue() - instruction.arg1.getValue();
+
+        registers.setCarry(result < 0);
+        registers.setZero(result == Register.MIN_VALUE);
+    }
+
+    private void COMPARECY(Instruction instruction) {
+        int result = instruction.arg0.getValue() - instruction.arg1.getValue();
+
+        if (registers.C) {
+            result -= 1;
+        }
+
+        registers.setCarry(result < 0);
         registers.setZero(result == Register.MIN_VALUE && registers.Z);
     }
 
@@ -161,6 +183,12 @@ public class Parser {
                     break;
                 case TESTCY:
                     TESTCY(instruction);
+                    break;
+                case COMPARE:
+                    COMPARE(instruction);
+                    break;
+                case COMPARECY:
+                    COMPARECY(instruction);
                     break;
 
                 default:
