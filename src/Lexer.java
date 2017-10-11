@@ -9,7 +9,12 @@ public class Lexer {
             if (splitInstruction.length >= 3) {
                 InstructionSet instructionSet = InstructionSet.valueOf(splitInstruction[0]);
 
-                Register arg0 = registers.getRegister(RegisterName.valueOf(splitInstruction[1]));
+                InstructionArgument arg0;
+                try {
+                    arg0 = registers.getRegister(RegisterName.valueOf(splitInstruction[1]));
+                } catch (Exception e) {
+                    arg0 = new RegisterBank(splitInstruction[1].equals("A") ? 1 : 0);
+                }
 
                 InstructionArgument arg1;
                 try {

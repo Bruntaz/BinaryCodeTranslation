@@ -205,6 +205,11 @@ public class Parser {
         SR(new Instruction(InstructionSet.SRA, instruction.arg0, null));
     }
 
+    // Register Bank Selection
+    private void REGBANK(Instruction instruction) {
+        registers.aBankActive = instruction.arg0.getValue() == 1;
+    }
+
     public void parse(Instruction[] program) {
         for (Instruction instruction : program) {
             if (instruction == null) {
@@ -274,6 +279,11 @@ public class Parser {
                     break;
                 case RR:
                     RR(instruction);
+                    break;
+
+                // Register Bank Selection
+                case REGBANK:
+                    REGBANK(instruction);
                     break;
 
                 default:

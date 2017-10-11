@@ -30,4 +30,7 @@ public enum InstructionSet {
     SRX,
     SRA,
     RR,
+
+    // Register Bank Selection
+    REGBANK,
 }

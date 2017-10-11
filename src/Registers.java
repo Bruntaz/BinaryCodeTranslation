@@ -7,6 +7,7 @@ import java.util.HashMap;
 public class Registers {
     public boolean C = false;
     public boolean Z = false;
+    public boolean aBankActive = true;
 
     private HashMap<RegisterName, Register> registers = new HashMap<RegisterName, Register>();
 

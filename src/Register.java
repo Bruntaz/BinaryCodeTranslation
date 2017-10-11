@@ -6,7 +6,8 @@ public class Register implements InstructionArgument {
 
     private Registers registers;
     private RegisterName registerName;
-    private int value;
+    private int aValue;
+    private int bValue;
 
     public RegisterName getRegisterName() {
         return registerName;
@@ -14,7 +15,7 @@ public class Register implements InstructionArgument {
 
     @Override
     public int getValue() {
-        return value;
+        return registers.aBankActive ? aValue : bValue;
     }
 
     @Override
@@ -22,12 +23,17 @@ public class Register implements InstructionArgument {
         if (newValue < MIN_VALUE || newValue > MAX_VALUE) {
             throw new ValueException("Register set to an illegal number (" + newValue + ")");
         }
-        this.value = newValue;
+        if (registers.aBankActive) {
+            this.aValue = newValue;
+        } else {
+            this.bValue = newValue;
+        }
     }
 
     public Register(Registers registers, RegisterName registerName) {
         this.registers = registers;
         this.registerName = registerName;
-        this.value = MIN_VALUE;
+        this.aValue = MIN_VALUE;
+        this.bValue = MIN_VALUE;
     }
 }
