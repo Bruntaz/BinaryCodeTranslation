@@ -1,3 +1,9 @@
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+
 /**
  * Created by jamesbrunton on 06/10/2017.
  */
@@ -22,11 +28,25 @@ public class PicoblazeInterpreter {
 //        Parser parser = new Parser();
 //        parser.parse(program);
 
-        Instruction i1 = new Instruction(InstructionSet.LOAD, registers.getRegister(RegisterName.s0), new Constant(0x7B));
-        Instruction i2 = new Instruction(InstructionSet.LOAD, registers.getRegister(RegisterName.s1), new Constant(0xA2));
-        Instruction i3 = new Instruction(InstructionSet.SUB, registers.getRegister(RegisterName.s0), new Constant(0x7B));
-        Instruction i4 = new Instruction(InstructionSet.SUBCY, registers.getRegister(RegisterName.s1), new Constant(0xA2));
+//        Instruction i1 = new Instruction(InstructionSet.LOAD, registers.getRegister(RegisterName.s0), new Constant(0x7B));
+//        Instruction i2 = new Instruction(InstructionSet.LOAD, registers.getRegister(RegisterName.s1), new Constant(0xA2));
+//        Instruction i4 = new Instruction(InstructionSet.COMPARE, registers.getRegister(RegisterName.s0), new Constant(0x7B));
+//        Instruction i5 = new Instruction(InstructionSet.COMPARECY, registers.getRegister(RegisterName.s1), new Constant(0xB9));
+//        Parser parser = new Parser(registers);
+//        parser.parse(new Instruction[] {i1, i2, i4, i5});
+
+        Path filePath = FileSystems.getDefault().getPath("Test Instructions.psm");
+
+        List<String> file = null;
+        try {
+            file = Files.readAllLines(filePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Instruction[] instructions = Lexer.lex(registers, file);
+
         Parser parser = new Parser(registers);
-        parser.parse(new Instruction[] {i1, i2, i3, i4});
+        parser.parse(instructions);
     }
 }
