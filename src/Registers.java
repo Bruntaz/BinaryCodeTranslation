@@ -44,10 +44,6 @@ public class Registers {
         return registers.get(register);
     }
 
-    public void setRegister(RegisterName register, int value) {
-        registers.get(register).value = value;
-    }
-
     public void setCarry(boolean newState) {
         C = newState;
     }

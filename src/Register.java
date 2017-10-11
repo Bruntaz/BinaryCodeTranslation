@@ -4,9 +4,9 @@ public class Register implements InstructionArgument {
     static final int MAX_VALUE = 255;
     static final int MIN_VALUE = 0;
 
-    Registers registers;
-    RegisterName registerName;
-    int value;
+    private Registers registers;
+    private RegisterName registerName;
+    private int value;
 
     public RegisterName getRegisterName() {
         return registerName;

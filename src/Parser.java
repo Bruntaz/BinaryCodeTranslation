@@ -145,39 +145,26 @@ public class Parser {
     }
 
     // Shift and Rotate
-    private void SL0(Instruction instruction) {
+    private void SL(Instruction instruction) throws IllegalArgumentException {
+        int leastSignificantBit;
+        switch (instruction.instruction) {
+            case SL0:
+                leastSignificantBit = 0;
+                break;
+            case SL1:
+                leastSignificantBit = 1;
+                break;
+            case SLX:
+                leastSignificantBit = instruction.arg0.getValue() & 0b00000001;
+                break;
+            default:
+                leastSignificantBit = registers.C ? 1 : 0;
+                break;
+        }
+
         registers.setCarry((instruction.arg0.getValue() & 0b10000000) != 0);
 
-        int newValue = instruction.arg0.getValue() << 1;
-        instruction.arg0.setValue(newValue & Register.MAX_VALUE);
-
-        registers.setZero(instruction.arg0.getValue() == 0);
-    }
-
-    private void SL1(Instruction instruction) {
-        registers.setCarry((instruction.arg0.getValue() & 0b10000000) != 0);
-
-        int newValue = (instruction.arg0.getValue() << 1) + 1;
-        instruction.arg0.setValue(newValue & Register.MAX_VALUE);
-
-        registers.setZero(false);
-    }
-
-    private void SLX(Instruction instruction) {
-        registers.setCarry((instruction.arg0.getValue() & 0b10000000) != 0);
-
-        int offset = instruction.arg0.getValue() & 0b00000001;
-        int newValue = (instruction.arg0.getValue() << 1) + offset;
-        instruction.arg0.setValue(newValue & Register.MAX_VALUE);
-
-        registers.setZero(instruction.arg0.getValue() == 0);
-    }
-
-    private void SLA(Instruction instruction) {
-        int previousC = registers.C ? 1 : 0;
-        registers.setCarry((instruction.arg0.getValue() & 0b10000000) != 0);
-
-        int newValue = (instruction.arg0.getValue() << 1) + previousC;
+        int newValue = (instruction.arg0.getValue() << 1) + leastSignificantBit;
         instruction.arg0.setValue(newValue & Register.MAX_VALUE);
 
         registers.setZero(instruction.arg0.getValue() == 0);
@@ -236,16 +223,10 @@ public class Parser {
 
                 // Shift and Rotate
                 case SL0:
-                    SL0(instruction);
-                    break;
                 case SL1:
-                    SL1(instruction);
-                    break;
                 case SLX:
-                    SLX(instruction);
-                    break;
                 case SLA:
-                    SLA(instruction);
+                    SL(instruction);
                     break;
 
                 default:
