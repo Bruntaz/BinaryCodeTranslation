@@ -96,6 +96,32 @@ public class Parser {
         }
     }
 
+    private void TEST(Instruction instruction) {
+        int result = instruction.arg0.getValue() & instruction.arg1.getValue();
+
+        // Carry bit true if odd number of 1 bits
+        boolean carry = false;
+        for (int i=0; i<8; i++) {
+            carry ^= ((result >> i) & 1) == 1;
+        }
+
+        registers.setCarry(carry);
+        registers.setZero(result == Register.MIN_VALUE);
+    }
+
+    private void TESTCY(Instruction instruction) {
+        int result = instruction.arg0.getValue() & instruction.arg1.getValue();
+
+        // Carry bit true if odd number of 1 bits including carry bit
+        boolean carry = registers.C;
+        for (int i=0; i<8; i++) {
+            carry ^= ((result >> i) & 1) == 1;
+        }
+
+        registers.setCarry(carry);
+        registers.setZero(result == Register.MIN_VALUE && registers.Z);
+    }
+
     public void parse(Instruction[] program) {
         for (Instruction instruction : program) {
             switch (instruction.instruction) {
@@ -128,10 +154,21 @@ public class Parser {
                 case SUBCY:
                     SUBCY(instruction);
                     break;
+
+                // Test and Compare
+                case TEST:
+                    TEST(instruction);
+                    break;
+                case TESTCY:
+                    TESTCY(instruction);
+                    break;
+
+                default:
+                    throw new UnsupportedOperationException("Unrecognised instruction. Has the instruction been added to the switch statement in Parser?");
             }
 
-            System.out.format("%s: %s, C=%b, Z=%b\n", Integer.toHexString(registers.getRegister(RegisterName.s0).getValue()), Integer.toBinaryString(registers.getRegister(RegisterName.s0).getValue()), registers.C, registers.Z);
-            System.out.format("%s: %s, C=%b, Z=%b\n", Integer.toHexString(registers.getRegister(RegisterName.s1).getValue()), Integer.toBinaryString(registers.getRegister(RegisterName.s1).getValue()), registers.C, registers.Z);
+            System.out.format("%s: %s, Z=%b, C=%b\n", Integer.toHexString(registers.getRegister(RegisterName.s0).getValue()), Integer.toBinaryString(registers.getRegister(RegisterName.s0).getValue()), registers.Z, registers.C);
+            System.out.format("%s: %s, Z=%b, C=%b\n", Integer.toHexString(registers.getRegister(RegisterName.s1).getValue()), Integer.toBinaryString(registers.getRegister(RegisterName.s1).getValue()), registers.Z, registers.C);
             System.out.println();
         }
     }

@@ -12,4 +12,10 @@ public enum InstructionSet {
     ADDCY,
     SUB,
     SUBCY,
+
+    // Test and Compare
+    TEST,
+    TESTCY,
+    COMPARE,
+    COMPARECY,
 }
