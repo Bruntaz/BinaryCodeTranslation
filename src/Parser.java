@@ -146,6 +146,10 @@ public class Parser {
 
     public void parse(Instruction[] program) {
         for (Instruction instruction : program) {
+            if (instruction == null) {
+                continue;
+            }
+
             switch (instruction.instruction) {
                 // Register loading
                 case LOAD:
@@ -195,9 +199,7 @@ public class Parser {
                     throw new UnsupportedOperationException("Unrecognised instruction. Has the instruction been added to the switch statement in Parser?");
             }
 
-            System.out.format("%s: %s, Z=%b, C=%b\n", Integer.toHexString(registers.getRegister(RegisterName.s0).getValue()), Integer.toBinaryString(registers.getRegister(RegisterName.s0).getValue()), registers.Z, registers.C);
-            System.out.format("%s: %s, Z=%b, C=%b\n", Integer.toHexString(registers.getRegister(RegisterName.s1).getValue()), Integer.toBinaryString(registers.getRegister(RegisterName.s1).getValue()), registers.Z, registers.C);
-            System.out.println();
+            System.out.println(registers);
         }
     }
 

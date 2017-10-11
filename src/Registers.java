@@ -16,6 +16,30 @@ public class Registers {
         }
     }
 
+    @Override
+    public String toString() {
+        StringBuilder toPrint = new StringBuilder("{\n");
+
+        for (RegisterName registerName : RegisterName.values()) {
+            int registerValue = registers.get(registerName).getValue();
+            toPrint.append(
+                    String.format(
+                            "\t%2s:\t%2s\t(%8s)\n",
+                            registerName,
+                            Integer.toHexString(registerValue),
+                            Integer.toBinaryString(registerValue)
+                    ).replace(' ', '0')
+            );
+        }
+
+        toPrint.append(
+                String.format("\tZ = %b\n" +
+                              "\tC = %b\n", Z, C)
+        );
+
+        return toPrint + "}";
+    }
+
     public Register getRegister(RegisterName register) {
         return registers.get(register);
     }
@@ -31,24 +55,4 @@ public class Registers {
     public void setZero(boolean newState) {
         Z = newState;
     }
-
-//    public void addToRegister(RegisterName register, int value) {
-//        int currentRegisterValue = getRegister(register);
-//        int newRegisterValue = currentRegisterValue + value;
-//
-//        setRegister(register, newRegisterValue);
-//
-//        C = newRegisterValue > 255;
-//        Z = newRegisterValue == 256;
-//    }
-//
-//    public void subtractFromRegister(RegisterName register, int value) {
-//        int currentRegisterValue = getRegister(register);
-//        int newRegisterValue = currentRegisterValue - value;
-//
-//        setRegister(register, newRegisterValue);
-//
-//        C = newRegisterValue < 0;
-//        Z = newRegisterValue == 0;
-//    }
 }
