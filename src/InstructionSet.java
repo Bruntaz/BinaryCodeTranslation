@@ -18,4 +18,16 @@ public enum InstructionSet {
     TESTCY,
     COMPARE,
     COMPARECY,
+
+    // Shift and Rotate
+    SL0,
+    SL1,
+    SLX,
+    SLA,
+    RL,
+    SR0,
+    SR1,
+    SRX,
+    SRA,
+    RR,
 }

@@ -35,9 +35,9 @@ public class Parser {
 
         int result = arg0.getValue() + arg1.getValue();
 
-        if (result >= Register.MAX_VALUE) {
+        if (result > Register.MAX_VALUE) {
             registers.setCarry(true);
-            result = result % Register.MAX_VALUE;
+            result = result % (Register.MAX_VALUE + 1);
         } else {
             registers.setCarry(false);
         }
@@ -71,7 +71,7 @@ public class Parser {
         int result = arg0.getValue() - arg1.getValue();
 
         if (result < Register.MIN_VALUE) {
-            result += Register.MAX_VALUE;
+            result += Register.MAX_VALUE + 1;
             registers.setCarry(true);
         } else {
             registers.setCarry(false);
@@ -144,6 +144,45 @@ public class Parser {
         registers.setZero(result == Register.MIN_VALUE && registers.Z);
     }
 
+    // Shift and Rotate
+    private void SL0(Instruction instruction) {
+        registers.setCarry((instruction.arg0.getValue() & 0b10000000) != 0);
+
+        int newValue = instruction.arg0.getValue() << 1;
+        instruction.arg0.setValue(newValue & Register.MAX_VALUE);
+
+        registers.setZero(instruction.arg0.getValue() == 0);
+    }
+
+    private void SL1(Instruction instruction) {
+        registers.setCarry((instruction.arg0.getValue() & 0b10000000) != 0);
+
+        int newValue = (instruction.arg0.getValue() << 1) + 1;
+        instruction.arg0.setValue(newValue & Register.MAX_VALUE);
+
+        registers.setZero(false);
+    }
+
+    private void SLX(Instruction instruction) {
+        registers.setCarry((instruction.arg0.getValue() & 0b10000000) != 0);
+
+        int offset = instruction.arg0.getValue() & 0b00000001;
+        int newValue = (instruction.arg0.getValue() << 1) + offset;
+        instruction.arg0.setValue(newValue & Register.MAX_VALUE);
+
+        registers.setZero(instruction.arg0.getValue() == 0);
+    }
+
+    private void SLA(Instruction instruction) {
+        int previousC = registers.C ? 1 : 0;
+        registers.setCarry((instruction.arg0.getValue() & 0b10000000) != 0);
+
+        int newValue = (instruction.arg0.getValue() << 1) + previousC;
+        instruction.arg0.setValue(newValue & Register.MAX_VALUE);
+
+        registers.setZero(instruction.arg0.getValue() == 0);
+    }
+
     public void parse(Instruction[] program) {
         for (Instruction instruction : program) {
             if (instruction == null) {
@@ -193,6 +232,20 @@ public class Parser {
                     break;
                 case COMPARECY:
                     COMPARECY(instruction);
+                    break;
+
+                // Shift and Rotate
+                case SL0:
+                    SL0(instruction);
+                    break;
+                case SL1:
+                    SL1(instruction);
+                    break;
+                case SLX:
+                    SLX(instruction);
+                    break;
+                case SLA:
+                    SLA(instruction);
                     break;
 
                 default:
