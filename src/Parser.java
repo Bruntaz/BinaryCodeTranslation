@@ -145,7 +145,7 @@ public class Parser {
     }
 
     // Shift and Rotate
-    private void SL(Instruction instruction) throws IllegalArgumentException {
+    private void SL(Instruction instruction) {
         int leastSignificantBit;
         switch (instruction.instruction) {
             case SL0:
@@ -170,7 +170,7 @@ public class Parser {
         registers.setZero(instruction.arg0.getValue() == 0);
     }
 
-    private void SR(Instruction instruction) throws IllegalArgumentException {
+    private void SR(Instruction instruction) {
         int mostSignificantBit;
         switch (instruction.instruction) {
             case SR0:
@@ -193,6 +193,16 @@ public class Parser {
         instruction.arg0.setValue(newValue & Register.MAX_VALUE);
 
         registers.setZero(instruction.arg0.getValue() == 0);
+    }
+
+    private void RL(Instruction instruction) {
+        registers.setCarry((instruction.arg0.getValue() & 0b10000000) != 0);
+        SL(new Instruction(InstructionSet.SLA, instruction.arg0, null));
+    }
+
+    private void RR(Instruction instruction) {
+        registers.setCarry((instruction.arg0.getValue() & 0b00000001) != 0);
+        SR(new Instruction(InstructionSet.SRA, instruction.arg0, null));
     }
 
     public void parse(Instruction[] program) {
@@ -258,6 +268,12 @@ public class Parser {
                 case SRX:
                 case SRA:
                     SR(instruction);
+                    break;
+                case RL:
+                    RL(instruction);
+                    break;
+                case RR:
+                    RR(instruction);
                     break;
 
                 default:
