@@ -170,6 +170,31 @@ public class Parser {
         registers.setZero(instruction.arg0.getValue() == 0);
     }
 
+    private void SR(Instruction instruction) throws IllegalArgumentException {
+        int mostSignificantBit;
+        switch (instruction.instruction) {
+            case SR0:
+                mostSignificantBit = 0;
+                break;
+            case SR1:
+                mostSignificantBit = 0b10000000;
+                break;
+            case SRX:
+                mostSignificantBit = instruction.arg0.getValue() & 0b10000000;
+                break;
+            default:
+                mostSignificantBit = registers.C ? 0b10000000 : 0;
+                break;
+        }
+
+        registers.setCarry((instruction.arg0.getValue() & 0b00000001) != 0);
+
+        int newValue = (instruction.arg0.getValue() >> 1) + mostSignificantBit;
+        instruction.arg0.setValue(newValue & Register.MAX_VALUE);
+
+        registers.setZero(instruction.arg0.getValue() == 0);
+    }
+
     public void parse(Instruction[] program) {
         for (Instruction instruction : program) {
             if (instruction == null) {
@@ -227,6 +252,12 @@ public class Parser {
                 case SLX:
                 case SLA:
                     SL(instruction);
+                    break;
+                case SR0:
+                case SR1:
+                case SRX:
+                case SRA:
+                    SR(instruction);
                     break;
 
                 default:
