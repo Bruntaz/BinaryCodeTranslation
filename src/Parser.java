@@ -1,5 +1,6 @@
 public class Parser {
     private Registers registers;
+    private ScratchPad scratchPad;
 
     // Register loading
     private void LOAD(Instruction instruction) {
@@ -223,6 +224,15 @@ public class Parser {
         registers.aRegisterBank = instruction.arg0.getValue() == 1;
     }
 
+    // Scratch Pad Memory
+    private void STORE(Instruction instruction) {
+        scratchPad.setMemory(instruction.arg1.getValue(), instruction.arg0.getValue());
+    }
+
+    private void FETCH(Instruction instruction) {
+        instruction.arg0.setValue(scratchPad.getMemory(instruction.arg1.getValue()));
+    }
+
     public void parse(Instruction[] program) {
         for (Instruction instruction : program) {
             if (instruction == null) {
@@ -302,6 +312,14 @@ public class Parser {
                     REGBANK(instruction);
                     break;
 
+                // Scratch Pad Memory
+                case STORE:
+                    STORE(instruction);
+                    break;
+                case FETCH:
+                    FETCH(instruction);
+                    break;
+
                 default:
                     throw new UnsupportedOperationException("Unrecognised instruction. Has the instruction been added to the switch statement in Parser?");
             }
@@ -310,7 +328,8 @@ public class Parser {
         }
     }
 
-    public Parser(Registers registers) {
+    public Parser(Registers registers, ScratchPad scratchPad) {
         this.registers = registers;
+        this.scratchPad = scratchPad;
     }
 }

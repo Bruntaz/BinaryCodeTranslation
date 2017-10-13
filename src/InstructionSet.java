@@ -34,4 +34,8 @@ public enum InstructionSet {
 
     // Register Bank Selection
     REGBANK,
+
+    // Scratch Pad Memory
+    STORE,
+    FETCH,
 }

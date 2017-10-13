@@ -23,6 +23,7 @@ public class Register implements InstructionArgument {
         if (newValue < MIN_VALUE || newValue > MAX_VALUE) {
             throw new ValueException("Register set to an illegal number (" + newValue + ")");
         }
+
         if (registers.aRegisterBank) {
             this.aValue = newValue;
         } else {
