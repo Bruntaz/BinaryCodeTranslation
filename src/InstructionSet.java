@@ -1,6 +1,7 @@
 public enum InstructionSet {
     // Register loading
     LOAD,
+    STAR,
 
     // Logical
     AND,

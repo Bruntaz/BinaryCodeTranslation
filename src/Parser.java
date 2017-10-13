@@ -1,9 +1,22 @@
 public class Parser {
-    Registers registers;
+    private Registers registers;
 
     // Register loading
     private void LOAD(Instruction instruction) {
         instruction.arg0.setValue(instruction.arg1.getValue());
+    }
+
+    /*
+    NOTE: This currently allows a Constant as the second argument, which isn't in the spec.
+    I think these functions should have the Instruction arguments replaced with explicit NAME(InstructionSet, arg0, arg1)
+    to make it easier to disallow invalid instructions.
+     */
+    private void STAR(Instruction instruction) {
+        int copiedValue = instruction.arg1.getValue();
+        registers.toggleActiveRegisters();
+
+        instruction.arg0.setValue(copiedValue);
+        registers.toggleActiveRegisters();
     }
 
     // Logical
@@ -207,7 +220,7 @@ public class Parser {
 
     // Register Bank Selection
     private void REGBANK(Instruction instruction) {
-        registers.aBankActive = instruction.arg0.getValue() == 1;
+        registers.aRegisterBank = instruction.arg0.getValue() == 1;
     }
 
     public void parse(Instruction[] program) {
@@ -220,6 +233,9 @@ public class Parser {
                 // Register loading
                 case LOAD:
                     LOAD(instruction);
+                    break;
+                case STAR:
+                    STAR(instruction);
                     break;
 
                 // Logical

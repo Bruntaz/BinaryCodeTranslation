@@ -7,7 +7,7 @@ import java.util.HashMap;
 public class Registers {
     public boolean C = false;
     public boolean Z = false;
-    public boolean aBankActive = true;
+    public boolean aRegisterBank = true;
 
     private HashMap<RegisterName, Register> registers = new HashMap<RegisterName, Register>();
 
@@ -51,5 +51,13 @@ public class Registers {
 
     public void setZero(boolean newState) {
         Z = newState;
+    }
+
+    public void useARegisterBank(boolean newState) {
+        aRegisterBank = newState;
+    }
+
+    public void toggleActiveRegisters() {
+        aRegisterBank = !aRegisterBank;
     }
 }
