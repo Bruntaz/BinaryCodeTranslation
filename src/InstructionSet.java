@@ -41,4 +41,11 @@ public enum InstructionSet {
 
     // Jump
     JUMP,
+    JUMPAT,
+
+    // Subroutines
+    CALL,
+    CALLAT,
+    RETURN,
+    LOADANDRETURN,
 }

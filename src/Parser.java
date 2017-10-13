@@ -1,8 +1,32 @@
+import java.util.Stack;
+
 public class Parser {
     private Registers registers;
     private ScratchPad scratchPad;
 
-    int programCounter = 0;
+    Stack<Integer> programCounter = new Stack<Integer>();
+
+    private void setProgramCounter(int value) {
+        setProgramCounter(value, false);
+    }
+
+    /*
+     Requires error handling for max size of stack being reached
+     */
+    private void setProgramCounter(int value, boolean push) {
+        if (push) {
+            if (programCounter.size() <= 30) {
+                programCounter.push(value);
+            } else {
+                System.out.println("Program counter stack size reached. Program should reset here.");
+            }
+        } else if (programCounter.size() == 0){
+            programCounter.push(value);
+        } else {
+            programCounter.pop();
+            programCounter.push(value);
+        }
+    }
 
     // Register loading
     private void LOAD(Instruction instruction) {
@@ -238,30 +262,87 @@ public class Parser {
     // Jump
     private void JUMP(Instruction instruction) {
         if (instruction.arg0 instanceof AbsoluteAddress) {
-            programCounter = instruction.arg0.getValue();
+            setProgramCounter(instruction.arg0.getValue());
 
         } else {
             switch (instruction.arg0.getValue()) {
                 case FlagArgument.C:
-                    programCounter = registers.C ? instruction.arg1.getValue() : programCounter;
+                    setProgramCounter(registers.C ? instruction.arg1.getValue() : programCounter.peek());
                     break;
                 case FlagArgument.NC:
-                    programCounter = registers.C ? programCounter : instruction.arg1.getValue();
+                    setProgramCounter(registers.C ? programCounter.peek() : instruction.arg1.getValue());
                     break;
                 case FlagArgument.Z:
-                    programCounter = registers.Z ? instruction.arg1.getValue() : programCounter;
+                    setProgramCounter(registers.Z ? instruction.arg1.getValue() : programCounter.peek());
                     break;
                 case FlagArgument.NZ:
-                    programCounter = registers.Z ? programCounter : instruction.arg1.getValue();
+                    setProgramCounter(registers.Z ? programCounter.peek() : instruction.arg1.getValue());
+                    break;
+            }
+        }
+    }
+
+    private void JUMPAT(Instruction instruction) {
+        int top4Bits = (instruction.arg0.getValue() & 0b00001111) << 8;
+
+        setProgramCounter(top4Bits + instruction.arg1.getValue());
+    }
+
+    // Subroutines
+    private void CALL(Instruction instruction) {
+        if (instruction.arg0 instanceof AbsoluteAddress) {
+            setProgramCounter(instruction.arg0.getValue(), true);
+
+        } else {
+            switch (instruction.arg0.getValue()) {
+                case FlagArgument.C:
+                    setProgramCounter(registers.C ? instruction.arg1.getValue() : programCounter.peek(), true);
+                    break;
+                case FlagArgument.NC:
+                    setProgramCounter(registers.C ? programCounter.peek() : instruction.arg1.getValue(), true);
+                    break;
+                case FlagArgument.Z:
+                    setProgramCounter(registers.Z ? instruction.arg1.getValue() : programCounter.peek(), true);
+                    break;
+                case FlagArgument.NZ:
+                    setProgramCounter(registers.Z ? programCounter.peek() : instruction.arg1.getValue(), true);
+                    break;
+            }
+        }
+    }
+
+    private void CALLAT(Instruction instruction) {
+        int top4Bits = (instruction.arg0.getValue() & 0b00001111) << 8;
+
+        setProgramCounter(top4Bits + instruction.arg1.getValue(), true);
+    }
+
+    private void RETURN(Instruction instruction) {
+        if (instruction.arg0 instanceof NoArgument) {
+            programCounter.pop();
+
+        } else {
+            switch (instruction.arg0.getValue()) {
+                case FlagArgument.C:
+                    if (registers.C) programCounter.pop();
+                    break;
+                case FlagArgument.NC:
+                    if (!registers.C) programCounter.pop();
+                    break;
+                case FlagArgument.Z:
+                    if (registers.Z) programCounter.pop();
+                    break;
+                case FlagArgument.NZ:
+                    if (!registers.Z) programCounter.pop();
                     break;
             }
         }
     }
 
     public void parse(Instruction[] program) {
-        while (programCounter < program.length) {
-            Instruction instruction = program[programCounter];
-            programCounter += 1;
+        while (programCounter.peek() < program.length) {
+            Instruction instruction = program[programCounter.peek()];
+            setProgramCounter(programCounter.peek() + 1);
 
             if (instruction == null) {
                 continue;
@@ -352,6 +433,20 @@ public class Parser {
                 case JUMP:
                     JUMP(instruction);
                     break;
+                case JUMPAT:
+                    JUMPAT(instruction);
+                    break;
+
+                // Subroutines
+                case CALL:
+                    CALL(instruction);
+                    break;
+                case CALLAT:
+                    CALLAT(instruction);
+                    break;
+                case RETURN:
+                    RETURN(instruction);
+                    break;
 
                 default:
                     throw new UnsupportedOperationException("Unrecognised instruction. Has the instruction been added to the switch statement in Parser?");
@@ -365,6 +460,6 @@ public class Parser {
         this.registers = registers;
         this.scratchPad = scratchPad;
 
-        this.programCounter = 0;
+        setProgramCounter(0);
     }
 }

@@ -9,10 +9,27 @@ public class Lexer {
             String[] splitInstruction = program.get(i).split(" ");
 
             if (splitInstruction.length >= 3) {
-                InstructionSet instructionSet = InstructionSet.valueOf(splitInstruction[0]);
+
+                InstructionSet instructionSet;
+                switch (splitInstruction[0]) {
+                    case "JUMP@":
+                        instructionSet = InstructionSet.JUMPAT;
+                        break;
+                    case "CALL@":
+                        instructionSet = InstructionSet.CALLAT;
+                        break;
+                    case "LOADANDRETURN":
+                        instructionSet = InstructionSet.LOADANDRETURN;
+                        break;
+                    default:
+                        instructionSet = InstructionSet.valueOf(splitInstruction[0]);
+                }
 
                 InstructionArgument arg0;
-                if (instructionSet == InstructionSet.JUMP) {
+                if (instructionSet == InstructionSet.JUMP ||
+                    instructionSet == InstructionSet.CALL ||
+                    instructionSet == InstructionSet.RETURN) {
+
                     try {
                         arg0 = new AbsoluteAddress(Integer.parseInt(splitInstruction[1], 16));
                     } catch (NumberFormatException e) {
@@ -28,7 +45,6 @@ public class Lexer {
                                 break;
                             default:
                                 arg0 = new FlagArgument(FlagArgument.NZ);
-                                break;
                         }
                     }
 
