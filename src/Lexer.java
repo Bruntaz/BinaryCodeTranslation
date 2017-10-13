@@ -2,7 +2,9 @@ import java.util.List;
 
 public class Lexer {
     public static Instruction[] lex(Registers registers, List<String> program) {
+
         Instruction[] instructions = new Instruction[program.size()];
+
         for (int i=0; i<program.size(); i++) {
             String[] splitInstruction = program.get(i).split(" ");
 
@@ -10,10 +12,32 @@ public class Lexer {
                 InstructionSet instructionSet = InstructionSet.valueOf(splitInstruction[0]);
 
                 InstructionArgument arg0;
-                try {
-                    arg0 = registers.getRegister(RegisterName.valueOf(splitInstruction[1]));
-                } catch (Exception e) {
-                    arg0 = new RegisterBank(splitInstruction[1].equals("A") ? 1 : 0);
+                if (instructionSet == InstructionSet.JUMP) {
+                    try {
+                        arg0 = new AbsoluteAddress(Integer.parseInt(splitInstruction[1], 16));
+                    } catch (NumberFormatException e) {
+                        switch (splitInstruction[1]) {
+                            case "C":
+                                arg0 = new FlagArgument(FlagArgument.C);
+                                break;
+                            case "NC":
+                                arg0 = new FlagArgument(FlagArgument.NC);
+                                break;
+                            case "Z":
+                                arg0 = new FlagArgument(FlagArgument.Z);
+                                break;
+                            default:
+                                arg0 = new FlagArgument(FlagArgument.NZ);
+                                break;
+                        }
+                    }
+
+                } else {
+                    try {
+                        arg0 = registers.getRegister(RegisterName.valueOf(splitInstruction[1]));
+                    } catch (Exception e) {
+                        arg0 = new RegisterBank(splitInstruction[1].equals("A") ? 1 : 0);
+                    }
                 }
 
                 InstructionArgument arg1;

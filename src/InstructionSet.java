@@ -38,4 +38,7 @@ public enum InstructionSet {
     // Scratch Pad Memory
     STORE,
     FETCH,
+
+    // Jump
+    JUMP,
 }

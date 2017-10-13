@@ -2,6 +2,8 @@ public class Parser {
     private Registers registers;
     private ScratchPad scratchPad;
 
+    int programCounter = 0;
+
     // Register loading
     private void LOAD(Instruction instruction) {
         instruction.arg0.setValue(instruction.arg1.getValue());
@@ -233,8 +235,34 @@ public class Parser {
         instruction.arg0.setValue(scratchPad.getMemory(instruction.arg1.getValue()));
     }
 
+    // Jump
+    private void JUMP(Instruction instruction) {
+        if (instruction.arg0 instanceof AbsoluteAddress) {
+            programCounter = instruction.arg0.getValue();
+
+        } else {
+            switch (instruction.arg0.getValue()) {
+                case FlagArgument.C:
+                    programCounter = registers.C ? instruction.arg1.getValue() : programCounter;
+                    break;
+                case FlagArgument.NC:
+                    programCounter = registers.C ? programCounter : instruction.arg1.getValue();
+                    break;
+                case FlagArgument.Z:
+                    programCounter = registers.Z ? instruction.arg1.getValue() : programCounter;
+                    break;
+                case FlagArgument.NZ:
+                    programCounter = registers.Z ? programCounter : instruction.arg1.getValue();
+                    break;
+            }
+        }
+    }
+
     public void parse(Instruction[] program) {
-        for (Instruction instruction : program) {
+        while (programCounter < program.length) {
+            Instruction instruction = program[programCounter];
+            programCounter += 1;
+
             if (instruction == null) {
                 continue;
             }
@@ -320,6 +348,11 @@ public class Parser {
                     FETCH(instruction);
                     break;
 
+                // Jump
+                case JUMP:
+                    JUMP(instruction);
+                    break;
+
                 default:
                     throw new UnsupportedOperationException("Unrecognised instruction. Has the instruction been added to the switch statement in Parser?");
             }
@@ -331,5 +364,7 @@ public class Parser {
     public Parser(Registers registers, ScratchPad scratchPad) {
         this.registers = registers;
         this.scratchPad = scratchPad;
+
+        this.programCounter = 0;
     }
 }
