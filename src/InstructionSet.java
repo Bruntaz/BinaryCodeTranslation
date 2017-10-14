@@ -48,4 +48,7 @@ public enum InstructionSet {
     CALLAT,
     RETURN,
     LOADANDRETURN,
+
+    // Version Control
+    HWBUILD,
 }

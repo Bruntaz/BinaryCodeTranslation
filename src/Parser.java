@@ -339,6 +339,18 @@ public class Parser {
         }
     }
 
+    private void LOADANDRETURN(Instruction instruction) {
+        instruction.arg0.setValue(instruction.arg1.getValue());
+        programCounter.pop();
+    }
+
+    // Version Control
+    private void HWBUILD(Instruction instruction) {
+        instruction.arg0.setValue(0); // This should be definable, setting to 0 for now for simplicity
+        registers.setCarry(true);
+        registers.setZero(instruction.arg0.getValue() == 0);
+    }
+
     public void parse(Instruction[] program) {
         while (programCounter.peek() < program.length) {
             Instruction instruction = program[programCounter.peek()];
@@ -446,6 +458,14 @@ public class Parser {
                     break;
                 case RETURN:
                     RETURN(instruction);
+                    break;
+                case LOADANDRETURN:
+                    LOADANDRETURN(instruction);
+                    break;
+
+                // Version Control
+                case HWBUILD:
+                    HWBUILD(instruction);
                     break;
 
                 default:

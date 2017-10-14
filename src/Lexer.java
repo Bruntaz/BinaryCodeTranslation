@@ -18,7 +18,7 @@ public class Lexer {
                     case "CALL@":
                         instructionSet = InstructionSet.CALLAT;
                         break;
-                    case "LOADANDRETURN":
+                    case "LOAD&RETURN":
                         instructionSet = InstructionSet.LOADANDRETURN;
                         break;
                     default:
