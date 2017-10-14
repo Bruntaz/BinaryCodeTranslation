@@ -1,5 +1,9 @@
 import java.util.List;
 
+/*
+This entire class is terrible and not fit for purpose. It needs to be completely rewritten to actually be able to read
+KCPSM6 assembly.
+ */
 public class Lexer {
     public static Instruction[] lex(Registers registers, List<String> program) {
 
