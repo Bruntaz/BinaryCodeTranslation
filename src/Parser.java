@@ -29,8 +29,8 @@ public class Parser {
     }
 
     // Register loading
-    private void LOAD(Instruction instruction) {
-        instruction.arg0.setValue(instruction.arg1.getValue());
+    private void LOAD(InstructionArgument arg0, InstructionArgument arg1) {
+        arg0.setValue(arg1.getValue());
     }
 
     /*
@@ -38,41 +38,38 @@ public class Parser {
     I think these functions should have the Instruction arguments replaced with explicit NAME(InstructionSet, arg0, arg1)
     to make it easier to disallow invalid instructions.
      */
-    private void STAR(Instruction instruction) {
-        int copiedValue = instruction.arg1.getValue();
+    private void STAR(InstructionArgument arg0, InstructionArgument arg1) {
+        int copiedValue = arg1.getValue();
         registers.toggleActiveRegisters();
 
-        instruction.arg0.setValue(copiedValue);
+        arg0.setValue(copiedValue);
         registers.toggleActiveRegisters();
     }
 
     // Logical
-    private void AND(Instruction instruction) {
-        instruction.arg0.setValue(instruction.arg0.getValue() & instruction.arg1.getValue());
+    private void AND(InstructionArgument arg0, InstructionArgument arg1) {
+        arg0.setValue(arg0.getValue() & arg1.getValue());
 
         registers.setCarry(false);
-        registers.setZero(instruction.arg0.getValue() == Register.MIN_VALUE);
+        registers.setZero(arg0.getValue() == Register.MIN_VALUE);
     }
 
-    private void OR(Instruction instruction) {
-        instruction.arg0.setValue(instruction.arg0.getValue() | instruction.arg1.getValue());
+    private void OR(InstructionArgument arg0, InstructionArgument arg1) {
+        arg0.setValue(arg0.getValue() | arg1.getValue());
 
         registers.setCarry(false);
-        registers.setZero(instruction.arg0.getValue() == Register.MIN_VALUE);
+        registers.setZero(arg0.getValue() == Register.MIN_VALUE);
     }
 
-    private void XOR(Instruction instruction) {
-        instruction.arg0.setValue(instruction.arg0.getValue() ^ instruction.arg1.getValue());
+    private void XOR(InstructionArgument arg0, InstructionArgument arg1) {
+        arg0.setValue(arg0.getValue() ^ arg1.getValue());
 
         registers.setCarry(false);
-        registers.setZero(instruction.arg0.getValue() == Register.MIN_VALUE);
+        registers.setZero(arg0.getValue() == Register.MIN_VALUE);
     }
 
     // Arithmetic
-    private void ADD(Instruction instruction) {
-        InstructionArgument arg0 = instruction.arg0;
-        InstructionArgument arg1 = instruction.arg1;
-
+    private void ADD(InstructionArgument arg0, InstructionArgument arg1) {
         int result = arg0.getValue() + arg1.getValue();
 
         if (result > Register.MAX_VALUE) {
@@ -90,24 +87,21 @@ public class Parser {
     /*
       This was just copied from the Python implementation. It could likely be implemented better.
      */
-    private void ADDCY(Instruction instruction) {
+    private void ADDCY(InstructionArgument arg0, InstructionArgument arg1) {
         boolean beforeZ = registers.Z;
 
         if (registers.C) {
-            ADD(new Instruction(instruction.instruction, instruction.arg0, new Constant(1)));
+            ADD(arg0, new Constant(1));
         }
 
-        ADD(instruction);
+        ADD(arg0, arg1);
 
         if (!beforeZ) {
             registers.setZero(false);
         }
     }
 
-    private void SUB(Instruction instruction) {
-        InstructionArgument arg0 = instruction.arg0;
-        InstructionArgument arg1 = instruction.arg1;
-
+    private void SUB(InstructionArgument arg0, InstructionArgument arg1) {
         int result = arg0.getValue() - arg1.getValue();
 
         if (result < Register.MIN_VALUE) {
@@ -125,14 +119,14 @@ public class Parser {
     /*
       This was just copied from the Python implementation. It could likely be implemented better.
      */
-    private void SUBCY(Instruction instruction) {
+    private void SUBCY(InstructionArgument arg0, InstructionArgument arg1) {
         boolean beforeZ = registers.Z;
 
         if (registers.C) {
-            SUB(new Instruction(instruction.instruction, instruction.arg0, new Constant(1)));
+            SUB(arg0, new Constant(1));
         }
 
-        SUB(instruction);
+        SUB(arg0, arg1);
 
         if (!beforeZ) {
             registers.setZero(false);
@@ -140,8 +134,8 @@ public class Parser {
     }
 
     // Test and Compare
-    private void TEST(Instruction instruction) {
-        int result = instruction.arg0.getValue() & instruction.arg1.getValue();
+    private void TEST(InstructionArgument arg0, InstructionArgument arg1) {
+        int result = arg0.getValue() & arg1.getValue();
 
         // Carry bit true if odd number of 1 bits
         boolean carry = false;
@@ -153,8 +147,8 @@ public class Parser {
         registers.setZero(result == Register.MIN_VALUE);
     }
 
-    private void TESTCY(Instruction instruction) {
-        int result = instruction.arg0.getValue() & instruction.arg1.getValue();
+    private void TESTCY(InstructionArgument arg0, InstructionArgument arg1) {
+        int result = arg0.getValue() & arg1.getValue();
 
         // Carry bit true if odd number of 1 bits including carry bit
         boolean carry = registers.C;
@@ -166,15 +160,15 @@ public class Parser {
         registers.setZero(result == Register.MIN_VALUE && registers.Z);
     }
 
-    private void COMPARE(Instruction instruction) {
-        int result = instruction.arg0.getValue() - instruction.arg1.getValue();
+    private void COMPARE(InstructionArgument arg0, InstructionArgument arg1) {
+        int result = arg0.getValue() - arg1.getValue();
 
         registers.setCarry(result < 0);
         registers.setZero(result == Register.MIN_VALUE);
     }
 
-    private void COMPARECY(Instruction instruction) {
-        int result = instruction.arg0.getValue() - instruction.arg1.getValue();
+    private void COMPARECY(InstructionArgument arg0, InstructionArgument arg1) {
+        int result = arg0.getValue() - arg1.getValue();
 
         if (registers.C) {
             result -= 1;
@@ -185,9 +179,9 @@ public class Parser {
     }
 
     // Shift and Rotate
-    private void SL(Instruction instruction) {
+    private void SL(InstructionSet instruction, InstructionArgument arg0) {
         int leastSignificantBit;
-        switch (instruction.instruction) {
+        switch (instruction) {
             case SL0:
                 leastSignificantBit = 0;
                 break;
@@ -195,24 +189,24 @@ public class Parser {
                 leastSignificantBit = 1;
                 break;
             case SLX:
-                leastSignificantBit = instruction.arg0.getValue() & 0b00000001;
+                leastSignificantBit = arg0.getValue() & 0b00000001;
                 break;
             default:
                 leastSignificantBit = registers.C ? 1 : 0;
                 break;
         }
 
-        registers.setCarry((instruction.arg0.getValue() & 0b10000000) != 0);
+        registers.setCarry((arg0.getValue() & 0b10000000) != 0);
 
-        int newValue = (instruction.arg0.getValue() << 1) + leastSignificantBit;
-        instruction.arg0.setValue(newValue & Register.MAX_VALUE);
+        int newValue = (arg0.getValue() << 1) + leastSignificantBit;
+        arg0.setValue(newValue & Register.MAX_VALUE);
 
-        registers.setZero(instruction.arg0.getValue() == 0);
+        registers.setZero(arg0.getValue() == 0);
     }
 
-    private void SR(Instruction instruction) {
+    private void SR(InstructionSet instruction, InstructionArgument arg0) {
         int mostSignificantBit;
-        switch (instruction.instruction) {
+        switch (instruction) {
             case SR0:
                 mostSignificantBit = 0;
                 break;
@@ -220,135 +214,134 @@ public class Parser {
                 mostSignificantBit = 0b10000000;
                 break;
             case SRX:
-                mostSignificantBit = instruction.arg0.getValue() & 0b10000000;
+                mostSignificantBit = arg0.getValue() & 0b10000000;
                 break;
             default:
                 mostSignificantBit = registers.C ? 0b10000000 : 0;
                 break;
         }
 
-        registers.setCarry((instruction.arg0.getValue() & 0b00000001) != 0);
+        registers.setCarry((arg0.getValue() & 0b00000001) != 0);
 
-        int newValue = (instruction.arg0.getValue() >> 1) + mostSignificantBit;
-        instruction.arg0.setValue(newValue & Register.MAX_VALUE);
+        int newValue = (arg0.getValue() >> 1) + mostSignificantBit;
+        arg0.setValue(newValue & Register.MAX_VALUE);
 
-        registers.setZero(instruction.arg0.getValue() == 0);
+        registers.setZero(arg0.getValue() == 0);
     }
 
-    private void RL(Instruction instruction) {
-        registers.setCarry((instruction.arg0.getValue() & 0b10000000) != 0);
-        SL(new Instruction(InstructionSet.SLA, instruction.arg0, null));
+    private void RL(InstructionArgument arg0) {
+        registers.setCarry((arg0.getValue() & 0b10000000) != 0);
+        SL(InstructionSet.SLA, arg0);
     }
 
-    private void RR(Instruction instruction) {
-        registers.setCarry((instruction.arg0.getValue() & 0b00000001) != 0);
-        SR(new Instruction(InstructionSet.SRA, instruction.arg0, null));
+    private void RR(InstructionArgument arg0) {
+        registers.setCarry((arg0.getValue() & 0b00000001) != 0);
+        SR(InstructionSet.SRA, arg0);
     }
 
     // Register Bank Selection
-    private void REGBANK(Instruction instruction) {
-        registers.aRegisterBank = instruction.arg0.getValue() == 1;
+    private void REGBANK(InstructionArgument arg0) {
+        registers.aRegisterBank = arg0.getValue() == 1;
     }
 
     // Scratch Pad Memory
-    private void STORE(Instruction instruction) {
-        scratchPad.setMemory(instruction.arg1.getValue(), instruction.arg0.getValue());
+    private void STORE(InstructionArgument arg0, InstructionArgument arg1) {
+        scratchPad.setMemory(arg1.getValue(), arg0.getValue());
     }
 
-    private void FETCH(Instruction instruction) {
-        instruction.arg0.setValue(scratchPad.getMemory(instruction.arg1.getValue()));
+    private void FETCH(InstructionArgument arg0, InstructionArgument arg1) {
+        arg0.setValue(scratchPad.getMemory(arg1.getValue()));
     }
 
     // Jump
-    private void JUMP(Instruction instruction) {
-        if (instruction.arg0 instanceof AbsoluteAddress) {
-            setProgramCounter(instruction.arg0.getValue());
+    private void JUMP(InstructionArgument arg0, InstructionArgument arg1) {
+        if (arg0 instanceof AbsoluteAddress) {
+            setProgramCounter(arg0.getValue());
 
         } else {
-            switch (instruction.arg0.getValue()) {
+            switch (arg0.getValue()) {
                 case FlagArgument.C:
-                    setProgramCounter(registers.C ? instruction.arg1.getValue() : programCounter.peek());
+                    setProgramCounter(registers.C ? arg1.getValue() : programCounter.peek());
                     break;
                 case FlagArgument.NC:
-                    setProgramCounter(registers.C ? programCounter.peek() : instruction.arg1.getValue());
+                    setProgramCounter(registers.C ? programCounter.peek() : arg1.getValue());
                     break;
                 case FlagArgument.Z:
-                    setProgramCounter(registers.Z ? instruction.arg1.getValue() : programCounter.peek());
+                    setProgramCounter(registers.Z ? arg1.getValue() : programCounter.peek());
                     break;
                 case FlagArgument.NZ:
-                    setProgramCounter(registers.Z ? programCounter.peek() : instruction.arg1.getValue());
+                    setProgramCounter(registers.Z ? programCounter.peek() : arg1.getValue());
                     break;
             }
         }
     }
 
-    private void JUMPAT(Instruction instruction) {
-        int top4Bits = (instruction.arg0.getValue() & 0b00001111) << 8;
+    private void JUMPAT(InstructionArgument arg0, InstructionArgument arg1) {
+        int top4Bits = (arg0.getValue() & 0b00001111) << 8;
 
-        setProgramCounter(top4Bits + instruction.arg1.getValue());
+        setProgramCounter(top4Bits + arg1.getValue());
     }
 
     // Subroutines
-    private void CALL(Instruction instruction) {
-        if (instruction.arg0 instanceof AbsoluteAddress) {
-            setProgramCounter(instruction.arg0.getValue(), true);
+    private void CALL(InstructionArgument arg0, InstructionArgument arg1) {
+        if (arg0 instanceof AbsoluteAddress) {
+            setProgramCounter(arg0.getValue(), true);
 
         } else {
-            switch (instruction.arg0.getValue()) {
+            switch (arg0.getValue()) {
                 case FlagArgument.C:
-                    setProgramCounter(registers.C ? instruction.arg1.getValue() : programCounter.peek(), true);
+                    setProgramCounter(registers.C ? arg1.getValue() : programCounter.peek(), true);
                     break;
                 case FlagArgument.NC:
-                    setProgramCounter(registers.C ? programCounter.peek() : instruction.arg1.getValue(), true);
+                    setProgramCounter(registers.C ? programCounter.peek() : arg1.getValue(), true);
                     break;
                 case FlagArgument.Z:
-                    setProgramCounter(registers.Z ? instruction.arg1.getValue() : programCounter.peek(), true);
+                    setProgramCounter(registers.Z ? arg1.getValue() : programCounter.peek(), true);
                     break;
                 case FlagArgument.NZ:
-                    setProgramCounter(registers.Z ? programCounter.peek() : instruction.arg1.getValue(), true);
+                    setProgramCounter(registers.Z ? programCounter.peek() : arg1.getValue(), true);
                     break;
             }
         }
     }
 
-    private void CALLAT(Instruction instruction) {
-        int top4Bits = (instruction.arg0.getValue() & 0b00001111) << 8;
+    private void CALLAT(InstructionArgument arg0, InstructionArgument arg1) {
+        int top4Bits = (arg0.getValue() & 0b00001111) << 8;
 
-        setProgramCounter(top4Bits + instruction.arg1.getValue(), true);
+        setProgramCounter(top4Bits + arg1.getValue(), true);
     }
 
-    private void RETURN(Instruction instruction) {
-        if (instruction.arg0 instanceof NoArgument) {
-            programCounter.pop();
+    private void RETURN() {
+        programCounter.pop();
+    }
 
-        } else {
-            switch (instruction.arg0.getValue()) {
-                case FlagArgument.C:
-                    if (registers.C) programCounter.pop();
-                    break;
-                case FlagArgument.NC:
-                    if (!registers.C) programCounter.pop();
-                    break;
-                case FlagArgument.Z:
-                    if (registers.Z) programCounter.pop();
-                    break;
-                case FlagArgument.NZ:
-                    if (!registers.Z) programCounter.pop();
-                    break;
-            }
+    private void RETURN(InstructionArgument arg0, InstructionArgument arg1) {
+        switch (arg0.getValue()) {
+            case FlagArgument.C:
+                if (registers.C) programCounter.pop();
+                break;
+            case FlagArgument.NC:
+                if (!registers.C) programCounter.pop();
+                break;
+            case FlagArgument.Z:
+                if (registers.Z) programCounter.pop();
+                break;
+            case FlagArgument.NZ:
+                if (!registers.Z) programCounter.pop();
+                break;
         }
     }
 
-    private void LOADANDRETURN(Instruction instruction) {
-        instruction.arg0.setValue(instruction.arg1.getValue());
+    private void LOADANDRETURN(InstructionArgument arg0, InstructionArgument arg1) {
+        arg0.setValue(arg1.getValue());
         programCounter.pop();
     }
 
     // Version Control
-    private void HWBUILD(Instruction instruction) {
-        instruction.arg0.setValue(0); // This should be definable, setting to 0 for now for simplicity
+    private void HWBUILD(InstructionArgument arg0) {
+        arg0.setValue(0); // This should be definable, setting to 0 for now for simplicity
         registers.setCarry(true);
-        registers.setZero(instruction.arg0.getValue() == 0);
+        registers.setZero(arg0.getValue() == 0);
     }
 
     public void parse(Instruction[] program) {
@@ -363,49 +356,49 @@ public class Parser {
             switch (instruction.instruction) {
                 // Register loading
                 case LOAD:
-                    LOAD(instruction);
+                    LOAD(instruction.arg0, instruction.arg1);
                     break;
                 case STAR:
-                    STAR(instruction);
+                    STAR(instruction.arg0, instruction.arg1);
                     break;
 
                 // Logical
                 case AND:
-                    AND(instruction);
+                    AND(instruction.arg0, instruction.arg1);
                     break;
                 case OR:
-                    OR(instruction);
+                    OR(instruction.arg0, instruction.arg1);
                     break;
                 case XOR:
-                    XOR(instruction);
+                    XOR(instruction.arg0, instruction.arg1);
                     break;
 
                 // Arithmetic
                 case ADD:
-                    ADD(instruction);
+                    ADD(instruction.arg0, instruction.arg1);
                     break;
                 case ADDCY:
-                    ADDCY(instruction);
+                    ADDCY(instruction.arg0, instruction.arg1);
                     break;
                 case SUB:
-                    SUB(instruction);
+                    SUB(instruction.arg0, instruction.arg1);
                     break;
                 case SUBCY:
-                    SUBCY(instruction);
+                    SUBCY(instruction.arg0, instruction.arg1);
                     break;
 
                 // Test and Compare
                 case TEST:
-                    TEST(instruction);
+                    TEST(instruction.arg0, instruction.arg1);
                     break;
                 case TESTCY:
-                    TESTCY(instruction);
+                    TESTCY(instruction.arg0, instruction.arg1);
                     break;
                 case COMPARE:
-                    COMPARE(instruction);
+                    COMPARE(instruction.arg0, instruction.arg1);
                     break;
                 case COMPARECY:
-                    COMPARECY(instruction);
+                    COMPARECY(instruction.arg0, instruction.arg1);
                     break;
 
                 // Shift and Rotate
@@ -413,59 +406,63 @@ public class Parser {
                 case SL1:
                 case SLX:
                 case SLA:
-                    SL(instruction);
+                    SL(instruction.instruction, instruction.arg0);
                     break;
                 case SR0:
                 case SR1:
                 case SRX:
                 case SRA:
-                    SR(instruction);
+                    SR(instruction.instruction, instruction.arg0);
                     break;
                 case RL:
-                    RL(instruction);
+                    RL(instruction.arg0);
                     break;
                 case RR:
-                    RR(instruction);
+                    RR(instruction.arg0);
                     break;
 
                 // Register Bank Selection
                 case REGBANK:
-                    REGBANK(instruction);
+                    REGBANK(instruction.arg0);
                     break;
 
                 // Scratch Pad Memory
                 case STORE:
-                    STORE(instruction);
+                    STORE(instruction.arg0, instruction.arg1);
                     break;
                 case FETCH:
-                    FETCH(instruction);
+                    FETCH(instruction.arg0, instruction.arg1);
                     break;
 
                 // Jump
                 case JUMP:
-                    JUMP(instruction);
+                    JUMP(instruction.arg0, instruction.arg1);
                     break;
                 case JUMPAT:
-                    JUMPAT(instruction);
+                    JUMPAT(instruction.arg0, instruction.arg1);
                     break;
 
                 // Subroutines
                 case CALL:
-                    CALL(instruction);
+                    CALL(instruction.arg0, instruction.arg1);
                     break;
                 case CALLAT:
-                    CALLAT(instruction);
+                    CALLAT(instruction.arg0, instruction.arg1);
                     break;
                 case RETURN:
-                    RETURN(instruction);
+                    if (instruction.arg0 instanceof NoArgument) {
+                        RETURN();
+                    } else {
+                        RETURN(instruction.arg0, instruction.arg1);
+                    }
                     break;
                 case LOADANDRETURN:
-                    LOADANDRETURN(instruction);
+                    LOADANDRETURN(instruction.arg0, instruction.arg1);
                     break;
 
                 // Version Control
                 case HWBUILD:
-                    HWBUILD(instruction);
+                    HWBUILD(instruction.arg0);
                     break;
 
                 default:
