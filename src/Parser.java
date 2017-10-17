@@ -254,25 +254,24 @@ public class Parser {
     }
 
     // Jump
-    private void JUMP(InstructionArgument arg0, InstructionArgument arg1) {
-        if (arg0 instanceof AbsoluteAddress) {
-            setProgramCounter(arg0.getValue());
+    private void JUMP(InstructionArgument arg0) {
+        setProgramCounter(arg0.getValue());
+    }
 
-        } else {
-            switch (arg0.getValue()) {
-                case FlagArgument.C:
-                    setProgramCounter(registers.C ? arg1.getValue() : programCounter.peek());
-                    break;
-                case FlagArgument.NC:
-                    setProgramCounter(registers.C ? programCounter.peek() : arg1.getValue());
-                    break;
-                case FlagArgument.Z:
-                    setProgramCounter(registers.Z ? arg1.getValue() : programCounter.peek());
-                    break;
-                case FlagArgument.NZ:
-                    setProgramCounter(registers.Z ? programCounter.peek() : arg1.getValue());
-                    break;
-            }
+    private void JUMP(InstructionArgument arg0, InstructionArgument arg1) {
+        switch (arg0.getValue()) {
+            case FlagArgument.C:
+                setProgramCounter(registers.C ? arg1.getValue() : programCounter.peek());
+                break;
+            case FlagArgument.NC:
+                setProgramCounter(registers.C ? programCounter.peek() : arg1.getValue());
+                break;
+            case FlagArgument.Z:
+                setProgramCounter(registers.Z ? arg1.getValue() : programCounter.peek());
+                break;
+            case FlagArgument.NZ:
+                setProgramCounter(registers.Z ? programCounter.peek() : arg1.getValue());
+                break;
         }
     }
 
@@ -436,7 +435,11 @@ public class Parser {
 
                 // Jump
                 case JUMP:
-                    JUMP(instruction.arg0, instruction.arg1);
+                    if (instruction.arg0 instanceof AbsoluteAddress) {
+                        JUMP(instruction.arg0);
+                    } else {
+                        JUMP(instruction.arg0, instruction.arg1);
+                    }
                     break;
                 case JUMPAT:
                     JUMPAT(instruction.arg0, instruction.arg1);
