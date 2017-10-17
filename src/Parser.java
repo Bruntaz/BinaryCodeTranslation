@@ -29,6 +29,11 @@ public class Parser {
         }
     }
 
+    private void incrementProgramCounter() {
+        int nextValue = programCounter.peek() + 1;
+        setProgramCounter(nextValue > 0x3ff ? 0 : nextValue);
+    }
+
     // Register loading
     public void LOAD(InstructionArgument arg0, InstructionArgument arg1) {
         arg0.setValue(arg1.getValue());
@@ -145,7 +150,7 @@ public class Parser {
     public void parse(Instruction[] program) {
         while (programCounter.peek() < program.length) {
             Instruction instruction = program[programCounter.peek()];
-            setProgramCounter(programCounter.peek() + 1);
+            incrementProgramCounter();
 
             if (instruction == null) {
                 continue;
