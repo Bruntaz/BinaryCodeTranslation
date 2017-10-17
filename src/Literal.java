@@ -1,4 +1,4 @@
-public class Constant implements InstructionArgument {
+public class Literal implements InstructionArgument {
     int value;
 
     @Override
@@ -11,7 +11,7 @@ public class Constant implements InstructionArgument {
         value = newValue;
     }
 
-    public Constant(int value) {
+    public Literal(int value) {
         this.value = value;
     }
 }

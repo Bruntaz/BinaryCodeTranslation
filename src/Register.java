@@ -31,6 +31,11 @@ public class Register implements InstructionArgument {
         }
     }
 
+    public void reset() {
+        aValue = 0;
+        bValue = 0;
+    }
+
     public Register(Registers registers, RegisterName registerName) {
         this.registers = registers;
         this.registerName = registerName;

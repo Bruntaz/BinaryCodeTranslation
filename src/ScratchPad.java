@@ -38,6 +38,10 @@ public class ScratchPad {
         arg0.setValue(getMemory(arg1.getValue()));
     }
 
+    public void reset() {
+        setMemorySize(64);
+    }
+
     @Override
     public String toString() {
         StringBuilder toReturn = new StringBuilder();

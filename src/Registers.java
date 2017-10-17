@@ -36,6 +36,12 @@ public class Registers {
         aRegisterBank = !aRegisterBank;
     }
 
+    public void resetRegisters() {
+        for (Register register : registers.values()) {
+            register.reset();
+        }
+    }
+
     private  Registers() {
         for (RegisterName registerName : RegisterName.values()) {
             this.registers.put(registerName, new Register(this, registerName));

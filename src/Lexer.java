@@ -64,7 +64,7 @@ public class Lexer {
                 try {
                     arg1 = registers.getRegister(RegisterName.valueOf(splitInstruction[2]));
                 } catch (Exception e) {
-                    arg1 = new Constant(Integer.parseInt(splitInstruction[2], 16));
+                    arg1 = new Literal(Integer.parseInt(splitInstruction[2], 16));
                 }
 
                 instructions[i] = new Instruction(instructionSet, arg0, arg1);

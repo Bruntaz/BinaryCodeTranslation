@@ -5,7 +5,15 @@ public class Parser {
     private ScratchPad scratchPad = ScratchPad.getInstance();
     private ALU alu = ALU.getInstance();
 
-    Stack<Integer> programCounter = new Stack<Integer>();
+    Stack<Integer> programCounter = new Stack<>();
+
+    public void RESET() {
+        programCounter = new Stack<>();
+        setProgramCounter(0);
+
+        registers.setCarry(false);
+        registers.setZero(false);
+    }
 
     private void setProgramCounter(int value) {
         setProgramCounter(value, false);
@@ -40,7 +48,7 @@ public class Parser {
     }
 
     /*
-    NOTE: This currently allows a Constant as the second argument, which isn't in the spec.
+    NOTE: This currently allows a Literal as the second argument, which isn't in the spec.
     I think these functions should have the Instruction arguments replaced with explicit NAME(InstructionSet, arg0, arg1)
     to make it easier to disallow invalid instructions.
      */
@@ -281,6 +289,6 @@ public class Parser {
     }
 
     public Parser() {
-        setProgramCounter(0);
+        RESET();
     }
 }

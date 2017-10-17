@@ -51,7 +51,7 @@ public class ALU {
         boolean beforeZ = registers.Z;
 
         if (registers.C) {
-            ADD(arg0, new Constant(1));
+            ADD(arg0, new Literal(1));
         }
 
         ADD(arg0, arg1);
@@ -83,7 +83,7 @@ public class ALU {
         boolean beforeZ = registers.Z;
 
         if (registers.C) {
-            SUB(arg0, new Constant(1));
+            SUB(arg0, new Literal(1));
         }
 
         SUB(arg0, arg1);
