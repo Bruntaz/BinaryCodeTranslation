@@ -1,8 +1,8 @@
 import java.util.Stack;
 
 public class Parser {
-    private Registers registers;
-    private ScratchPad scratchPad;
+    private Registers registers = Registers.getInstance();
+    private ScratchPad scratchPad = ScratchPad.getInstance();
     private ALU alu = ALU.getInstance();
 
     Stack<Integer> programCounter = new Stack<Integer>();
@@ -50,15 +50,6 @@ public class Parser {
     // Register Bank Selection
     private void REGBANK(InstructionArgument arg0) {
         registers.aRegisterBank = arg0.getValue() == 1;
-    }
-
-    // Scratch Pad Memory
-    private void STORE(InstructionArgument arg0, InstructionArgument arg1) {
-        scratchPad.setMemory(arg1.getValue(), arg0.getValue());
-    }
-
-    private void FETCH(InstructionArgument arg0, InstructionArgument arg1) {
-        arg0.setValue(scratchPad.getMemory(arg1.getValue()));
     }
 
     // Jump
@@ -235,10 +226,10 @@ public class Parser {
 
                 // Scratch Pad Memory
                 case STORE:
-                    STORE(instruction.arg0, instruction.arg1);
+                    scratchPad.STORE(instruction.arg0, instruction.arg1);
                     break;
                 case FETCH:
-                    FETCH(instruction.arg0, instruction.arg1);
+                    scratchPad.FETCH(instruction.arg0, instruction.arg1);
                     break;
 
                 // Jump
@@ -284,10 +275,7 @@ public class Parser {
         }
     }
 
-    public Parser(ScratchPad scratchPad) {
-        this.registers = Registers.getInstance();
-        this.scratchPad = scratchPad;
-
+    public Parser() {
         setProgramCounter(0);
     }
 }

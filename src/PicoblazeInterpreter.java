@@ -8,11 +8,7 @@ import java.util.List;
  * Created by jamesbrunton on 06/10/2017.
  */
 public class PicoblazeInterpreter {
-
-
     public static void main(String[] args) {
-        ScratchPad scratchPad = new ScratchPad();
-
         Path filePath = FileSystems.getDefault().getPath("Test Instructions.psm");
 
         List<String> file = null;
@@ -24,8 +20,8 @@ public class PicoblazeInterpreter {
 
         Instruction[] instructions = Lexer.lex(file);
 
-        Parser parser = new Parser(scratchPad);
+        Parser parser = new Parser();
         parser.parse(instructions);
-        System.out.println(scratchPad);
+        System.out.println(ScratchPad.getInstance());
     }
 }

@@ -1,11 +1,21 @@
 import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 
 public class ScratchPad {
+    private static ScratchPad ourInstance = new ScratchPad();
+    public static ScratchPad getInstance() {
+        return ourInstance;
+    }
+
     private int memorySize;
     private int[] memory;
 
     public int getMemorySize() {
         return memorySize;
+    }
+
+    public void setMemorySize(int memorySize) {
+        this.memorySize = memorySize;
+        memory = new int[memorySize];
     }
 
     public int getMemory(int location) {
@@ -18,6 +28,14 @@ public class ScratchPad {
         }
 
         memory[location] = value;
+    }
+
+    public void STORE(InstructionArgument arg0, InstructionArgument arg1) {
+        setMemory(arg1.getValue(), arg0.getValue());
+    }
+
+    public void FETCH(InstructionArgument arg0, InstructionArgument arg1) {
+        arg0.setValue(getMemory(arg1.getValue()));
     }
 
     @Override
@@ -39,12 +57,8 @@ public class ScratchPad {
         return toReturn.toString();
     }
 
-    public ScratchPad() {
-        this(64);
-    }
-
-    public ScratchPad(int memorySize) {
-        this.memorySize = memorySize;
+    private ScratchPad() {
+        this.memorySize = 64;
         this.memory = new int[memorySize];
     }
 }
