@@ -476,8 +476,8 @@ public class Parser {
         }
     }
 
-    public Parser(Registers registers, ScratchPad scratchPad) {
-        this.registers = registers;
+    public Parser(ScratchPad scratchPad) {
+        this.registers = Registers.getInstance();
         this.scratchPad = scratchPad;
 
         setProgramCounter(0);

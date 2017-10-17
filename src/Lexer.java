@@ -5,8 +5,8 @@ This entire class is terrible and not fit for purpose. It needs to be completely
 KCPSM6 assembly.
  */
 public class Lexer {
-    public static Instruction[] lex(Registers registers, List<String> program) {
-
+    public static Instruction[] lex(List<String> program) {
+        Registers registers = Registers.getInstance();
         Instruction[] instructions = new Instruction[program.size()];
 
         for (int i=0; i<program.size(); i++) {

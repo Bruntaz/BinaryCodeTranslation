@@ -11,7 +11,6 @@ public class PicoblazeInterpreter {
 
 
     public static void main(String[] args) {
-        Registers registers = new Registers();
         ScratchPad scratchPad = new ScratchPad();
 
         Path filePath = FileSystems.getDefault().getPath("Test Instructions.psm");
@@ -23,9 +22,9 @@ public class PicoblazeInterpreter {
             e.printStackTrace();
         }
 
-        Instruction[] instructions = Lexer.lex(registers, file);
+        Instruction[] instructions = Lexer.lex(file);
 
-        Parser parser = new Parser(registers, scratchPad);
+        Parser parser = new Parser(scratchPad);
         parser.parse(instructions);
         System.out.println(scratchPad);
     }
