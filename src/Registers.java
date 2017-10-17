@@ -42,6 +42,23 @@ public class Registers {
         }
     }
 
+    public void LOAD(InstructionArgument arg0, InstructionArgument arg1) {
+        arg0.setValue(arg1.getValue());
+    }
+
+    public void STAR(InstructionArgument arg0, InstructionArgument arg1) {
+        int copiedValue = arg1.getValue();
+        toggleActiveRegisters();
+
+        arg0.setValue(copiedValue);
+        toggleActiveRegisters();
+    }
+
+    // Register Bank Selection
+    public void REGBANK(InstructionArgument arg0) {
+        aRegisterBank = arg0.getValue() == 1;
+    }
+
     private  Registers() {
         for (RegisterName registerName : RegisterName.values()) {
             this.registers.put(registerName, new Register(this, registerName));

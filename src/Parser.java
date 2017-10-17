@@ -42,29 +42,6 @@ public class Parser {
         setProgramCounter(nextValue > 0x3ff ? 0 : nextValue);
     }
 
-    // Register loading
-    public void LOAD(InstructionArgument arg0, InstructionArgument arg1) {
-        arg0.setValue(arg1.getValue());
-    }
-
-    /*
-    NOTE: This currently allows a Literal as the second argument, which isn't in the spec.
-    I think these functions should have the Instruction arguments replaced with explicit NAME(InstructionSet, arg0, arg1)
-    to make it easier to disallow invalid instructions.
-     */
-    public void STAR(InstructionArgument arg0, InstructionArgument arg1) {
-        int copiedValue = arg1.getValue();
-        registers.toggleActiveRegisters();
-
-        arg0.setValue(copiedValue);
-        registers.toggleActiveRegisters();
-    }
-
-    // Register Bank Selection
-    private void REGBANK(InstructionArgument arg0) {
-        registers.aRegisterBank = arg0.getValue() == 1;
-    }
-
     // Jump
     private void JUMP(InstructionArgument arg0) {
         setProgramCounter(arg0.getValue());
@@ -167,10 +144,10 @@ public class Parser {
             switch (instruction.instruction) {
                 // Register loading
                 case LOAD:
-                    LOAD(instruction.arg0, instruction.arg1);
+                    registers.LOAD(instruction.arg0, instruction.arg1);
                     break;
                 case STAR:
-                    STAR(instruction.arg0, instruction.arg1);
+                    registers.STAR(instruction.arg0, instruction.arg1);
                     break;
 
                 // Logical
@@ -234,7 +211,7 @@ public class Parser {
 
                 // Register Bank Selection
                 case REGBANK:
-                    REGBANK(instruction.arg0);
+                    registers.REGBANK(instruction.arg0);
                     break;
 
                 // Scratch Pad Memory
