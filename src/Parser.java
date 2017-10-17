@@ -3,6 +3,7 @@ import java.util.Stack;
 public class Parser {
     private Registers registers;
     private ScratchPad scratchPad;
+    private ALU alu = ALU.getInstance();
 
     Stack<Integer> programCounter = new Stack<Integer>();
 
@@ -29,7 +30,7 @@ public class Parser {
     }
 
     // Register loading
-    private void LOAD(InstructionArgument arg0, InstructionArgument arg1) {
+    public void LOAD(InstructionArgument arg0, InstructionArgument arg1) {
         arg0.setValue(arg1.getValue());
     }
 
@@ -38,205 +39,12 @@ public class Parser {
     I think these functions should have the Instruction arguments replaced with explicit NAME(InstructionSet, arg0, arg1)
     to make it easier to disallow invalid instructions.
      */
-    private void STAR(InstructionArgument arg0, InstructionArgument arg1) {
+    public void STAR(InstructionArgument arg0, InstructionArgument arg1) {
         int copiedValue = arg1.getValue();
         registers.toggleActiveRegisters();
 
         arg0.setValue(copiedValue);
         registers.toggleActiveRegisters();
-    }
-
-    // Logical
-    private void AND(InstructionArgument arg0, InstructionArgument arg1) {
-        arg0.setValue(arg0.getValue() & arg1.getValue());
-
-        registers.setCarry(false);
-        registers.setZero(arg0.getValue() == Register.MIN_VALUE);
-    }
-
-    private void OR(InstructionArgument arg0, InstructionArgument arg1) {
-        arg0.setValue(arg0.getValue() | arg1.getValue());
-
-        registers.setCarry(false);
-        registers.setZero(arg0.getValue() == Register.MIN_VALUE);
-    }
-
-    private void XOR(InstructionArgument arg0, InstructionArgument arg1) {
-        arg0.setValue(arg0.getValue() ^ arg1.getValue());
-
-        registers.setCarry(false);
-        registers.setZero(arg0.getValue() == Register.MIN_VALUE);
-    }
-
-    // Arithmetic
-    private void ADD(InstructionArgument arg0, InstructionArgument arg1) {
-        int result = arg0.getValue() + arg1.getValue();
-
-        if (result > Register.MAX_VALUE) {
-            registers.setCarry(true);
-            result = result % (Register.MAX_VALUE + 1);
-        } else {
-            registers.setCarry(false);
-        }
-
-        registers.setZero(result == Register.MIN_VALUE);
-
-        arg0.setValue(result);
-    }
-
-    /*
-      This was just copied from the Python implementation. It could likely be implemented better.
-     */
-    private void ADDCY(InstructionArgument arg0, InstructionArgument arg1) {
-        boolean beforeZ = registers.Z;
-
-        if (registers.C) {
-            ADD(arg0, new Constant(1));
-        }
-
-        ADD(arg0, arg1);
-
-        if (!beforeZ) {
-            registers.setZero(false);
-        }
-    }
-
-    private void SUB(InstructionArgument arg0, InstructionArgument arg1) {
-        int result = arg0.getValue() - arg1.getValue();
-
-        if (result < Register.MIN_VALUE) {
-            result += Register.MAX_VALUE + 1;
-            registers.setCarry(true);
-        } else {
-            registers.setCarry(false);
-        }
-
-        registers.setZero(result == Register.MIN_VALUE);
-
-        arg0.setValue(result);
-    }
-
-    /*
-      This was just copied from the Python implementation. It could likely be implemented better.
-     */
-    private void SUBCY(InstructionArgument arg0, InstructionArgument arg1) {
-        boolean beforeZ = registers.Z;
-
-        if (registers.C) {
-            SUB(arg0, new Constant(1));
-        }
-
-        SUB(arg0, arg1);
-
-        if (!beforeZ) {
-            registers.setZero(false);
-        }
-    }
-
-    // Test and Compare
-    private void TEST(InstructionArgument arg0, InstructionArgument arg1) {
-        int result = arg0.getValue() & arg1.getValue();
-
-        // Carry bit true if odd number of 1 bits
-        boolean carry = false;
-        for (int i=0; i<8; i++) {
-            carry ^= ((result >> i) & 1) == 1;
-        }
-
-        registers.setCarry(carry);
-        registers.setZero(result == Register.MIN_VALUE);
-    }
-
-    private void TESTCY(InstructionArgument arg0, InstructionArgument arg1) {
-        int result = arg0.getValue() & arg1.getValue();
-
-        // Carry bit true if odd number of 1 bits including carry bit
-        boolean carry = registers.C;
-        for (int i=0; i<8; i++) {
-            carry ^= ((result >> i) & 1) == 1;
-        }
-
-        registers.setCarry(carry);
-        registers.setZero(result == Register.MIN_VALUE && registers.Z);
-    }
-
-    private void COMPARE(InstructionArgument arg0, InstructionArgument arg1) {
-        int result = arg0.getValue() - arg1.getValue();
-
-        registers.setCarry(result < 0);
-        registers.setZero(result == Register.MIN_VALUE);
-    }
-
-    private void COMPARECY(InstructionArgument arg0, InstructionArgument arg1) {
-        int result = arg0.getValue() - arg1.getValue();
-
-        if (registers.C) {
-            result -= 1;
-        }
-
-        registers.setCarry(result < 0);
-        registers.setZero(result == Register.MIN_VALUE && registers.Z);
-    }
-
-    // Shift and Rotate
-    private void SL(InstructionSet instruction, InstructionArgument arg0) {
-        int leastSignificantBit;
-        switch (instruction) {
-            case SL0:
-                leastSignificantBit = 0;
-                break;
-            case SL1:
-                leastSignificantBit = 1;
-                break;
-            case SLX:
-                leastSignificantBit = arg0.getValue() & 0b00000001;
-                break;
-            default:
-                leastSignificantBit = registers.C ? 1 : 0;
-                break;
-        }
-
-        registers.setCarry((arg0.getValue() & 0b10000000) != 0);
-
-        int newValue = (arg0.getValue() << 1) + leastSignificantBit;
-        arg0.setValue(newValue & Register.MAX_VALUE);
-
-        registers.setZero(arg0.getValue() == 0);
-    }
-
-    private void SR(InstructionSet instruction, InstructionArgument arg0) {
-        int mostSignificantBit;
-        switch (instruction) {
-            case SR0:
-                mostSignificantBit = 0;
-                break;
-            case SR1:
-                mostSignificantBit = 0b10000000;
-                break;
-            case SRX:
-                mostSignificantBit = arg0.getValue() & 0b10000000;
-                break;
-            default:
-                mostSignificantBit = registers.C ? 0b10000000 : 0;
-                break;
-        }
-
-        registers.setCarry((arg0.getValue() & 0b00000001) != 0);
-
-        int newValue = (arg0.getValue() >> 1) + mostSignificantBit;
-        arg0.setValue(newValue & Register.MAX_VALUE);
-
-        registers.setZero(arg0.getValue() == 0);
-    }
-
-    private void RL(InstructionArgument arg0) {
-        registers.setCarry((arg0.getValue() & 0b10000000) != 0);
-        SL(InstructionSet.SLA, arg0);
-    }
-
-    private void RR(InstructionArgument arg0) {
-        registers.setCarry((arg0.getValue() & 0b00000001) != 0);
-        SR(InstructionSet.SRA, arg0);
     }
 
     // Register Bank Selection
@@ -363,41 +171,41 @@ public class Parser {
 
                 // Logical
                 case AND:
-                    AND(instruction.arg0, instruction.arg1);
+                    alu.AND(instruction.arg0, instruction.arg1);
                     break;
                 case OR:
-                    OR(instruction.arg0, instruction.arg1);
+                    alu.OR(instruction.arg0, instruction.arg1);
                     break;
                 case XOR:
-                    XOR(instruction.arg0, instruction.arg1);
+                    alu.XOR(instruction.arg0, instruction.arg1);
                     break;
 
                 // Arithmetic
                 case ADD:
-                    ADD(instruction.arg0, instruction.arg1);
+                    alu.ADD(instruction.arg0, instruction.arg1);
                     break;
                 case ADDCY:
-                    ADDCY(instruction.arg0, instruction.arg1);
+                    alu.ADDCY(instruction.arg0, instruction.arg1);
                     break;
                 case SUB:
-                    SUB(instruction.arg0, instruction.arg1);
+                    alu.SUB(instruction.arg0, instruction.arg1);
                     break;
                 case SUBCY:
-                    SUBCY(instruction.arg0, instruction.arg1);
+                    alu.SUBCY(instruction.arg0, instruction.arg1);
                     break;
 
                 // Test and Compare
                 case TEST:
-                    TEST(instruction.arg0, instruction.arg1);
+                    alu.TEST(instruction.arg0, instruction.arg1);
                     break;
                 case TESTCY:
-                    TESTCY(instruction.arg0, instruction.arg1);
+                    alu.TESTCY(instruction.arg0, instruction.arg1);
                     break;
                 case COMPARE:
-                    COMPARE(instruction.arg0, instruction.arg1);
+                    alu.COMPARE(instruction.arg0, instruction.arg1);
                     break;
                 case COMPARECY:
-                    COMPARECY(instruction.arg0, instruction.arg1);
+                    alu.COMPARECY(instruction.arg0, instruction.arg1);
                     break;
 
                 // Shift and Rotate
@@ -405,19 +213,19 @@ public class Parser {
                 case SL1:
                 case SLX:
                 case SLA:
-                    SL(instruction.instruction, instruction.arg0);
+                    alu.SL(instruction.instruction, instruction.arg0);
                     break;
                 case SR0:
                 case SR1:
                 case SRX:
                 case SRA:
-                    SR(instruction.instruction, instruction.arg0);
+                    alu.SR(instruction.instruction, instruction.arg0);
                     break;
                 case RL:
-                    RL(instruction.arg0);
+                    alu.RL(instruction.arg0);
                     break;
                 case RR:
-                    RR(instruction.arg0);
+                    alu.RR(instruction.arg0);
                     break;
 
                 // Register Bank Selection
