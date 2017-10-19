@@ -11,6 +11,7 @@ public class Parser {
     private ALU alu = ALU.getInstance();
 
     Stack<Integer> programCounter = new Stack<>();
+    private int clockCycles;
 
     public void RESET() {
         programCounter = new Stack<>();
@@ -128,6 +129,7 @@ public class Parser {
     private void LOADANDRETURN(InstructionArgument arg0, InstructionArgument arg1) {
         arg0.setValue(arg1.getValue());
         programCounter.pop();
+        clockCycles += 1; // This instruction takes 2 clock cycles to run
     }
 
     // Version Control
@@ -138,6 +140,8 @@ public class Parser {
     }
 
     public void parse(Instruction[] program) {
+        clockCycles = 0;
+
         while (programCounter.peek() < program.length) {
             Instruction instruction = program[programCounter.peek()];
             incrementProgramCounter();
@@ -266,8 +270,11 @@ public class Parser {
                     throw new UnsupportedOperationException("Unrecognised instruction. Has the instruction been added to the switch statement in Parser?");
             }
 
+            clockCycles += 1;
             System.out.println(registers);
         }
+
+        System.out.println(String.format("Finished in %d clock cycles", clockCycles));
     }
 
     private Parser() {
