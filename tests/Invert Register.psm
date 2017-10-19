@@ -1,0 +1,2 @@
+LOAD s0 AA
+XOR s0 FF

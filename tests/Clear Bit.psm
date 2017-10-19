@@ -1,0 +1,2 @@
+LOAD s0 FF
+AND s0 FE

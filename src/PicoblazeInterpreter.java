@@ -8,8 +8,8 @@ import java.util.List;
  * Created by jamesbrunton on 06/10/2017.
  */
 public class PicoblazeInterpreter {
-    public static void main(String[] args) {
-        Path filePath = FileSystems.getDefault().getPath("Test Instructions.psm");
+    public void runFile(String filename) {
+        Path filePath = FileSystems.getDefault().getPath(filename);
 
         List<String> file = null;
         try {
@@ -20,8 +20,14 @@ public class PicoblazeInterpreter {
 
         Instruction[] instructions = Lexer.lex(file);
 
-        Parser parser = new Parser();
+        Parser parser = Parser.getInstance();
         parser.parse(instructions);
+    }
+
+    public static void main(String[] args) {
+        PicoblazeInterpreter picoblazeInterpreter = new PicoblazeInterpreter();
+        picoblazeInterpreter.runFile(args[0]);
+
         System.out.println(ScratchPad.getInstance());
     }
 }

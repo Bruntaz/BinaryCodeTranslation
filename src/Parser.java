@@ -1,6 +1,11 @@
 import java.util.Stack;
 
 public class Parser {
+    private static Parser ourInstance = new Parser();
+    public static Parser getInstance() {
+        return ourInstance;
+    }
+
     private Registers registers = Registers.getInstance();
     private ScratchPad scratchPad = ScratchPad.getInstance();
     private ALU alu = ALU.getInstance();
@@ -265,7 +270,7 @@ public class Parser {
         }
     }
 
-    public Parser() {
+    private Parser() {
         RESET();
     }
 }
