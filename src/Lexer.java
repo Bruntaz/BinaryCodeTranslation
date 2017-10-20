@@ -112,7 +112,7 @@ public class Lexer {
         }
 
         try {
-            return registers.getRegister(RegisterName.valueOf(toConvert));
+            return registers.getRegister(RegisterName.valueOf(toConvert.toUpperCase()));
 
         } catch (IllegalArgumentException ignored) {}
 
@@ -228,6 +228,8 @@ public class Lexer {
 
                 InstructionArgument[] args = getArguments(sections, instructionName);
 
+                System.out.println(args[0]);
+                System.out.println(args[1]);
                 if (args != null) {
                     instructions[lineNumber] = new Instruction(instructionName.instruction, args[0], args[1]);
                 }

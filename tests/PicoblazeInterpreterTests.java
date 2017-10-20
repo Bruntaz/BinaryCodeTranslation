@@ -13,7 +13,7 @@ public class PicoblazeInterpreterTests {
 
     private static boolean testS0(int shouldEqual) {
         Registers registers = Registers.getInstance();
-        return registers.getRegister(RegisterName.s0).getValue() == shouldEqual;
+        return registers.getRegister(RegisterName.S0).getValue() == shouldEqual;
     }
 
     private static boolean invertRegister() {
