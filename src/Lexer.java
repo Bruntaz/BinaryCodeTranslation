@@ -167,12 +167,9 @@ public class Lexer {
     }
 
     private InstructionArgument[] getArguments(String[] sections, InstructionAndSection instruction) {
-        if (instruction == null) {
-            return null;
-        }
-
         int firstArgSection = instruction.instructionSection + 1;
 
+        // No arguments
         if (sections.length == firstArgSection) {
             if (isValidNumberOfArguments(instruction.instruction, 0)) {
                 return new InstructionArgument[]{
@@ -183,6 +180,7 @@ public class Lexer {
                 return null;
             }
         } else {
+            // Arguments
             String firstArgument = sections[firstArgSection];
             String secondArgument = null;
 
@@ -247,9 +245,7 @@ public class Lexer {
 
                 System.out.println(args[0]);
                 System.out.println(args[1]);
-                if (args != null) {
-                    instructions[lineNumber] = new Instruction(instructionName.instruction, args[0], args[1]);
-                }
+                instructions[lineNumber] = new Instruction(instructionName.instruction, args[0], args[1]);
             }
 
             System.out.println(labelMap.keySet());
