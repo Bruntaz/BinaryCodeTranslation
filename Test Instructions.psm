@@ -1,9 +1,21 @@
-LOAD s0 7b
-LOAD s1 a2
-SUB s0 b9
-SUBCY s1 a1
+          LOAD             s1,    62
+;CALL 3; This is a comment
+;jumpLabel: JUMP C, 10
+label2:LOAD sA,FF
+label3 :LOAD sB , sA
+label4                  :LOAD sC, FF; And a comment
+label5                  :               LOAD sD, FF ; Another comment
+; This is a full line comment
+blankLineLabel:
+blankLineLabelSpace         :
 
-LOAD s2 7b
-LOAD s3 a2
-SUB s2 sC
-SUBCY s3 sD
+COMPARE s1, 61
+;RETURN
+;RETURN C
+COMPARE s1, 7B
+;RETURN NC
+AND s1, 11011111'b
+
+LOAD s0, FF
+;LOAD&RETURN s2, 11
+STORE s0, 0

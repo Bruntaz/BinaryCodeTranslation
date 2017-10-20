@@ -7,6 +7,7 @@ public class Lexer {
     }
 
     Registers registers = Registers.getInstance();
+    HashMap<String, Integer> labelMap = new HashMap<>();
 
     HashSet<InstructionSet> noArgs = new HashSet<>(Collections.singletonList(InstructionSet.RETURN));
     HashSet<InstructionSet> oneArg = new HashSet<>(Arrays.asList(
@@ -103,6 +104,19 @@ public class Lexer {
         }
     }
 
+    private int convertToInteger(String toConvert) throws NumberFormatException {
+        int base = 16;
+        if (toConvert.endsWith("'b")) {
+            base = 2;
+            toConvert = toConvert.substring(0, toConvert.length() - 2);
+        } else if (toConvert.endsWith("'d")) {
+            base = 10;
+            toConvert = toConvert.substring(0, toConvert.length() - 2);
+        }
+
+        return Integer.parseInt(toConvert, base);
+    }
+
     /*
     Not finished but it's a start
      */
@@ -131,17 +145,22 @@ public class Lexer {
             }
         }
 
-        try {
-            int base = 16;
-            if (toConvert.endsWith("'b")) {
-                base = 2;
-                toConvert = toConvert.substring(0, toConvert.length() - 2);
-            } else if (toConvert.endsWith("'d")) {
-                base = 10;
-                toConvert = toConvert.substring(0, toConvert.length() - 2);
-            }
+        if (instructionName == InstructionSet.JUMP
+                || instructionName == InstructionSet.CALL
+                || instructionName == InstructionSet.RETURN) {
 
-            return new Literal(Integer.parseInt(toConvert, base));
+            try {
+                return new AbsoluteAddress(labelMap.get(toConvert));
+
+            } catch (NullPointerException ignore) {
+                try {
+                    return new AbsoluteAddress(convertToInteger(toConvert));
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+
+        try {
+            return new Literal(convertToInteger(toConvert));
         } catch (NumberFormatException ignored) {}
 
         return new NoArgument();
@@ -204,8 +223,6 @@ public class Lexer {
     }
 
     public Instruction[] lex(List<String> program) {
-        HashMap<String, Integer> labelMap = new HashMap<>();
-
         Instruction[] instructions = new Instruction[program.size()];
         System.out.println(instructions.length);
         for (int lineNumber=0; lineNumber<program.size(); lineNumber++) {
