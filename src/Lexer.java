@@ -1,76 +1,84 @@
+import java.util.HashMap;
 import java.util.List;
 
-/*
-This entire class is terrible and not fit for purpose. It needs to be completely rewritten to actually be able to read
-KCPSM6 assembly.
- */
 public class Lexer {
-    public static Instruction[] lex(List<String> program) {
-        Registers registers = Registers.getInstance();
-        Instruction[] instructions = new Instruction[program.size()];
+    private static Lexer ourInstance = new Lexer();
+    public static Lexer getInstance() {
+        return ourInstance;
+    }
 
-        for (int i=0; i<program.size(); i++) {
-            String[] splitInstruction = program.get(i).split(" ");
-
-            if (splitInstruction.length >= 3) {
-
-                InstructionSet instructionSet;
-                switch (splitInstruction[0]) {
-                    case "JUMP@":
-                        instructionSet = InstructionSet.JUMPAT;
-                        break;
-                    case "CALL@":
-                        instructionSet = InstructionSet.CALLAT;
-                        break;
-                    case "LOAD&RETURN":
-                        instructionSet = InstructionSet.LOADANDRETURN;
-                        break;
-                    default:
-                        instructionSet = InstructionSet.valueOf(splitInstruction[0]);
-                }
-
-                InstructionArgument arg0;
-                if (instructionSet == InstructionSet.JUMP ||
-                    instructionSet == InstructionSet.CALL ||
-                    instructionSet == InstructionSet.RETURN) {
-
-                    try {
-                        arg0 = new AbsoluteAddress(Integer.parseInt(splitInstruction[1], 16));
-                    } catch (NumberFormatException e) {
-                        switch (splitInstruction[1]) {
-                            case "C":
-                                arg0 = new FlagArgument(FlagArgument.C);
-                                break;
-                            case "NC":
-                                arg0 = new FlagArgument(FlagArgument.NC);
-                                break;
-                            case "Z":
-                                arg0 = new FlagArgument(FlagArgument.Z);
-                                break;
-                            default:
-                                arg0 = new FlagArgument(FlagArgument.NZ);
-                        }
-                    }
-
-                } else {
-                    try {
-                        arg0 = registers.getRegister(RegisterName.valueOf(splitInstruction[1]));
-                    } catch (Exception e) {
-                        arg0 = new RegisterBank(splitInstruction[1].equals("A") ? 1 : 0);
-                    }
-                }
-
-                InstructionArgument arg1;
-                try {
-                    arg1 = registers.getRegister(RegisterName.valueOf(splitInstruction[2]));
-                } catch (Exception e) {
-                    arg1 = new Literal(Integer.parseInt(splitInstruction[2], 16));
-                }
-
-                instructions[i] = new Instruction(instructionSet, arg0, arg1);
-            }
+    private String getLabel(String[] sections) {
+        if (sections.length > 1 && sections[1].startsWith(":")) {
+            return sections[0];
         }
 
-        return instructions;
+        if (sections[0].contains(":")) {
+            return sections[0].split(":")[0];
+        } else {
+            return null;
+        }
+    }
+
+    private InstructionSet getInstruction(String[] sections, boolean containsLabel) {
+        if (containsLabel && sections.length == 1) {
+            // Blank line with label
+            return null;
+        }
+
+        String upperCaseInstruction;
+
+        if (containsLabel) {
+            String sectionWithInstruction;
+
+            if (sections[0].contains(":")) {
+                if (sections[0].endsWith(":")) {
+                    sectionWithInstruction = sections[1];
+                } else {
+                    sectionWithInstruction = sections[0];
+                }
+            } else {
+                if (sections[1].equals(":")) {
+                    sectionWithInstruction = sections[2];
+                } else {
+                    sectionWithInstruction = sections[1];
+                }
+            }
+            String[] sectionSplit = sectionWithInstruction.split(":");
+            upperCaseInstruction = sectionSplit[sectionSplit.length - 1].toUpperCase();
+
+        } else {
+            upperCaseInstruction = sections[0].toUpperCase();
+        }
+
+        upperCaseInstruction = upperCaseInstruction.replaceAll("@", "AT");
+        upperCaseInstruction = upperCaseInstruction.replaceAll("&", "AND");
+
+        return InstructionSet.valueOf(upperCaseInstruction);
+    }
+
+    public Instruction[] lex(List<String> program) {
+        HashMap<String, Integer> labelMap = new HashMap<>();
+
+        for (int lineNumber=0; lineNumber<program.size(); lineNumber++) {
+            String line = program.get(lineNumber).split(";")[0]; // Remove comments
+            String[] sections = line.trim().split("\\s+"); // Split on (and remove) whitespace
+
+            if (sections[0].isEmpty()) {
+                // Blank line
+                continue;
+            }
+
+            String label = getLabel(sections);
+            if (label != null) {
+                labelMap.put(label, lineNumber);
+            }
+
+            InstructionSet instructionName = getInstruction(sections, label != null);
+            System.out.println(instructionName);
+            
+            System.out.println(labelMap.keySet());
+        }
+
+        return null;
     }
 }

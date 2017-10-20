@@ -18,7 +18,7 @@ public class PicoblazeInterpreter {
             e.printStackTrace();
         }
 
-        Instruction[] instructions = Lexer.lex(file);
+        Instruction[] instructions = Lexer.getInstance().lex(file);
 
         Parser parser = Parser.getInstance();
         parser.parse(instructions);
