@@ -43,11 +43,11 @@ public class Registers {
     }
 
     public void LOAD(InstructionArgument arg0, InstructionArgument arg1) {
-        arg0.setValue(arg1.getValue());
+        arg0.setValue(arg1.getIntValue());
     }
 
     public void STAR(InstructionArgument arg0, InstructionArgument arg1) {
-        int copiedValue = arg1.getValue();
+        int copiedValue = arg1.getIntValue();
         toggleActiveRegisters();
 
         arg0.setValue(copiedValue);
@@ -56,7 +56,7 @@ public class Registers {
 
     // Register Bank Selection
     public void REGBANK(InstructionArgument arg0) {
-        aRegisterBank = arg0.getValue() == 1;
+        aRegisterBank = arg0.getStringValue().equals(RegisterBank.A);
     }
 
     private  Registers() {
@@ -70,7 +70,7 @@ public class Registers {
         StringBuilder toPrint = new StringBuilder("{\n");
 
         for (RegisterName registerName : RegisterName.values()) {
-            int registerValue = registers.get(registerName).getValue();
+            int registerValue = registers.get(registerName).getIntValue();
             toPrint.append(
                     String.format(
                             "\t%2s:\t%2s\t(%8s)\n",

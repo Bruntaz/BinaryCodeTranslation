@@ -8,29 +8,29 @@ public class ALU {
 
     // Logical
     public void AND(InstructionArgument arg0, InstructionArgument arg1) {
-        arg0.setValue(arg0.getValue() & arg1.getValue());
+        arg0.setValue(arg0.getIntValue() & arg1.getIntValue());
 
         registers.setCarry(false);
-        registers.setZero(arg0.getValue() == Register.MIN_VALUE);
+        registers.setZero(arg0.getIntValue() == Register.MIN_VALUE);
     }
 
     public void OR(InstructionArgument arg0, InstructionArgument arg1) {
-        arg0.setValue(arg0.getValue() | arg1.getValue());
+        arg0.setValue(arg0.getIntValue() | arg1.getIntValue());
 
         registers.setCarry(false);
-        registers.setZero(arg0.getValue() == Register.MIN_VALUE);
+        registers.setZero(arg0.getIntValue() == Register.MIN_VALUE);
     }
 
     public void XOR(InstructionArgument arg0, InstructionArgument arg1) {
-        arg0.setValue(arg0.getValue() ^ arg1.getValue());
+        arg0.setValue(arg0.getIntValue() ^ arg1.getIntValue());
 
         registers.setCarry(false);
-        registers.setZero(arg0.getValue() == Register.MIN_VALUE);
+        registers.setZero(arg0.getIntValue() == Register.MIN_VALUE);
     }
 
     // Arithmetic
     public void ADD(InstructionArgument arg0, InstructionArgument arg1) {
-        int result = arg0.getValue() + arg1.getValue();
+        int result = arg0.getIntValue() + arg1.getIntValue();
 
         if (result > Register.MAX_VALUE) {
             registers.setCarry(true);
@@ -62,7 +62,7 @@ public class ALU {
     }
 
     public void SUB(InstructionArgument arg0, InstructionArgument arg1) {
-        int result = arg0.getValue() - arg1.getValue();
+        int result = arg0.getIntValue() - arg1.getIntValue();
 
         if (result < Register.MIN_VALUE) {
             result += Register.MAX_VALUE + 1;
@@ -95,7 +95,7 @@ public class ALU {
 
     // Test and Compare
     public void TEST(InstructionArgument arg0, InstructionArgument arg1) {
-        int result = arg0.getValue() & arg1.getValue();
+        int result = arg0.getIntValue() & arg1.getIntValue();
 
         // Carry bit true if odd number of 1 bits
         boolean carry = false;
@@ -108,7 +108,7 @@ public class ALU {
     }
 
     public void TESTCY(InstructionArgument arg0, InstructionArgument arg1) {
-        int result = arg0.getValue() & arg1.getValue();
+        int result = arg0.getIntValue() & arg1.getIntValue();
 
         // Carry bit true if odd number of 1 bits including carry bit
         boolean carry = registers.C;
@@ -121,14 +121,14 @@ public class ALU {
     }
 
     public void COMPARE(InstructionArgument arg0, InstructionArgument arg1) {
-        int result = arg0.getValue() - arg1.getValue();
+        int result = arg0.getIntValue() - arg1.getIntValue();
 
         registers.setCarry(result < 0);
         registers.setZero(result == Register.MIN_VALUE);
     }
 
     public void COMPARECY(InstructionArgument arg0, InstructionArgument arg1) {
-        int result = arg0.getValue() - arg1.getValue();
+        int result = arg0.getIntValue() - arg1.getIntValue();
 
         if (registers.C) {
             result -= 1;
@@ -149,19 +149,19 @@ public class ALU {
                 leastSignificantBit = 1;
                 break;
             case SLX:
-                leastSignificantBit = arg0.getValue() & 0b00000001;
+                leastSignificantBit = arg0.getIntValue() & 0b00000001;
                 break;
             default:
                 leastSignificantBit = registers.C ? 1 : 0;
                 break;
         }
 
-        registers.setCarry((arg0.getValue() & 0b10000000) != 0);
+        registers.setCarry((arg0.getIntValue() & 0b10000000) != 0);
 
-        int newValue = (arg0.getValue() << 1) + leastSignificantBit;
+        int newValue = (arg0.getIntValue() << 1) + leastSignificantBit;
         arg0.setValue(newValue & Register.MAX_VALUE);
 
-        registers.setZero(arg0.getValue() == 0);
+        registers.setZero(arg0.getIntValue() == 0);
     }
 
     public void SR(InstructionSet instruction, InstructionArgument arg0) {
@@ -174,28 +174,28 @@ public class ALU {
                 mostSignificantBit = 0b10000000;
                 break;
             case SRX:
-                mostSignificantBit = arg0.getValue() & 0b10000000;
+                mostSignificantBit = arg0.getIntValue() & 0b10000000;
                 break;
             default:
                 mostSignificantBit = registers.C ? 0b10000000 : 0;
                 break;
         }
 
-        registers.setCarry((arg0.getValue() & 0b00000001) != 0);
+        registers.setCarry((arg0.getIntValue() & 0b00000001) != 0);
 
-        int newValue = (arg0.getValue() >> 1) + mostSignificantBit;
+        int newValue = (arg0.getIntValue() >> 1) + mostSignificantBit;
         arg0.setValue(newValue & Register.MAX_VALUE);
 
-        registers.setZero(arg0.getValue() == 0);
+        registers.setZero(arg0.getIntValue() == 0);
     }
 
     public void RL(InstructionArgument arg0) {
-        registers.setCarry((arg0.getValue() & 0b10000000) != 0);
+        registers.setCarry((arg0.getIntValue() & 0b10000000) != 0);
         SL(InstructionSet.SLA, arg0);
     }
 
     public void RR(InstructionArgument arg0) {
-        registers.setCarry((arg0.getValue() & 0b00000001) != 0);
+        registers.setCarry((arg0.getIntValue() & 0b00000001) != 0);
         SR(InstructionSet.SRA, arg0);
     }
 }

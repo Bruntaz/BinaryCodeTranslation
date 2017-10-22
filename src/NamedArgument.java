@@ -1,12 +1,14 @@
-public class NoArgument implements InstructionArgument {
+public class NamedArgument implements InstructionArgument {
+    private String value;
+
     @Override
     public boolean hasStringValue() {
-        return false;
+        return true;
     }
 
     @Override
     public String getStringValue() {
-        return null;
+        return value;
     }
 
     @Override
@@ -25,5 +27,10 @@ public class NoArgument implements InstructionArgument {
 
     @Override
     public void setValue(String newValue) {
+        value = newValue;
+    }
+
+    public NamedArgument(String name) {
+        value = name;
     }
 }

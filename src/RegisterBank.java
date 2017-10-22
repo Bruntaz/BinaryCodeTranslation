@@ -1,18 +1,39 @@
 public class RegisterBank implements InstructionArgument {
-    // 1 = A, 0 = B. This is because InstructionArguments need to be integers
-    private int A = 1;
+    static final String A = "A";
+    static final String B = "B";
+
+    private String value;
 
     @Override
-    public int getValue() {
-        return A;
+    public boolean hasStringValue() {
+        return true;
+    }
+
+    @Override
+    public String getStringValue() {
+        return value;
+    }
+
+    @Override
+    public boolean hasIntValue() {
+        return false;
+    }
+
+    @Override
+    public int getIntValue() {
+        return -1;
     }
 
     @Override
     public void setValue(int newValue) {
-        A = newValue;
     }
 
-    public RegisterBank(int A) {
-        this.A = A;
+    @Override
+    public void setValue(String newValue) {
+        value = newValue;
+    }
+
+    public RegisterBank(String registerBank) {
+        this.value = registerBank;
     }
 }
