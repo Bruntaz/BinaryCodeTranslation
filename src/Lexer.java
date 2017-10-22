@@ -279,4 +279,18 @@ public class Lexer {
 
         return instructions;
     }
+
+    private Lexer() {
+        constantMap.put("NUL", 0x00);
+        constantMap.put("BEL", 0x07);
+        constantMap.put("BS",  0x08);
+        constantMap.put("HT",  0x09);
+        constantMap.put("LF",  0x0A);
+        constantMap.put("VT",  0x0B);
+        constantMap.put("CR",  0x0D);
+        constantMap.put("ESC", 0x1B);
+        constantMap.put("DEL", 0x7F);
+        constantMap.put("DCS", 0x90);
+        constantMap.put("ST",  0x9C);
+    }
 }
