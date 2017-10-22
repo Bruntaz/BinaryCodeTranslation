@@ -51,4 +51,7 @@ public enum InstructionSet {
 
     // Version Control
     HWBUILD,
+
+    // Directives
+    CONSTANT,
 }

@@ -14,7 +14,22 @@ public class Register implements InstructionArgument {
     }
 
     @Override
-    public int getValue() {
+    public boolean hasStringValue() {
+        return false;
+    }
+
+    @Override
+    public String getStringValue() {
+        return null;
+    }
+
+    @Override
+    public boolean hasIntValue() {
+        return true;
+    }
+
+    @Override
+    public int getIntValue() {
         return registers.aRegisterBank ? aValue : bValue;
     }
 
@@ -30,6 +45,9 @@ public class Register implements InstructionArgument {
             this.bValue = newValue;
         }
     }
+
+    @Override
+    public void setValue(String newValue) {}
 
     public void reset() {
         aValue = 0;

@@ -7,7 +7,22 @@ public class AbsoluteAddress implements InstructionArgument {
     private int value;
 
     @Override
-    public int getValue() {
+    public boolean hasStringValue() {
+        return false;
+    }
+
+    @Override
+    public String getStringValue() {
+        return null;
+    }
+
+    @Override
+    public boolean hasIntValue() {
+        return true;
+    }
+
+    @Override
+    public int getIntValue() {
         return value;
     }
 
@@ -18,6 +33,10 @@ public class AbsoluteAddress implements InstructionArgument {
         }
 
         value = newValue;
+    }
+
+    @Override
+    public void setValue(String newValue) {
     }
 
     public AbsoluteAddress(int address) {

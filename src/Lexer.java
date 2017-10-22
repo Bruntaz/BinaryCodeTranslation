@@ -8,6 +8,7 @@ public class Lexer {
 
     Registers registers = Registers.getInstance();
     HashMap<String, Integer> labelMap = new HashMap<>();
+    HashMap<String, Integer> constantMap = new HashMap<>();
 
     HashSet<InstructionSet> noArgs = new HashSet<>(Collections.singletonList(InstructionSet.RETURN));
     HashSet<InstructionSet> oneArg = new HashSet<>(Arrays.asList(
@@ -20,7 +21,7 @@ public class Lexer {
             InstructionSet.ADD, InstructionSet.ADDCY, InstructionSet.SUB, InstructionSet.SUBCY,
             InstructionSet.TEST, InstructionSet.TESTCY, InstructionSet.COMPARE, InstructionSet.COMPARECY,
             InstructionSet.STORE, InstructionSet.FETCH, InstructionSet.JUMP, InstructionSet.JUMPAT,
-            InstructionSet.CALL, InstructionSet.RETURN, InstructionSet.LOADANDRETURN)
+            InstructionSet.CALL, InstructionSet.RETURN, InstructionSet.LOADANDRETURN, InstructionSet.CONSTANT)
     );
 
     private class LabelAndColon {
@@ -33,6 +34,16 @@ public class Lexer {
         }
     }
 
+    private class InstructionAndSection {
+        InstructionSet instruction;
+        int instructionSection;
+
+        public InstructionAndSection(InstructionSet instruction, int instructionSection) {
+            this.instruction = instruction;
+            this.instructionSection = instructionSection;
+        }
+    }
+
     private LabelAndColon getLabel(String[] sections) {
         if (sections.length > 1 && sections[1].startsWith(":")) {
             return new LabelAndColon(sections[0], 1);
@@ -42,16 +53,6 @@ public class Lexer {
             return new LabelAndColon(sections[0].split(":")[0], 0);
         } else {
             return null;
-        }
-    }
-
-    private class InstructionAndSection {
-        InstructionSet instruction;
-        int instructionSection;
-
-        public InstructionAndSection(InstructionSet instruction, int instructionSection) {
-            this.instruction = instruction;
-            this.instructionSection = instructionSection;
         }
     }
 
@@ -103,6 +104,10 @@ public class Lexer {
     }
 
     private int convertToInteger(String toConvert) throws NumberFormatException {
+        if (constantMap.containsKey(toConvert)) {
+            return constantMap.get(toConvert);
+        }
+
         int base = 16;
         if (toConvert.endsWith("'b")) {
             base = 2;
@@ -121,6 +126,10 @@ public class Lexer {
     private InstructionArgument convertStringToArgument(InstructionSet instructionName, boolean firstArgument, String toConvert) {
         if (toConvert == null) {
             return new NoArgument();
+        }
+
+        if (instructionName == InstructionSet.CONSTANT && firstArgument) {
+            return new NamedArgument(toConvert);
         }
 
         try {
@@ -247,7 +256,13 @@ public class Lexer {
 
                 System.out.println(args[0]);
                 System.out.println(args[1]);
-                instructions[lineNumber] = new Instruction(instructionName.instruction, args[0], args[1]);
+
+                if (instructionName.instruction == InstructionSet.CONSTANT) {
+                    constantMap.put(args[0].getStringValue(), args[1].getIntValue());
+                } else {
+                    instructions[lineNumber] = new Instruction(instructionName.instruction, args[0], args[1]);
+                }
+
             }
 
             System.out.println(labelMap.keySet());
