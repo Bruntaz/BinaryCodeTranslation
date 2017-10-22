@@ -11,11 +11,9 @@ public class Lexer {
 
     HashSet<InstructionSet> noArgs = new HashSet<>(Collections.singletonList(InstructionSet.RETURN));
     HashSet<InstructionSet> oneArg = new HashSet<>(Arrays.asList(
-            InstructionSet.LOAD, InstructionSet.STAR, InstructionSet.AND, InstructionSet.OR, InstructionSet.XOR,
-            InstructionSet.ADD, InstructionSet.ADDCY, InstructionSet.SUB, InstructionSet.SUBCY,
-            InstructionSet.TEST, InstructionSet.TESTCY, InstructionSet.COMPARE, InstructionSet.COMPARECY,
-            InstructionSet.STORE, InstructionSet.FETCH, InstructionSet.JUMP, InstructionSet.JUMPAT,
-            InstructionSet.CALL, InstructionSet.RETURN, InstructionSet.LOADANDRETURN)
+            InstructionSet.SL0, InstructionSet.SL1, InstructionSet.SLX, InstructionSet.SLA, InstructionSet.RL,
+            InstructionSet.SR0, InstructionSet.SR1, InstructionSet.SRX, InstructionSet.SRA, InstructionSet.RR,
+            InstructionSet.REGBANK, InstructionSet.JUMP, InstructionSet.CALL, InstructionSet.RETURN)
     );
     HashSet<InstructionSet> twoArgs = new HashSet<>(Arrays.asList(
             InstructionSet.LOAD, InstructionSet.STAR, InstructionSet.AND, InstructionSet.OR, InstructionSet.XOR,
@@ -154,7 +152,7 @@ public class Lexer {
 
             } catch (NullPointerException ignore) {
                 try {
-                    return new AbsoluteAddress(convertToInteger(toConvert));
+                    return new AbsoluteAddress(convertToInteger(toConvert) - 1);
                 } catch (NumberFormatException ignored) {}
             }
         }
@@ -242,6 +240,10 @@ public class Lexer {
                 System.out.println(instructionName.instruction);
 
                 InstructionArgument[] args = getArguments(sections, instructionName);
+
+                if (args == null) {
+                    throw new IllegalArgumentException(String.format("Illegal number of arguments on line %d", lineNumber + 1));
+                }
 
                 System.out.println(args[0]);
                 System.out.println(args[1]);
