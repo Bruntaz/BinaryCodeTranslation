@@ -199,25 +199,44 @@ public class Lexer {
             // Arguments
             String firstArgument = sections[firstArgSection];
             String secondArgument = null;
+            int secondArgSection;
 
             if (firstArgument.contains(",")) {
                 String[] splitArg = firstArgument.split(",");
                 firstArgument = splitArg[0];
 
                 if (splitArg.length > 1) {
+                    secondArgSection = firstArgSection;
                     secondArgument = splitArg[1];
                 } else {
-                    secondArgument = sections[firstArgSection + 1];
+                    secondArgSection = firstArgSection + 1;
+                    secondArgument = sections[secondArgSection];
                 }
 
             } else {
                 if (sections.length > firstArgSection + 1) {
                     if (sections[firstArgSection + 1].equals(",")) {
-                        secondArgument = sections[firstArgSection + 2];
+                        secondArgSection = firstArgSection + 2;
+                        secondArgument = sections[secondArgSection];
                     } else {
-                        secondArgument = sections[firstArgSection + 1].split(",")[1];
+                        secondArgSection = firstArgSection + 1;
+                        String[] splitSections = sections[secondArgSection].split(",");
+                        if (splitSections.length > 1) {
+                            secondArgument = splitSections[1];
+                        } else {
+                            System.err.println("Illegal number of arguments. Did you miss a comma?");
+                            return null;
+                        }
                     }
+                } else {
+                    // There is no second argument
+                    secondArgSection = firstArgSection;
                 }
+            }
+
+            if (sections.length > secondArgSection + 1) {
+                // Invalid number of arguments (too many)
+                return null;
             }
 
             System.out.println(firstArgument);
