@@ -104,8 +104,17 @@ public class Lexer {
     }
 
     private int convertToInteger(String toConvert) throws NumberFormatException {
-        if (constantMap.containsKey(toConvert)) {
-            return constantMap.get(toConvert);
+        boolean invert = toConvert.startsWith("~");
+        if (invert || constantMap.containsKey(toConvert)) {
+            int convertedInt;
+
+            if (invert) {
+                convertedInt = constantMap.get(toConvert.substring(1)) ^ 0b11111111;
+            } else {
+                convertedInt = constantMap.get(toConvert);
+            }
+
+            return convertedInt;
         }
 
         int base = 16;
@@ -258,11 +267,11 @@ public class Lexer {
                 System.out.println(args[1]);
 
                 if (instructionName.instruction == InstructionSet.CONSTANT) {
+                    // Convert all constants to values in lexer so don't include constants in instructions array
                     constantMap.put(args[0].getStringValue(), args[1].getIntValue());
                 } else {
                     instructions[lineNumber] = new Instruction(instructionName.instruction, args[0], args[1]);
                 }
-
             }
 
             System.out.println(labelMap.keySet());
