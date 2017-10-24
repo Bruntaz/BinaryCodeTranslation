@@ -1,3 +1,4 @@
+import java.util.*;
 import java.util.Stack;
 
 public class Parser {
@@ -12,6 +13,9 @@ public class Parser {
 
     Stack<Integer> programCounter = new Stack<>();
     private int clockCycles;
+
+    HashSet<InstructionSet> blockEntrances = new HashSet<>(Arrays.asList(InstructionSet.RETURN, InstructionSet.CALL,
+            InstructionSet.CALLAT, InstructionSet.JUMP, InstructionSet.JUMPAT));
 
     public void RESET() {
         programCounter = new Stack<>();
@@ -139,6 +143,26 @@ public class Parser {
         registers.setZero(arg0.getIntValue() == 0);
     }
 
+    public int[] getNextBlock(Instruction[] instructions, int endOfCurrentBlock) {
+        if (instructions.length <= endOfCurrentBlock + 1) {
+            return null;
+        }
+
+        int newBlockStart = endOfCurrentBlock + 1;
+        int newBlockEnd = newBlockStart + 1;
+        Instruction inspecting = instructions[newBlockEnd];
+
+        while (!(instructions[newBlockEnd].hasLabel || blockEntrances.contains(inspecting.instruction))) {
+            newBlockEnd += 1;
+
+            if (instructions.length <= newBlockEnd) {
+                break;
+            }
+        }
+
+        return new int[] {newBlockStart, newBlockEnd - 1};
+    }
+
     public void parse(Instruction[] program) {
         clockCycles = 0;
 
@@ -146,7 +170,7 @@ public class Parser {
             Instruction instruction = program[programCounter.peek()];
             incrementProgramCounter();
 
-            if (instruction == null) {
+            if (instruction.instruction == null) {
                 continue;
             }
 

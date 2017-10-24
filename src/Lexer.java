@@ -264,6 +264,7 @@ public class Lexer {
 
             if (sections[0].isEmpty()) {
                 // Blank line
+                instructions[lineNumber] = new Instruction(null, null, null, false);
                 continue;
             }
 
@@ -288,9 +289,13 @@ public class Lexer {
                 if (instructionName.instruction == InstructionSet.CONSTANT) {
                     // Convert all constants to values in lexer so don't include constants in instructions array
                     constantMap.put(args[0].getStringValue(), args[1].getIntValue());
+                    instructions[lineNumber] = new Instruction(null, null, null, label != null);
                 } else {
-                    instructions[lineNumber] = new Instruction(instructionName.instruction, args[0], args[1]);
+                    instructions[lineNumber] = new Instruction(instructionName.instruction, args[0], args[1],
+                            label != null);
                 }
+            } else {
+                instructions[lineNumber] = new Instruction(null, null, null, label != null);
             }
 
             System.out.println(labelMap.keySet());
