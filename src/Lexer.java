@@ -24,9 +24,6 @@ public class Lexer {
             InstructionSet.CALL, InstructionSet.RETURN, InstructionSet.LOADANDRETURN, InstructionSet.CONSTANT)
     );
 
-    HashSet<InstructionSet> blockTerminators = new HashSet<>(Arrays.asList(InstructionSet.RETURN, InstructionSet.CALL,
-            InstructionSet.CALLAT, InstructionSet.JUMP, InstructionSet.JUMPAT));
-
     private class LabelAndColon {
         String label;
         int colonSection;
