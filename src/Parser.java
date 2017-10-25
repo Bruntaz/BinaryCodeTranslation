@@ -143,16 +143,14 @@ public class Parser {
         registers.setZero(arg0.getIntValue() == 0);
     }
 
-    public int[] getNextBlock(Instruction[] instructions, int endOfCurrentBlock) {
-        if (instructions.length <= endOfCurrentBlock + 1) {
-            return null;
+    public int getNextBlockEnd(Instruction[] instructions, int startOfBlock) {
+        int newBlockEnd = startOfBlock + 1;
+
+        if (instructions.length <= newBlockEnd) {
+            return startOfBlock;
         }
 
-        int newBlockStart = endOfCurrentBlock + 1;
-        int newBlockEnd = newBlockStart + 1;
-        Instruction inspecting = instructions[newBlockEnd];
-
-        while (!(instructions[newBlockEnd].hasLabel || blockEntrances.contains(inspecting.instruction))) {
+        while (!instructions[newBlockEnd].isBlockStart) {
             newBlockEnd += 1;
 
             if (instructions.length <= newBlockEnd) {
@@ -160,14 +158,31 @@ public class Parser {
             }
         }
 
-        return new int[] {newBlockStart, newBlockEnd - 1};
+        return newBlockEnd - 1;
+    }
+
+    public void translate(int startOfBlock, Instruction[] instructions, boolean[] translatedPointers) {
+        instructions[startOfBlock].isBlockStart = true;
+
+        int endOfBlock = getNextBlockEnd(instructions, startOfBlock);
+
+        for (int translating = startOfBlock; translating <= endOfBlock; translating++) {
+            translatedPointers[translating] = true;
+        }
     }
 
     public void parse(Instruction[] program) {
         clockCycles = 0;
 
+        boolean[] translated = new boolean[program.length];
+
         while (programCounter.peek() < program.length) {
             Instruction instruction = program[programCounter.peek()];
+
+            if (!translated[programCounter.peek()]) {
+                translate(programCounter.peek(), program, translated);
+            }
+
             incrementProgramCounter();
 
             if (instruction.instruction == null) {
@@ -295,7 +310,9 @@ public class Parser {
             }
 
             clockCycles += 1;
+            System.out.println(Arrays.toString(translated));
             System.out.println(registers);
+
         }
 
         System.out.println(String.format("Finished in %d clock cycles", clockCycles));

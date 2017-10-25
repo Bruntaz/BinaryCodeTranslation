@@ -1,21 +1,19 @@
-          LOAD             s1,    62
-;CALL 3; This is a comment
-;jumpLabel: JUMP C, 10
-label2:LOAD sA,FF
-label3 :LOAD sB , sA
-label4                  :LOAD sC, FF; And a comment
-label5                  :               LOAD sD, FF ; Another comment
-; This is a full line comment
-blankLineLabel:
-blankLineLabelSpace         :
+loadRegisters:
+    LOAD s0, FF
+    LOAD s1, AA
+    JUMP callSubroutines
 
-COMPARE s1, 61
-;RETURN
-;RETURN C
-COMPARE s1, 7B
-;RETURN NC
-AND s1, 11011111'b
+setS2:
+    LOAD s2, EE
+    RETURN
 
-LOAD s0, FF
-;LOAD&RETURN s2, 11
-STORE s0, 0
+setS3:
+    LOAD s3, DD
+    RETURN
+
+callSubroutines:
+    ADD s0, s1
+    CALL C, setS2
+    ADD s0, s1
+    CALL NC, setS3
+    LOAD s4, CC

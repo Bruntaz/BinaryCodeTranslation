@@ -258,14 +258,27 @@ public class Lexer {
     public Instruction[] lex(List<String> program) {
         Instruction[] instructions = new Instruction[program.size()];
 
+        String[][] allSections = new String[program.size()][];
         for (int lineNumber=0; lineNumber<program.size(); lineNumber++) {
+            String line = program.get(lineNumber).split(";")[0]; // Remove comments
+            String[] sections = line.trim().split("\\s+"); // Split on (and remove) whitespace
+            allSections[lineNumber] = sections;
+
+            /*
+            TODO: Don't repeat this code in the next for loop. It is currently done twice to allow for knowledge of
+            the location of all labels before execution.
+             */
+            LabelAndColon label = getLabel(sections);
+            if (label != null) {
+                labelMap.put(label.label, lineNumber);
+            }
+
             // Initialise array to empty Instructions to fill later
             instructions[lineNumber] = new Instruction();
         }
 
         for (int lineNumber=0; lineNumber<program.size(); lineNumber++) {
-            String line = program.get(lineNumber).split(";")[0]; // Remove comments
-            String[] sections = line.trim().split("\\s+"); // Split on (and remove) whitespace
+            String[] sections = allSections[lineNumber];
 
             if (sections[0].isEmpty()) {
                 // Blank line
@@ -274,7 +287,6 @@ public class Lexer {
 
             LabelAndColon label = getLabel(sections);
             if (label != null) {
-                labelMap.put(label.label, lineNumber);
                 instructions[lineNumber].isBlockStart = true;
             }
 
@@ -303,15 +315,21 @@ public class Lexer {
                 }
 
                 // This does not cover all cases of block entrances. The JUMP@ and CALL@ instructions can still start
-                // new blocks. This needs to be covered in the Parser though because the values are calculated at
-                // runtime.
-                if ((instructionName == InstructionSet.RETURN ||
-                        instructionName == InstructionSet.LOADANDRETURN) &&
-                        instructions.length > lineNumber + 1) {
-                    instructions[lineNumber + 1].isBlockStart = true;
+                // new blocks (by jumping). This needs to be covered in the Parser though because the values are
+                // calculated at runtime.
+                switch (instructionName) {
+                    case JUMP:
+                    case JUMPAT:
+                    case CALL:
+                    case CALLAT:
+                    case RETURN:
+                    case LOADANDRETURN:
+                        if (instructions.length > lineNumber + 1) {
+                            instructions[lineNumber + 1].isBlockStart = true;
+                        }
+                }
 
-                } else if (instructionName == InstructionSet.CALL ||
-                           instructionName == InstructionSet.JUMP) {
+                if (instructionName == InstructionSet.CALL || instructionName == InstructionSet.JUMP) {
                     int arg = args[0] instanceof AbsoluteAddress ? 0 : 1;
                     int address = args[arg].getIntValue();
 
