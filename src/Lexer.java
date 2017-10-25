@@ -257,20 +257,22 @@ public class Lexer {
 
     public Instruction[] lex(List<String> program) {
         Instruction[] instructions = new Instruction[program.size()];
-        System.out.println(instructions.length);
+
         for (int lineNumber=0; lineNumber<program.size(); lineNumber++) {
             String line = program.get(lineNumber).split(";")[0]; // Remove comments
             String[] sections = line.trim().split("\\s+"); // Split on (and remove) whitespace
 
+            instructions[lineNumber] = new Instruction();
+
             if (sections[0].isEmpty()) {
                 // Blank line
-                instructions[lineNumber] = new Instruction(null, null, null, false);
                 continue;
             }
 
             LabelAndColon label = getLabel(sections);
             if (label != null) {
                 labelMap.put(label.label, lineNumber);
+                instructions[lineNumber].hasLabel = true;
             }
 
             InstructionAndSection instructionName = getInstruction(sections, label);
@@ -289,13 +291,12 @@ public class Lexer {
                 if (instructionName.instruction == InstructionSet.CONSTANT) {
                     // Convert all constants to values in lexer so don't include constants in instructions array
                     constantMap.put(args[0].getStringValue(), args[1].getIntValue());
-                    instructions[lineNumber] = new Instruction(null, null, null, label != null);
+
                 } else {
-                    instructions[lineNumber] = new Instruction(instructionName.instruction, args[0], args[1],
-                            label != null);
+                    instructions[lineNumber].instruction = instructionName.instruction;
+                    instructions[lineNumber].arg0 = args[0];
+                    instructions[lineNumber].arg1 = args[1];
                 }
-            } else {
-                instructions[lineNumber] = new Instruction(null, null, null, label != null);
             }
 
             System.out.println(labelMap.keySet());

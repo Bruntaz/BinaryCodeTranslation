@@ -4,6 +4,10 @@ public class Instruction {
     InstructionArgument arg1;
     boolean hasLabel;
 
+    public Instruction() {
+        this(null, null, null, false);
+    }
+
     public Instruction(InstructionSet instruction, InstructionArgument arg0, InstructionArgument arg1, boolean hasLabel) {
         this.instruction = instruction;
         this.arg0 = arg0;
