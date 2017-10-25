@@ -24,6 +24,9 @@ public class Lexer {
             InstructionSet.CALL, InstructionSet.RETURN, InstructionSet.LOADANDRETURN, InstructionSet.CONSTANT)
     );
 
+    HashSet<InstructionSet> blockTerminators = new HashSet<>(Arrays.asList(InstructionSet.RETURN, InstructionSet.CALL,
+            InstructionSet.CALLAT, InstructionSet.JUMP, InstructionSet.JUMPAT));
+
     private class LabelAndColon {
         String label;
         int colonSection;
@@ -259,10 +262,13 @@ public class Lexer {
         Instruction[] instructions = new Instruction[program.size()];
 
         for (int lineNumber=0; lineNumber<program.size(); lineNumber++) {
+            // Initialise array to empty Instructions to fill later
+            instructions[lineNumber] = new Instruction();
+        }
+
+        for (int lineNumber=0; lineNumber<program.size(); lineNumber++) {
             String line = program.get(lineNumber).split(";")[0]; // Remove comments
             String[] sections = line.trim().split("\\s+"); // Split on (and remove) whitespace
-
-            instructions[lineNumber] = new Instruction();
 
             if (sections[0].isEmpty()) {
                 // Blank line
@@ -272,14 +278,15 @@ public class Lexer {
             LabelAndColon label = getLabel(sections);
             if (label != null) {
                 labelMap.put(label.label, lineNumber);
-                instructions[lineNumber].hasLabel = true;
+                instructions[lineNumber].isBlockStart = true;
             }
 
-            InstructionAndSection instructionName = getInstruction(sections, label);
-            if (instructionName != null){
-                System.out.println(instructionName.instruction);
+            InstructionAndSection instructionAndSection = getInstruction(sections, label);
+            if (instructionAndSection != null) {
+                InstructionSet instructionName = instructionAndSection.instruction;
+                System.out.println(instructionName);
 
-                InstructionArgument[] args = getArguments(sections, instructionName);
+                InstructionArgument[] args = getArguments(sections, instructionAndSection);
 
                 if (args == null) {
                     throw new IllegalArgumentException(String.format("Illegal number of arguments on line %d", lineNumber + 1));
@@ -288,14 +295,32 @@ public class Lexer {
                 System.out.println(args[0]);
                 System.out.println(args[1]);
 
-                if (instructionName.instruction == InstructionSet.CONSTANT) {
+                if (instructionName == InstructionSet.CONSTANT) {
                     // Convert all constants to values in lexer so don't include constants in instructions array
                     constantMap.put(args[0].getStringValue(), args[1].getIntValue());
 
                 } else {
-                    instructions[lineNumber].instruction = instructionName.instruction;
+                    instructions[lineNumber].instruction = instructionName;
                     instructions[lineNumber].arg0 = args[0];
                     instructions[lineNumber].arg1 = args[1];
+                }
+
+                // This does not cover all cases of block entrances. The JUMP@ and CALL@ instructions can still start
+                // new blocks. This needs to be covered in the Parser though because the values are calculated at
+                // runtime.
+                if ((instructionName == InstructionSet.RETURN ||
+                        instructionName == InstructionSet.LOADANDRETURN) &&
+                        instructions.length > lineNumber + 1) {
+                    instructions[lineNumber + 1].isBlockStart = true;
+
+                } else if (instructionName == InstructionSet.CALL ||
+                           instructionName == InstructionSet.JUMP) {
+                    int arg = args[0] instanceof AbsoluteAddress ? 0 : 1;
+                    int address = args[arg].getIntValue();
+
+                    if (instructions.length > address) {
+                        instructions[address].isBlockStart = true;
+                    }
                 }
             }
 

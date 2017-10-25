@@ -2,16 +2,16 @@ public class Instruction {
     InstructionSet instruction;
     InstructionArgument arg0;
     InstructionArgument arg1;
-    boolean hasLabel;
+    boolean isBlockStart;
 
     public Instruction() {
         this(null, null, null, false);
     }
 
-    public Instruction(InstructionSet instruction, InstructionArgument arg0, InstructionArgument arg1, boolean hasLabel) {
+    public Instruction(InstructionSet instruction, InstructionArgument arg0, InstructionArgument arg1, boolean isBlockStart) {
         this.instruction = instruction;
         this.arg0 = arg0;
         this.arg1 = arg1;
-        this.hasLabel = hasLabel;
+        this.isBlockStart = isBlockStart;
     }
 }
