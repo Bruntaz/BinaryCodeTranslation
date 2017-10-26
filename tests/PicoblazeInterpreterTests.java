@@ -20,7 +20,7 @@ public class PicoblazeInterpreterTests {
 
     private static boolean invertRegister() {
         resetAll();
-        picoblazeInterpreter.runFile("tests/Invert InstructionArguments.Register.psm");
+        picoblazeInterpreter.runFile("tests/Invert Register.psm");
         return testS0(0b01010101);
     }
 
@@ -33,7 +33,7 @@ public class PicoblazeInterpreterTests {
 
     private static boolean clearRegister() {
         resetAll();
-        picoblazeInterpreter.runFile("tests/Clear InstructionArguments.Register.psm");
+        picoblazeInterpreter.runFile("tests/Clear Register.psm");
         return testS0(0b00000000);
     }
 

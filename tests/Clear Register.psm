@@ -1,2 +1,2 @@
-LOAD s0 AA
-XOR s0 s0
+LOAD s0, AA
+XOR s0, s0
