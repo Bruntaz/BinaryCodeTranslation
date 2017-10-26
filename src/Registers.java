@@ -1,3 +1,8 @@
+import Groups.RegisterName;
+import InstructionArguments.InstructionArgument;
+import InstructionArguments.Register;
+import InstructionArguments.RegisterBank;
+
 import java.util.HashMap;
 
 /**
@@ -14,7 +19,7 @@ public class Registers {
     public boolean Z = false;
     public boolean aRegisterBank = true;
 
-    private HashMap<RegisterName, Register> registers = new HashMap<RegisterName, Register>();
+    private HashMap<RegisterName, Register> registers = new HashMap<>();
 
     public Register getRegister(RegisterName register) {
         return registers.get(register);
@@ -30,10 +35,14 @@ public class Registers {
 
     public void useARegisterBank(boolean newState) {
         aRegisterBank = newState;
+
+        for (Register register : registers.values()) {
+            register.useARegisterBank(newState);
+        }
     }
 
     public void toggleActiveRegisters() {
-        aRegisterBank = !aRegisterBank;
+        useARegisterBank(!aRegisterBank);
     }
 
     public void resetRegisters() {
@@ -56,12 +65,12 @@ public class Registers {
 
     // Register Bank Selection
     public void REGBANK(InstructionArgument arg0) {
-        aRegisterBank = arg0.getStringValue().equals(RegisterBank.A);
+        useARegisterBank(arg0.getStringValue().equals(RegisterBank.A));
     }
 
     private  Registers() {
         for (RegisterName registerName : RegisterName.values()) {
-            this.registers.put(registerName, new Register(this, registerName));
+            this.registers.put(registerName, new Register(registerName));
         }
     }
 

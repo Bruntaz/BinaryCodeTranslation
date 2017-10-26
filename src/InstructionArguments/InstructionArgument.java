@@ -1,3 +1,5 @@
+package InstructionArguments;
+
 public interface InstructionArgument {
     boolean hasStringValue();
     String getStringValue();

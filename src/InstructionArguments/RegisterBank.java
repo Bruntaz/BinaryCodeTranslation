@@ -1,8 +1,8 @@
-public class FlagArgument implements InstructionArgument {
-    static final String C = "C";
-    static final String NC = "NC";
-    static final String Z = "Z";
-    static final String NZ = "NZ";
+package InstructionArguments;
+
+public class RegisterBank implements InstructionArgument {
+    public static final String A = "A";
+    public static final String B = "B";
 
     private String value;
 
@@ -28,7 +28,6 @@ public class FlagArgument implements InstructionArgument {
 
     @Override
     public void setValue(int newValue) {
-
     }
 
     @Override
@@ -36,7 +35,10 @@ public class FlagArgument implements InstructionArgument {
         value = newValue;
     }
 
-    public FlagArgument(String flag) {
-        value = flag;
+    public RegisterBank(String registerBank) {
+        if (!(registerBank.equals(A) || registerBank.equals(B))) {
+            throw new Error("RegisterBank argument neither A or B");
+        }
+        this.value = registerBank;
     }
 }

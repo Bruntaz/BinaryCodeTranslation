@@ -1,3 +1,5 @@
+import Groups.RegisterName;
+
 public class PicoblazeInterpreterTests {
     static PicoblazeInterpreter picoblazeInterpreter = new PicoblazeInterpreter();
     static Registers registers = Registers.getInstance();
@@ -18,7 +20,7 @@ public class PicoblazeInterpreterTests {
 
     private static boolean invertRegister() {
         resetAll();
-        picoblazeInterpreter.runFile("tests/Invert Register.psm");
+        picoblazeInterpreter.runFile("tests/Invert InstructionArguments.Register.psm");
         return testS0(0b01010101);
     }
 
@@ -31,7 +33,7 @@ public class PicoblazeInterpreterTests {
 
     private static boolean clearRegister() {
         resetAll();
-        picoblazeInterpreter.runFile("tests/Clear Register.psm");
+        picoblazeInterpreter.runFile("tests/Clear InstructionArguments.Register.psm");
         return testS0(0b00000000);
     }
 

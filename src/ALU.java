@@ -1,3 +1,8 @@
+import Groups.InstructionSet;
+import InstructionArguments.InstructionArgument;
+import InstructionArguments.Literal;
+import InstructionArguments.Register;
+
 public class ALU {
     private static ALU ourInstance = new ALU();
     public static ALU getInstance() {

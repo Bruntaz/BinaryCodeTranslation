@@ -1,3 +1,6 @@
+import Groups.InstructionSet;
+import InstructionArguments.InstructionArgument;
+
 public class Instruction {
     InstructionSet instruction;
     InstructionArgument arg0;

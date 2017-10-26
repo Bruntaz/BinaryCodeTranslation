@@ -1,3 +1,7 @@
+import Groups.InstructionSet;
+import Groups.RegisterName;
+import InstructionArguments.*;
+
 import java.util.*;
 
 public class Lexer {
@@ -139,6 +143,10 @@ public class Lexer {
 
         if (instructionName == InstructionSet.CONSTANT && firstArgument) {
             return new NamedArgument(toConvert);
+        }
+
+        if (instructionName == InstructionSet.REGBANK) {
+            return new RegisterBank(toConvert);
         }
 
         try {

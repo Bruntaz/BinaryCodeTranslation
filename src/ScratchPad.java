@@ -1,4 +1,5 @@
-import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
+import InstructionArguments.InstructionArgument;
+import InstructionArguments.Register;
 
 public class ScratchPad {
     private static ScratchPad ourInstance = new ScratchPad();
@@ -24,7 +25,7 @@ public class ScratchPad {
 
     public void setMemory(int location, int value) {
         if (value < Register.MIN_VALUE || value > Register.MAX_VALUE) {
-            throw new ValueException("Scratch pad set to an illegal number (" + value + ")");
+            throw new Error("Scratch pad set to an illegal number (" + value + ")");
         }
 
         memory[location] = value;

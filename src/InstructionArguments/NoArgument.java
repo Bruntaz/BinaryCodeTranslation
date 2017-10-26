@@ -1,17 +1,14 @@
-public class RegisterBank implements InstructionArgument {
-    static final String A = "A";
-    static final String B = "B";
+package InstructionArguments;
 
-    private String value;
-
+public class NoArgument implements InstructionArgument {
     @Override
     public boolean hasStringValue() {
-        return true;
+        return false;
     }
 
     @Override
     public String getStringValue() {
-        return value;
+        return null;
     }
 
     @Override
@@ -30,10 +27,5 @@ public class RegisterBank implements InstructionArgument {
 
     @Override
     public void setValue(String newValue) {
-        value = newValue;
-    }
-
-    public RegisterBank(String registerBank) {
-        this.value = registerBank;
     }
 }

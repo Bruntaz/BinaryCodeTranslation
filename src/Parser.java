@@ -1,3 +1,6 @@
+import Groups.InstructionSet;
+import InstructionArguments.*;
+
 import java.util.*;
 import java.util.Stack;
 
