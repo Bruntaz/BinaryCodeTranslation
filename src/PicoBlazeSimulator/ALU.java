@@ -5,30 +5,30 @@ import PicoBlazeSimulator.InstructionArguments.InstructionArgument;
 import PicoBlazeSimulator.InstructionArguments.Literal;
 import PicoBlazeSimulator.InstructionArguments.Register;
 
-public class ALU {
+class ALU {
     private static ALU ourInstance = new ALU();
-    public static ALU getInstance() {
+    static ALU getInstance() {
         return ourInstance;
     }
 
     private Registers registers = Registers.getInstance();
 
     // Logical
-    public void AND(InstructionArgument arg0, InstructionArgument arg1) {
+    void AND(InstructionArgument arg0, InstructionArgument arg1) {
         arg0.setValue(arg0.getIntValue() & arg1.getIntValue());
 
         registers.setCarry(false);
         registers.setZero(arg0.getIntValue() == Register.MIN_VALUE);
     }
 
-    public void OR(InstructionArgument arg0, InstructionArgument arg1) {
+    void OR(InstructionArgument arg0, InstructionArgument arg1) {
         arg0.setValue(arg0.getIntValue() | arg1.getIntValue());
 
         registers.setCarry(false);
         registers.setZero(arg0.getIntValue() == Register.MIN_VALUE);
     }
 
-    public void XOR(InstructionArgument arg0, InstructionArgument arg1) {
+    void XOR(InstructionArgument arg0, InstructionArgument arg1) {
         arg0.setValue(arg0.getIntValue() ^ arg1.getIntValue());
 
         registers.setCarry(false);
@@ -36,7 +36,7 @@ public class ALU {
     }
 
     // Arithmetic
-    public void ADD(InstructionArgument arg0, InstructionArgument arg1) {
+    void ADD(InstructionArgument arg0, InstructionArgument arg1) {
         int result = arg0.getIntValue() + arg1.getIntValue();
 
         if (result > Register.MAX_VALUE) {
@@ -54,7 +54,7 @@ public class ALU {
     /*
       This was just copied from the Python implementation. It could likely be implemented better.
      */
-    public void ADDCY(InstructionArgument arg0, InstructionArgument arg1) {
+    void ADDCY(InstructionArgument arg0, InstructionArgument arg1) {
         boolean beforeZ = registers.Z;
 
         if (registers.C) {
@@ -68,7 +68,7 @@ public class ALU {
         }
     }
 
-    public void SUB(InstructionArgument arg0, InstructionArgument arg1) {
+    void SUB(InstructionArgument arg0, InstructionArgument arg1) {
         int result = arg0.getIntValue() - arg1.getIntValue();
 
         if (result < Register.MIN_VALUE) {
@@ -86,7 +86,7 @@ public class ALU {
     /*
       This was just copied from the Python implementation. It could likely be implemented better.
      */
-    public void SUBCY(InstructionArgument arg0, InstructionArgument arg1) {
+    void SUBCY(InstructionArgument arg0, InstructionArgument arg1) {
         boolean beforeZ = registers.Z;
 
         if (registers.C) {
@@ -101,7 +101,7 @@ public class ALU {
     }
 
     // Test and Compare
-    public void TEST(InstructionArgument arg0, InstructionArgument arg1) {
+    void TEST(InstructionArgument arg0, InstructionArgument arg1) {
         int result = arg0.getIntValue() & arg1.getIntValue();
 
         // Carry bit true if odd number of 1 bits
@@ -114,7 +114,7 @@ public class ALU {
         registers.setZero(result == Register.MIN_VALUE);
     }
 
-    public void TESTCY(InstructionArgument arg0, InstructionArgument arg1) {
+    void TESTCY(InstructionArgument arg0, InstructionArgument arg1) {
         int result = arg0.getIntValue() & arg1.getIntValue();
 
         // Carry bit true if odd number of 1 bits including carry bit
@@ -127,14 +127,14 @@ public class ALU {
         registers.setZero(result == Register.MIN_VALUE && registers.Z);
     }
 
-    public void COMPARE(InstructionArgument arg0, InstructionArgument arg1) {
+    void COMPARE(InstructionArgument arg0, InstructionArgument arg1) {
         int result = arg0.getIntValue() - arg1.getIntValue();
 
         registers.setCarry(result < 0);
         registers.setZero(result == Register.MIN_VALUE);
     }
 
-    public void COMPARECY(InstructionArgument arg0, InstructionArgument arg1) {
+    void COMPARECY(InstructionArgument arg0, InstructionArgument arg1) {
         int result = arg0.getIntValue() - arg1.getIntValue();
 
         if (registers.C) {
@@ -146,7 +146,7 @@ public class ALU {
     }
 
     // Shift and Rotate
-    public void SL(InstructionSet instruction, InstructionArgument arg0) {
+    void SL(InstructionSet instruction, InstructionArgument arg0) {
         int leastSignificantBit;
         switch (instruction) {
             case SL0:
@@ -171,7 +171,7 @@ public class ALU {
         registers.setZero(arg0.getIntValue() == 0);
     }
 
-    public void SR(InstructionSet instruction, InstructionArgument arg0) {
+    void SR(InstructionSet instruction, InstructionArgument arg0) {
         int mostSignificantBit;
         switch (instruction) {
             case SR0:
@@ -196,12 +196,12 @@ public class ALU {
         registers.setZero(arg0.getIntValue() == 0);
     }
 
-    public void RL(InstructionArgument arg0) {
+    void RL(InstructionArgument arg0) {
         registers.setCarry((arg0.getIntValue() & 0b10000000) != 0);
         SL(InstructionSet.SLA, arg0);
     }
 
-    public void RR(InstructionArgument arg0) {
+    void RR(InstructionArgument arg0) {
         registers.setCarry((arg0.getIntValue() & 0b00000001) != 0);
         SR(InstructionSet.SRA, arg0);
     }

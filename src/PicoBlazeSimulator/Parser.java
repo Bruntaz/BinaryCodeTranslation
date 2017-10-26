@@ -19,7 +19,7 @@ public class Parser {
     private ScratchPad scratchPad = ScratchPad.getInstance();
     private ALU alu = ALU.getInstance();
 
-    Stack<Integer> programCounter = new Stack<>();
+    public Stack<Integer> programCounter = new Stack<>();
     private int clockCycles;
 
     HashSet<InstructionSet> blockEntrances = new HashSet<>(Arrays.asList(InstructionSet.RETURN, InstructionSet.CALL,

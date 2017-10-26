@@ -12,17 +12,17 @@ public class Lexer {
         return ourInstance;
     }
 
-    Registers registers = Registers.getInstance();
-    HashMap<String, Integer> labelMap = new HashMap<>();
-    HashMap<String, Integer> constantMap = new HashMap<>();
+    private Registers registers = Registers.getInstance();
+    private HashMap<String, Integer> labelMap = new HashMap<>();
+    private HashMap<String, Integer> constantMap = new HashMap<>();
 
-    HashSet<InstructionSet> noArgs = new HashSet<>(Collections.singletonList(InstructionSet.RETURN));
-    HashSet<InstructionSet> oneArg = new HashSet<>(Arrays.asList(
+    private HashSet<InstructionSet> noArgs = new HashSet<>(Collections.singletonList(InstructionSet.RETURN));
+    private HashSet<InstructionSet> oneArg = new HashSet<>(Arrays.asList(
             InstructionSet.SL0, InstructionSet.SL1, InstructionSet.SLX, InstructionSet.SLA, InstructionSet.RL,
             InstructionSet.SR0, InstructionSet.SR1, InstructionSet.SRX, InstructionSet.SRA, InstructionSet.RR,
             InstructionSet.REGBANK, InstructionSet.JUMP, InstructionSet.CALL, InstructionSet.RETURN)
     );
-    HashSet<InstructionSet> twoArgs = new HashSet<>(Arrays.asList(
+    private HashSet<InstructionSet> twoArgs = new HashSet<>(Arrays.asList(
             InstructionSet.LOAD, InstructionSet.STAR, InstructionSet.AND, InstructionSet.OR, InstructionSet.XOR,
             InstructionSet.ADD, InstructionSet.ADDCY, InstructionSet.SUB, InstructionSet.SUBCY,
             InstructionSet.TEST, InstructionSet.TESTCY, InstructionSet.COMPARE, InstructionSet.COMPARECY,
@@ -34,7 +34,7 @@ public class Lexer {
         String label;
         int colonSection;
 
-        public LabelAndColon(String label, int colonSection) {
+        LabelAndColon(String label, int colonSection) {
             this.label = label;
             this.colonSection = colonSection;
         }
@@ -44,7 +44,7 @@ public class Lexer {
         InstructionSet instruction;
         int instructionSection;
 
-        public InstructionAndSection(InstructionSet instruction, int instructionSection) {
+        InstructionAndSection(InstructionSet instruction, int instructionSection) {
             this.instruction = instruction;
             this.instructionSection = instructionSection;
         }

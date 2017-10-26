@@ -33,11 +33,11 @@ public class ScratchPad {
         memory[location] = value;
     }
 
-    public void STORE(InstructionArgument arg0, InstructionArgument arg1) {
+    void STORE(InstructionArgument arg0, InstructionArgument arg1) {
         setMemory(arg1.getIntValue(), arg0.getIntValue());
     }
 
-    public void FETCH(InstructionArgument arg0, InstructionArgument arg1) {
+    void FETCH(InstructionArgument arg0, InstructionArgument arg1) {
         arg0.setValue(getMemory(arg1.getIntValue()));
     }
 
