@@ -1,9 +1,6 @@
-package InstructionArguments;
+package PicoBlazeSimulator.InstructionArguments;
 
-public class RegisterBank implements InstructionArgument {
-    public static final String A = "A";
-    public static final String B = "B";
-
+public class NamedArgument implements InstructionArgument {
     private String value;
 
     @Override
@@ -35,10 +32,7 @@ public class RegisterBank implements InstructionArgument {
         value = newValue;
     }
 
-    public RegisterBank(String registerBank) {
-        if (!(registerBank.equals(A) || registerBank.equals(B))) {
-            throw new Error("RegisterBank argument neither A or B");
-        }
-        this.value = registerBank;
+    public NamedArgument(String name) {
+        value = name;
     }
 }

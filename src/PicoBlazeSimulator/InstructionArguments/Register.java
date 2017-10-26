@@ -1,6 +1,6 @@
-package InstructionArguments;
+package PicoBlazeSimulator.InstructionArguments;
 
-import Groups.RegisterName;
+import PicoBlazeSimulator.Groups.RegisterName;
 
 public class Register implements InstructionArgument {
     public static final int MAX_VALUE = 255;
@@ -38,7 +38,7 @@ public class Register implements InstructionArgument {
     @Override
     public void setValue(int newValue) {
         if (newValue < MIN_VALUE || newValue > MAX_VALUE) {
-            throw new Error("InstructionArguments.Register set to an illegal number (" + newValue + ")");
+            throw new Error("PicoBlazeSimulator.InstructionArguments.Register set to an illegal number (" + newValue + ")");
         }
 
         if (aRegisterBank) {

@@ -1,6 +1,8 @@
-import Groups.InstructionSet;
-import Groups.RegisterName;
-import InstructionArguments.*;
+package PicoBlazeSimulator;
+
+import PicoBlazeSimulator.Groups.InstructionSet;
+import PicoBlazeSimulator.Groups.RegisterName;
+import PicoBlazeSimulator.InstructionArguments.*;
 
 import java.util.*;
 
@@ -323,7 +325,7 @@ public class Lexer {
                 }
 
                 // This does not cover all cases of block entrances. The JUMP@ and CALL@ instructions can still start
-                // new blocks (by jumping). This needs to be covered in the Parser though because the values are
+                // new blocks (by jumping). This needs to be covered in the PicoBlazeSimulator.Parser though because the values are
                 // calculated at runtime.
                 switch (instructionName) {
                     case JUMP:

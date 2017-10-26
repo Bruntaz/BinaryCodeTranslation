@@ -1,7 +1,9 @@
-import Groups.InstructionSet;
-import InstructionArguments.InstructionArgument;
-import InstructionArguments.Literal;
-import InstructionArguments.Register;
+package PicoBlazeSimulator;
+
+import PicoBlazeSimulator.Groups.InstructionSet;
+import PicoBlazeSimulator.InstructionArguments.InstructionArgument;
+import PicoBlazeSimulator.InstructionArguments.Literal;
+import PicoBlazeSimulator.InstructionArguments.Register;
 
 public class ALU {
     private static ALU ourInstance = new ALU();

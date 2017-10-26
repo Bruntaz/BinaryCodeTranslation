@@ -1,5 +1,10 @@
-import Groups.InstructionSet;
-import InstructionArguments.*;
+package PicoBlazeSimulator;
+
+import PicoBlazeSimulator.Groups.InstructionSet;
+import PicoBlazeSimulator.InstructionArguments.AbsoluteAddress;
+import PicoBlazeSimulator.InstructionArguments.FlagArgument;
+import PicoBlazeSimulator.InstructionArguments.InstructionArgument;
+import PicoBlazeSimulator.InstructionArguments.NoArgument;
 
 import java.util.*;
 import java.util.Stack;
@@ -309,7 +314,7 @@ public class Parser {
                     break;
 
                 default:
-                    throw new UnsupportedOperationException("Unrecognised instruction. Has the instruction been added to the switch statement in Parser?");
+                    throw new UnsupportedOperationException("Unrecognised instruction. Has the instruction been added to the switch statement in PicoBlazeSimulator.Parser?");
             }
 
             clockCycles += 1;

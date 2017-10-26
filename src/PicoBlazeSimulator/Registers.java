@@ -1,7 +1,9 @@
-import Groups.RegisterName;
-import InstructionArguments.InstructionArgument;
-import InstructionArguments.Register;
-import InstructionArguments.RegisterBank;
+package PicoBlazeSimulator;
+
+import PicoBlazeSimulator.Groups.RegisterName;
+import PicoBlazeSimulator.InstructionArguments.InstructionArgument;
+import PicoBlazeSimulator.InstructionArguments.Register;
+import PicoBlazeSimulator.InstructionArguments.RegisterBank;
 
 import java.util.HashMap;
 

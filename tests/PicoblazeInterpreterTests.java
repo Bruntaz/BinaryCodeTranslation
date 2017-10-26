@@ -1,4 +1,7 @@
-import Groups.RegisterName;
+import PicoBlazeSimulator.Groups.RegisterName;
+import PicoBlazeSimulator.Parser;
+import PicoBlazeSimulator.Registers;
+import PicoBlazeSimulator.*;
 
 public class PicoblazeInterpreterTests {
     static PicoblazeInterpreter picoblazeInterpreter = new PicoblazeInterpreter();

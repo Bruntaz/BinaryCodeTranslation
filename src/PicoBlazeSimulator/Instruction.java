@@ -1,5 +1,7 @@
-import Groups.InstructionSet;
-import InstructionArguments.InstructionArgument;
+package PicoBlazeSimulator;
+
+import PicoBlazeSimulator.Groups.InstructionSet;
+import PicoBlazeSimulator.InstructionArguments.InstructionArgument;
 
 public class Instruction {
     InstructionSet instruction;

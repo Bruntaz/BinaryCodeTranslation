@@ -1,4 +1,4 @@
-package Groups;
+package PicoBlazeSimulator.Groups;
 
 public enum InstructionSet {
     // InstructionArguments.Register loading

@@ -1,9 +1,6 @@
-package InstructionArguments;
+package PicoBlazeSimulator.InstructionArguments;
 
-public class AbsoluteAddress implements InstructionArgument {
-    public static final int MAX_VALUE = 0xFFF;
-    public static final int MIN_VALUE = 0x000;
-
+public class Literal implements InstructionArgument {
     private int value;
 
     @Override
@@ -28,18 +25,15 @@ public class AbsoluteAddress implements InstructionArgument {
 
     @Override
     public void setValue(int newValue) {
-        if (value > MAX_VALUE || value < MIN_VALUE) {
-            throw new Error("Address set to an illegal number (" + newValue + ")");
-        }
-
         value = newValue;
     }
 
     @Override
     public void setValue(String newValue) {
+
     }
 
-    public AbsoluteAddress(int address) {
-        value = address;
+    public Literal(int value) {
+        this.value = value;
     }
 }

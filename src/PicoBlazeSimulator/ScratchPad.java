@@ -1,5 +1,7 @@
-import InstructionArguments.InstructionArgument;
-import InstructionArguments.Register;
+package PicoBlazeSimulator;
+
+import PicoBlazeSimulator.InstructionArguments.InstructionArgument;
+import PicoBlazeSimulator.InstructionArguments.Register;
 
 public class ScratchPad {
     private static ScratchPad ourInstance = new ScratchPad();

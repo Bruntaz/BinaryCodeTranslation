@@ -1,4 +1,4 @@
-package InstructionArguments;
+package PicoBlazeSimulator.InstructionArguments;
 
 public class NoArgument implements InstructionArgument {
     @Override
