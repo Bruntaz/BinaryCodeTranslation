@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 
 public class Translator {
@@ -11,8 +12,8 @@ public class Translator {
     private StackSimulator.Lexer stackLexer = StackSimulator.Lexer.getInstance();
     private StackSimulator.Parser stackParser = StackSimulator.Parser.getInstance();
 
-    public StackSimulator.Instruction[] translate(PicoBlazeSimulator.Instruction[] picoBlazeInstructions) {
-        return null;
+    public StackSimulator.Instruction[] translate(PicoBlazeSimulator.Instruction picoBlazeInstruction) {
+        return new StackSimulator.Instruction[] {};
     }
 
     private List<String> readFile(String filename) {
@@ -42,6 +43,10 @@ public class Translator {
         PicoBlazeSimulator.Instruction[] picoBlazeInstructions = picoBlazeLexer.lex(file);
 
         /*
+        This comment may be old now, read it over later and see how much of it is still relevant.
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         This would presumably translate the whole file. You'd actually want to have a run loop in here which would
         use the PicoBlaze block detection to translate little chunks and then send them repeatedly to the stack
         machine.
@@ -69,15 +74,38 @@ public class Translator {
             pointer += 1; // This obviously doesn't take into account jumps etc. Figure that out at implementation time
         }
          */
-        StackSimulator.Instruction[] stackInstructions = translate(picoBlazeInstructions);
+        StackSimulator.Instruction[][] stackInstructions = new StackSimulator.Instruction[picoBlazeInstructions
+                .length][];
 
-        stackParser.parse(stackInstructions);
+        int stackPC = stackParser.programCounter.peek();
+        while (stackPC < stackInstructions.length) {
+            if (stackInstructions[stackPC] == null) { // Currently this just converts everything because the program
+                                                      // counter isn't being changed on jumps in the stack machine.
+                // Translate next block
+                int nextBlockEnd = picoBlazeParser.getNextBlockEnd(picoBlazeInstructions, stackPC);
+
+                for (int instructionNumber = stackPC; instructionNumber <= nextBlockEnd; instructionNumber++) {
+                    stackInstructions[instructionNumber] = translate(picoBlazeInstructions[instructionNumber]);
+                }
+            }
+
+            stackParser.parse(stackInstructions[stackPC]);
+
+            stackParser.incrementProgramCounter();
+            stackPC = stackParser.programCounter.peek();
+        }
+
+        for (int i=0; i<stackInstructions.length; i++) {
+            System.out.println(Arrays.toString(stackInstructions[i]) + ", " + picoBlazeInstructions[i].instruction);
+        }
+        System.out.println(stackInstructions.length);
     }
 
     public static void main(String[] args) {
         Translator translator = new Translator();
-        translator.runPicoBlazeFileNatively(args[0]);
+//        translator.runPicoBlazeFileNatively(args[0]);
+        translator.runPicoBlazeFileOnStackMachine(args[0]);
 
-        System.out.println(PicoBlazeSimulator.ScratchPad.getInstance());
+//        System.out.println(PicoBlazeSimulator.ScratchPad.getInstance());
     }
 }

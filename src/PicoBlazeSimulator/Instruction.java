@@ -4,10 +4,10 @@ import PicoBlazeSimulator.Groups.InstructionSet;
 import PicoBlazeSimulator.InstructionArguments.InstructionArgument;
 
 public class Instruction {
-    InstructionSet instruction;
-    InstructionArgument arg0;
-    InstructionArgument arg1;
-    boolean isBlockStart;
+    public InstructionSet instruction;
+    public InstructionArgument arg0;
+    public InstructionArgument arg1;
+    public boolean isBlockStart;
 
     public Instruction() {
         this(null, null, null, false);

@@ -33,14 +33,14 @@ public class Parser {
         registers.setZero(false);
     }
 
-    private void setProgramCounter(int value) {
+    public void setProgramCounter(int value) {
         setProgramCounter(value, false);
     }
 
     /*
      Requires error handling for max size of stack being reached
      */
-    private void setProgramCounter(int value, boolean push) {
+    public void setProgramCounter(int value, boolean push) {
         if (push) {
             if (programCounter.size() <= 30) {
                 programCounter.push(value);
@@ -55,7 +55,7 @@ public class Parser {
         }
     }
 
-    private void incrementProgramCounter() {
+    public void incrementProgramCounter() {
         int nextValue = programCounter.peek() + 1;
         setProgramCounter(nextValue > 0x3ff ? 0 : nextValue);
     }
@@ -179,6 +179,134 @@ public class Parser {
         }
     }
 
+    public void parse(Instruction instruction) {
+        incrementProgramCounter();
+
+        if (instruction.instruction == null) {
+            return;
+        }
+
+        switch (instruction.instruction) {
+            // Register loading
+            case LOAD:
+                registers.LOAD(instruction.arg0, instruction.arg1);
+                break;
+            case STAR:
+                registers.STAR(instruction.arg0, instruction.arg1);
+                break;
+
+            // Logical
+            case AND:
+                alu.AND(instruction.arg0, instruction.arg1);
+                break;
+            case OR:
+                alu.OR(instruction.arg0, instruction.arg1);
+                break;
+            case XOR:
+                alu.XOR(instruction.arg0, instruction.arg1);
+                break;
+
+            // Arithmetic
+            case ADD:
+                alu.ADD(instruction.arg0, instruction.arg1);
+                break;
+            case ADDCY:
+                alu.ADDCY(instruction.arg0, instruction.arg1);
+                break;
+            case SUB:
+                alu.SUB(instruction.arg0, instruction.arg1);
+                break;
+            case SUBCY:
+                alu.SUBCY(instruction.arg0, instruction.arg1);
+                break;
+
+            // Test and Compare
+            case TEST:
+                alu.TEST(instruction.arg0, instruction.arg1);
+                break;
+            case TESTCY:
+                alu.TESTCY(instruction.arg0, instruction.arg1);
+                break;
+            case COMPARE:
+                alu.COMPARE(instruction.arg0, instruction.arg1);
+                break;
+            case COMPARECY:
+                alu.COMPARECY(instruction.arg0, instruction.arg1);
+                break;
+
+            // Shift and Rotate
+            case SL0:
+            case SL1:
+            case SLX:
+            case SLA:
+                alu.SL(instruction.instruction, instruction.arg0);
+                break;
+            case SR0:
+            case SR1:
+            case SRX:
+            case SRA:
+                alu.SR(instruction.instruction, instruction.arg0);
+                break;
+            case RL:
+                alu.RL(instruction.arg0);
+                break;
+            case RR:
+                alu.RR(instruction.arg0);
+                break;
+
+            // Register Bank Selection
+            case REGBANK:
+                registers.REGBANK(instruction.arg0);
+                break;
+
+            // Scratch Pad Memory
+            case STORE:
+                scratchPad.STORE(instruction.arg0, instruction.arg1);
+                break;
+            case FETCH:
+                scratchPad.FETCH(instruction.arg0, instruction.arg1);
+                break;
+
+            // Jump
+            case JUMP:
+                if (instruction.arg0 instanceof AbsoluteAddress) {
+                    JUMP(instruction.arg0);
+                } else {
+                    JUMP(instruction.arg0, instruction.arg1);
+                }
+                break;
+            case JUMPAT:
+                JUMPAT(instruction.arg0, instruction.arg1);
+                break;
+
+            // Subroutines
+            case CALL:
+                CALL(instruction.arg0, instruction.arg1);
+                break;
+            case CALLAT:
+                CALLAT(instruction.arg0, instruction.arg1);
+                break;
+            case RETURN:
+                if (instruction.arg0 instanceof NoArgument) {
+                    RETURN();
+                } else {
+                    RETURN(instruction.arg0, instruction.arg1);
+                }
+                break;
+            case LOADANDRETURN:
+                LOADANDRETURN(instruction.arg0, instruction.arg1);
+                break;
+
+            // Version Control
+            case HWBUILD:
+                HWBUILD(instruction.arg0);
+                break;
+
+            default:
+                throw new UnsupportedOperationException("Unrecognised instruction. Has the instruction been added to the switch statement in Parser?");
+        }
+    }
+
     public void parse(Instruction[] program) {
         clockCycles = 0;
 
@@ -191,136 +319,11 @@ public class Parser {
                 translate(programCounter.peek(), program, translated);
             }
 
-            incrementProgramCounter();
-
-            if (instruction.instruction == null) {
-                continue;
-            }
-
-            switch (instruction.instruction) {
-                // Register loading
-                case LOAD:
-                    registers.LOAD(instruction.arg0, instruction.arg1);
-                    break;
-                case STAR:
-                    registers.STAR(instruction.arg0, instruction.arg1);
-                    break;
-
-                // Logical
-                case AND:
-                    alu.AND(instruction.arg0, instruction.arg1);
-                    break;
-                case OR:
-                    alu.OR(instruction.arg0, instruction.arg1);
-                    break;
-                case XOR:
-                    alu.XOR(instruction.arg0, instruction.arg1);
-                    break;
-
-                // Arithmetic
-                case ADD:
-                    alu.ADD(instruction.arg0, instruction.arg1);
-                    break;
-                case ADDCY:
-                    alu.ADDCY(instruction.arg0, instruction.arg1);
-                    break;
-                case SUB:
-                    alu.SUB(instruction.arg0, instruction.arg1);
-                    break;
-                case SUBCY:
-                    alu.SUBCY(instruction.arg0, instruction.arg1);
-                    break;
-
-                // Test and Compare
-                case TEST:
-                    alu.TEST(instruction.arg0, instruction.arg1);
-                    break;
-                case TESTCY:
-                    alu.TESTCY(instruction.arg0, instruction.arg1);
-                    break;
-                case COMPARE:
-                    alu.COMPARE(instruction.arg0, instruction.arg1);
-                    break;
-                case COMPARECY:
-                    alu.COMPARECY(instruction.arg0, instruction.arg1);
-                    break;
-
-                // Shift and Rotate
-                case SL0:
-                case SL1:
-                case SLX:
-                case SLA:
-                    alu.SL(instruction.instruction, instruction.arg0);
-                    break;
-                case SR0:
-                case SR1:
-                case SRX:
-                case SRA:
-                    alu.SR(instruction.instruction, instruction.arg0);
-                    break;
-                case RL:
-                    alu.RL(instruction.arg0);
-                    break;
-                case RR:
-                    alu.RR(instruction.arg0);
-                    break;
-
-                // Register Bank Selection
-                case REGBANK:
-                    registers.REGBANK(instruction.arg0);
-                    break;
-
-                // Scratch Pad Memory
-                case STORE:
-                    scratchPad.STORE(instruction.arg0, instruction.arg1);
-                    break;
-                case FETCH:
-                    scratchPad.FETCH(instruction.arg0, instruction.arg1);
-                    break;
-
-                // Jump
-                case JUMP:
-                    if (instruction.arg0 instanceof AbsoluteAddress) {
-                        JUMP(instruction.arg0);
-                    } else {
-                        JUMP(instruction.arg0, instruction.arg1);
-                    }
-                    break;
-                case JUMPAT:
-                    JUMPAT(instruction.arg0, instruction.arg1);
-                    break;
-
-                // Subroutines
-                case CALL:
-                    CALL(instruction.arg0, instruction.arg1);
-                    break;
-                case CALLAT:
-                    CALLAT(instruction.arg0, instruction.arg1);
-                    break;
-                case RETURN:
-                    if (instruction.arg0 instanceof NoArgument) {
-                        RETURN();
-                    } else {
-                        RETURN(instruction.arg0, instruction.arg1);
-                    }
-                    break;
-                case LOADANDRETURN:
-                    LOADANDRETURN(instruction.arg0, instruction.arg1);
-                    break;
-
-                // Version Control
-                case HWBUILD:
-                    HWBUILD(instruction.arg0);
-                    break;
-
-                default:
-                    throw new UnsupportedOperationException("Unrecognised instruction. Has the instruction been added to the switch statement in PicoBlazeSimulator.Parser?");
-            }
+            parse(instruction);
 
             clockCycles += 1;
             System.out.println(Arrays.toString(translated));
             System.out.println(registers);
-
         }
 
         System.out.println(String.format("Finished in %d clock cycles", clockCycles));
