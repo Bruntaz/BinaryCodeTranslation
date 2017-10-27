@@ -151,32 +151,22 @@ public class Parser {
         registers.setZero(arg0.getIntValue() == 0);
     }
 
-    public int getNextBlockEnd(Instruction[] instructions, int startOfBlock) {
-        int newBlockEnd = startOfBlock + 1;
+    public int getNextBlockStart(Instruction[] instructions, int startOfBlock) {
+        int nextBlockStart = startOfBlock + 1;
 
-        if (instructions.length <= newBlockEnd) {
-            return startOfBlock;
+        if (instructions.length <= nextBlockStart) {
+            return instructions.length;
         }
 
-        while (!instructions[newBlockEnd].isBlockStart) {
-            newBlockEnd += 1;
+        while (!instructions[nextBlockStart].isBlockStart) {
+            nextBlockStart += 1;
 
-            if (instructions.length <= newBlockEnd) {
+            if (instructions.length <= nextBlockStart) {
                 break;
             }
         }
 
-        return newBlockEnd - 1;
-    }
-
-    public void translate(int startOfBlock, Instruction[] instructions, boolean[] translatedPointers) {
-        instructions[startOfBlock].isBlockStart = true;
-
-        int endOfBlock = getNextBlockEnd(instructions, startOfBlock);
-
-        for (int translating = startOfBlock; translating <= endOfBlock; translating++) {
-            translatedPointers[translating] = true;
-        }
+        return nextBlockStart;
     }
 
     public void parse(Instruction instruction) {
@@ -310,19 +300,12 @@ public class Parser {
     public void parse(Instruction[] program) {
         clockCycles = 0;
 
-        boolean[] translated = new boolean[program.length];
-
         while (programCounter.peek() < program.length) {
             Instruction instruction = program[programCounter.peek()];
-
-            if (!translated[programCounter.peek()]) {
-                translate(programCounter.peek(), program, translated);
-            }
 
             parse(instruction);
 
             clockCycles += 1;
-            System.out.println(Arrays.toString(translated));
             System.out.println(registers);
         }
 
