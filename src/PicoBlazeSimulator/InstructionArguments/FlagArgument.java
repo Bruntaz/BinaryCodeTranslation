@@ -1,6 +1,10 @@
-public class RegisterBank implements InstructionArgument {
-    static final String A = "A";
-    static final String B = "B";
+package PicoBlazeSimulator.InstructionArguments;
+
+public class FlagArgument implements InstructionArgument {
+    public static final String C = "C";
+    public static final String NC = "NC";
+    public static final String Z = "Z";
+    public static final String NZ = "NZ";
 
     private String value;
 
@@ -26,6 +30,7 @@ public class RegisterBank implements InstructionArgument {
 
     @Override
     public void setValue(int newValue) {
+
     }
 
     @Override
@@ -33,7 +38,7 @@ public class RegisterBank implements InstructionArgument {
         value = newValue;
     }
 
-    public RegisterBank(String registerBank) {
-        this.value = registerBank;
+    public FlagArgument(String flag) {
+        value = flag;
     }
 }

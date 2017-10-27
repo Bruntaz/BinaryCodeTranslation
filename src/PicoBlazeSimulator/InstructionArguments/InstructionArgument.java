@@ -1,3 +1,5 @@
+package PicoBlazeSimulator.InstructionArguments;
+
 public interface InstructionArgument {
     boolean hasStringValue();
     String getStringValue();

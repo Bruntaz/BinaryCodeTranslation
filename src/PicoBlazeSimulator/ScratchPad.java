@@ -1,4 +1,7 @@
-import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
+package PicoBlazeSimulator;
+
+import PicoBlazeSimulator.InstructionArguments.InstructionArgument;
+import PicoBlazeSimulator.InstructionArguments.Register;
 
 public class ScratchPad {
     private static ScratchPad ourInstance = new ScratchPad();
@@ -24,17 +27,17 @@ public class ScratchPad {
 
     public void setMemory(int location, int value) {
         if (value < Register.MIN_VALUE || value > Register.MAX_VALUE) {
-            throw new ValueException("Scratch pad set to an illegal number (" + value + ")");
+            throw new Error("Scratch pad set to an illegal number (" + value + ")");
         }
 
         memory[location] = value;
     }
 
-    public void STORE(InstructionArgument arg0, InstructionArgument arg1) {
+    void STORE(InstructionArgument arg0, InstructionArgument arg1) {
         setMemory(arg1.getIntValue(), arg0.getIntValue());
     }
 
-    public void FETCH(InstructionArgument arg0, InstructionArgument arg1) {
+    void FETCH(InstructionArgument arg0, InstructionArgument arg1) {
         arg0.setValue(getMemory(arg1.getIntValue()));
     }
 

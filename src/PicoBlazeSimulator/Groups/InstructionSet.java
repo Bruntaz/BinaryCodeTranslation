@@ -1,5 +1,7 @@
+package PicoBlazeSimulator.Groups;
+
 public enum InstructionSet {
-    // Register loading
+    // InstructionArguments.Register loading
     LOAD,
     STAR,
 
@@ -32,7 +34,7 @@ public enum InstructionSet {
     SRA,
     RR,
 
-    // Register Bank Selection
+    // InstructionArguments.Register Bank Selection
     REGBANK,
 
     // Scratch Pad Memory

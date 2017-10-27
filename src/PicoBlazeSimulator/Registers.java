@@ -1,3 +1,10 @@
+package PicoBlazeSimulator;
+
+import PicoBlazeSimulator.Groups.RegisterName;
+import PicoBlazeSimulator.InstructionArguments.InstructionArgument;
+import PicoBlazeSimulator.InstructionArguments.Register;
+import PicoBlazeSimulator.InstructionArguments.RegisterBank;
+
 import java.util.HashMap;
 
 /**
@@ -14,7 +21,7 @@ public class Registers {
     public boolean Z = false;
     public boolean aRegisterBank = true;
 
-    private HashMap<RegisterName, Register> registers = new HashMap<RegisterName, Register>();
+    private HashMap<RegisterName, Register> registers = new HashMap<>();
 
     public Register getRegister(RegisterName register) {
         return registers.get(register);
@@ -30,10 +37,14 @@ public class Registers {
 
     public void useARegisterBank(boolean newState) {
         aRegisterBank = newState;
+
+        for (Register register : registers.values()) {
+            register.useARegisterBank(newState);
+        }
     }
 
     public void toggleActiveRegisters() {
-        aRegisterBank = !aRegisterBank;
+        useARegisterBank(!aRegisterBank);
     }
 
     public void resetRegisters() {
@@ -42,11 +53,11 @@ public class Registers {
         }
     }
 
-    public void LOAD(InstructionArgument arg0, InstructionArgument arg1) {
+    void LOAD(InstructionArgument arg0, InstructionArgument arg1) {
         arg0.setValue(arg1.getIntValue());
     }
 
-    public void STAR(InstructionArgument arg0, InstructionArgument arg1) {
+    void STAR(InstructionArgument arg0, InstructionArgument arg1) {
         int copiedValue = arg1.getIntValue();
         toggleActiveRegisters();
 
@@ -55,13 +66,13 @@ public class Registers {
     }
 
     // Register Bank Selection
-    public void REGBANK(InstructionArgument arg0) {
-        aRegisterBank = arg0.getStringValue().equals(RegisterBank.A);
+    void REGBANK(InstructionArgument arg0) {
+        useARegisterBank(arg0.getStringValue().equals(RegisterBank.A));
     }
 
-    private  Registers() {
+    private Registers() {
         for (RegisterName registerName : RegisterName.values()) {
-            this.registers.put(registerName, new Register(this, registerName));
+            this.registers.put(registerName, new Register(registerName));
         }
     }
 

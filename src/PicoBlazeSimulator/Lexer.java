@@ -1,3 +1,9 @@
+package PicoBlazeSimulator;
+
+import PicoBlazeSimulator.Groups.InstructionSet;
+import PicoBlazeSimulator.Groups.RegisterName;
+import PicoBlazeSimulator.InstructionArguments.*;
+
 import java.util.*;
 
 public class Lexer {
@@ -6,17 +12,17 @@ public class Lexer {
         return ourInstance;
     }
 
-    Registers registers = Registers.getInstance();
-    HashMap<String, Integer> labelMap = new HashMap<>();
-    HashMap<String, Integer> constantMap = new HashMap<>();
+    private Registers registers = Registers.getInstance();
+    private HashMap<String, Integer> labelMap = new HashMap<>();
+    private HashMap<String, Integer> constantMap = new HashMap<>();
 
-    HashSet<InstructionSet> noArgs = new HashSet<>(Collections.singletonList(InstructionSet.RETURN));
-    HashSet<InstructionSet> oneArg = new HashSet<>(Arrays.asList(
+    private HashSet<InstructionSet> noArgs = new HashSet<>(Collections.singletonList(InstructionSet.RETURN));
+    private HashSet<InstructionSet> oneArg = new HashSet<>(Arrays.asList(
             InstructionSet.SL0, InstructionSet.SL1, InstructionSet.SLX, InstructionSet.SLA, InstructionSet.RL,
             InstructionSet.SR0, InstructionSet.SR1, InstructionSet.SRX, InstructionSet.SRA, InstructionSet.RR,
             InstructionSet.REGBANK, InstructionSet.JUMP, InstructionSet.CALL, InstructionSet.RETURN)
     );
-    HashSet<InstructionSet> twoArgs = new HashSet<>(Arrays.asList(
+    private HashSet<InstructionSet> twoArgs = new HashSet<>(Arrays.asList(
             InstructionSet.LOAD, InstructionSet.STAR, InstructionSet.AND, InstructionSet.OR, InstructionSet.XOR,
             InstructionSet.ADD, InstructionSet.ADDCY, InstructionSet.SUB, InstructionSet.SUBCY,
             InstructionSet.TEST, InstructionSet.TESTCY, InstructionSet.COMPARE, InstructionSet.COMPARECY,
@@ -28,7 +34,7 @@ public class Lexer {
         String label;
         int colonSection;
 
-        public LabelAndColon(String label, int colonSection) {
+        LabelAndColon(String label, int colonSection) {
             this.label = label;
             this.colonSection = colonSection;
         }
@@ -38,7 +44,7 @@ public class Lexer {
         InstructionSet instruction;
         int instructionSection;
 
-        public InstructionAndSection(InstructionSet instruction, int instructionSection) {
+        InstructionAndSection(InstructionSet instruction, int instructionSection) {
             this.instruction = instruction;
             this.instructionSection = instructionSection;
         }
@@ -139,6 +145,10 @@ public class Lexer {
 
         if (instructionName == InstructionSet.CONSTANT && firstArgument) {
             return new NamedArgument(toConvert);
+        }
+
+        if (instructionName == InstructionSet.REGBANK) {
+            return new RegisterBank(toConvert);
         }
 
         try {
@@ -257,10 +267,28 @@ public class Lexer {
 
     public Instruction[] lex(List<String> program) {
         Instruction[] instructions = new Instruction[program.size()];
-        System.out.println(instructions.length);
+
+        String[][] allSections = new String[program.size()][];
         for (int lineNumber=0; lineNumber<program.size(); lineNumber++) {
             String line = program.get(lineNumber).split(";")[0]; // Remove comments
             String[] sections = line.trim().split("\\s+"); // Split on (and remove) whitespace
+            allSections[lineNumber] = sections;
+
+            /*
+            TODO: Don't repeat this code in the next for loop. It is currently done twice to allow for knowledge of
+            the location of all labels before execution.
+             */
+            LabelAndColon label = getLabel(sections);
+            if (label != null) {
+                labelMap.put(label.label, lineNumber);
+            }
+
+            // Initialise array to empty Instructions to fill later
+            instructions[lineNumber] = new Instruction();
+        }
+
+        for (int lineNumber=0; lineNumber<program.size(); lineNumber++) {
+            String[] sections = allSections[lineNumber];
 
             if (sections[0].isEmpty()) {
                 // Blank line
@@ -269,14 +297,15 @@ public class Lexer {
 
             LabelAndColon label = getLabel(sections);
             if (label != null) {
-                labelMap.put(label.label, lineNumber);
+                instructions[lineNumber].isBlockStart = true;
             }
 
-            InstructionAndSection instructionName = getInstruction(sections, label);
-            if (instructionName != null){
-                System.out.println(instructionName.instruction);
+            InstructionAndSection instructionAndSection = getInstruction(sections, label);
+            if (instructionAndSection != null) {
+                InstructionSet instructionName = instructionAndSection.instruction;
+                System.out.println(instructionName);
 
-                InstructionArgument[] args = getArguments(sections, instructionName);
+                InstructionArgument[] args = getArguments(sections, instructionAndSection);
 
                 if (args == null) {
                     throw new IllegalArgumentException(String.format("Illegal number of arguments on line %d", lineNumber + 1));
@@ -285,11 +314,38 @@ public class Lexer {
                 System.out.println(args[0]);
                 System.out.println(args[1]);
 
-                if (instructionName.instruction == InstructionSet.CONSTANT) {
+                if (instructionName == InstructionSet.CONSTANT) {
                     // Convert all constants to values in lexer so don't include constants in instructions array
                     constantMap.put(args[0].getStringValue(), args[1].getIntValue());
+
                 } else {
-                    instructions[lineNumber] = new Instruction(instructionName.instruction, args[0], args[1]);
+                    instructions[lineNumber].instruction = instructionName;
+                    instructions[lineNumber].arg0 = args[0];
+                    instructions[lineNumber].arg1 = args[1];
+                }
+
+                // This does not cover all cases of block entrances. The JUMP@ and CALL@ instructions can still start
+                // new blocks (by jumping). This needs to be covered in the PicoBlazeSimulator.Parser though because the values are
+                // calculated at runtime.
+                switch (instructionName) {
+                    case JUMP:
+                    case JUMPAT:
+                    case CALL:
+                    case CALLAT:
+                    case RETURN:
+                    case LOADANDRETURN:
+                        if (instructions.length > lineNumber + 1) {
+                            instructions[lineNumber + 1].isBlockStart = true;
+                        }
+                }
+
+                if (instructionName == InstructionSet.CALL || instructionName == InstructionSet.JUMP) {
+                    int arg = args[0] instanceof AbsoluteAddress ? 0 : 1;
+                    int address = args[arg].getIntValue();
+
+                    if (instructions.length > address) {
+                        instructions[address].isBlockStart = true;
+                    }
                 }
             }
 

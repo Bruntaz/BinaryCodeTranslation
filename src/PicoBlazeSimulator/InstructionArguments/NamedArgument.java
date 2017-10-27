@@ -1,9 +1,6 @@
-public class FlagArgument implements InstructionArgument {
-    static final String C = "C";
-    static final String NC = "NC";
-    static final String Z = "Z";
-    static final String NZ = "NZ";
+package PicoBlazeSimulator.InstructionArguments;
 
+public class NamedArgument implements InstructionArgument {
     private String value;
 
     @Override
@@ -28,7 +25,6 @@ public class FlagArgument implements InstructionArgument {
 
     @Override
     public void setValue(int newValue) {
-
     }
 
     @Override
@@ -36,7 +32,7 @@ public class FlagArgument implements InstructionArgument {
         value = newValue;
     }
 
-    public FlagArgument(String flag) {
-        value = flag;
+    public NamedArgument(String name) {
+        value = name;
     }
 }

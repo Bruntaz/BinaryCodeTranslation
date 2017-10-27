@@ -1,10 +1,12 @@
-import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
+package PicoBlazeSimulator.InstructionArguments;
+
+import PicoBlazeSimulator.Groups.RegisterName;
 
 public class Register implements InstructionArgument {
-    static final int MAX_VALUE = 255;
-    static final int MIN_VALUE = 0;
+    public static final int MAX_VALUE = 255;
+    public static final int MIN_VALUE = 0;
 
-    private Registers registers;
+    private boolean aRegisterBank = true;
     private RegisterName registerName;
     private int aValue;
     private int bValue;
@@ -30,16 +32,16 @@ public class Register implements InstructionArgument {
 
     @Override
     public int getIntValue() {
-        return registers.aRegisterBank ? aValue : bValue;
+        return aRegisterBank ? aValue : bValue;
     }
 
     @Override
     public void setValue(int newValue) {
         if (newValue < MIN_VALUE || newValue > MAX_VALUE) {
-            throw new ValueException("Register set to an illegal number (" + newValue + ")");
+            throw new Error("PicoBlazeSimulator.InstructionArguments.Register set to an illegal number (" + newValue + ")");
         }
 
-        if (registers.aRegisterBank) {
+        if (aRegisterBank) {
             this.aValue = newValue;
         } else {
             this.bValue = newValue;
@@ -49,13 +51,20 @@ public class Register implements InstructionArgument {
     @Override
     public void setValue(String newValue) {}
 
+    public boolean isARegisterBank() {
+        return aRegisterBank;
+    }
+
+    public void useARegisterBank(boolean state) {
+        aRegisterBank = state;
+    }
+
     public void reset() {
         aValue = 0;
         bValue = 0;
     }
 
-    public Register(Registers registers, RegisterName registerName) {
-        this.registers = registers;
+    public Register(RegisterName registerName) {
         this.registerName = registerName;
         this.aValue = MIN_VALUE;
         this.bValue = MIN_VALUE;
