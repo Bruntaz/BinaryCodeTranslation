@@ -1,6 +1,6 @@
 loadRegisters:
     LOAD s0, FF
-    LOAD s1, AA
+    LOAD s1, 1
     JUMP callSubroutines
 
 setS2:
@@ -15,5 +15,5 @@ callSubroutines:
     ADD s0, s1
     CALL C, setS2
     ADD s0, s1
-    CALL NC, setS3
+    CALL C, setS3
     LOAD s4, CC
