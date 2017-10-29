@@ -33,7 +33,7 @@ callSubroutines:
 When this code is executed, the registers will become:
 
 | s0 | s1 | s2 | s3 | s4 | s5 | s6 | s7 | s8 | s9 | sA | sB | sC | sD | sE | sF |
-|-------------------------------------------------------------------------------|
+|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|
 | 01 | 01 | EE | 00 | CC | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 | 00 |
 
 The `loadRegisters`, `setS2` and `callSubroutines` sections will all be executed in their entirety, but the `setS3` 
