@@ -1,4 +1,4 @@
-package StackSimulator;
+package Jorvik5;
 
 public class Lexer {
     // This will be the lexer for the stack assembly code (when it is implemented)

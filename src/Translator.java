@@ -9,11 +9,12 @@ public class Translator {
     private PicoBlazeSimulator.Lexer picoBlazeLexer = PicoBlazeSimulator.Lexer.getInstance();
     private PicoBlazeSimulator.Parser picoBlazeParser = PicoBlazeSimulator.Parser.getInstance();
 
-    private StackSimulator.Lexer stackLexer = StackSimulator.Lexer.getInstance();
-    private StackSimulator.Parser stackParser = StackSimulator.Parser.getInstance();
+    private Jorvik5.ProgramCounter j5PC = Jorvik5.ProgramCounter.getInstance();
+    private Jorvik5.Lexer j5Lexer = Jorvik5.Lexer.getInstance();
+    private Jorvik5.Parser j5Parser = Jorvik5.Parser.getInstance();
 
-    public StackSimulator.Instruction[] translate(PicoBlazeSimulator.Instruction picoBlazeInstruction) {
-        return new StackSimulator.Instruction[] {};
+    public Jorvik5.Instruction[] translate(PicoBlazeSimulator.Instruction picoBlazeInstruction) {
+        return new Jorvik5.Instruction[] {};
     }
 
     private List<String> readFile(String filename) {
@@ -37,43 +38,42 @@ public class Translator {
         picoBlazeParser.parse(instructions);
     }
 
-    public void runPicoBlazeFileOnStackMachine(String filename) {
+    public void runPicoBlazeFileOnJ5(String filename) {
         List<String> file = readFile(filename);
 
         PicoBlazeSimulator.Instruction[] picoBlazeInstructions = picoBlazeLexer.lex(file);
 
-        StackSimulator.Instruction[][] stackInstructions = new StackSimulator.Instruction[picoBlazeInstructions
-                .length][];
+        Jorvik5.Instruction[][] j5Instructions = new Jorvik5.Instruction[picoBlazeInstructions.length][];
 
-        int stackPC = stackParser.programCounter.peek();
-        while (stackPC < stackInstructions.length) {
-            if (stackInstructions[stackPC] == null) { // Currently this just converts everything because the program
+        int j5PC = this.j5PC.get();
+        while (j5PC < j5Instructions.length) {
+            if (j5Instructions[j5PC] == null) { // Currently this just converts everything because the program
                                                       // counter isn't being changed on jumps in the stack machine.
                 // Translate next block
-                picoBlazeInstructions[stackPC].isBlockStart = true;
-                int nextBlockStart = picoBlazeParser.getNextBlockStart(picoBlazeInstructions, stackPC);
+                picoBlazeInstructions[j5PC].isBlockStart = true;
+                int nextBlockStart = picoBlazeParser.getNextBlockStart(picoBlazeInstructions, j5PC);
 
-                for (int instructionNumber = stackPC; instructionNumber < nextBlockStart; instructionNumber++) {
-                    stackInstructions[instructionNumber] = translate(picoBlazeInstructions[instructionNumber]);
+                for (int instructionNumber = j5PC; instructionNumber < nextBlockStart; instructionNumber++) {
+                    j5Instructions[instructionNumber] = translate(picoBlazeInstructions[instructionNumber]);
                 }
             }
 
-            stackParser.parse(stackInstructions[stackPC]);
+            j5Parser.parse(j5Instructions[j5PC]);
 
-            stackParser.incrementProgramCounter();
-            stackPC = stackParser.programCounter.peek();
+            this.j5PC.increment();
+            j5PC = this.j5PC.get();
         }
 
-        for (int i=0; i<stackInstructions.length; i++) {
-            System.out.println(Arrays.toString(stackInstructions[i]) + ", " + picoBlazeInstructions[i].instruction);
+        for (int i=0; i<j5Instructions.length; i++) {
+            System.out.println(Arrays.toString(j5Instructions[i]) + ", " + picoBlazeInstructions[i].instruction);
         }
-        System.out.println(stackInstructions.length);
+        System.out.println(j5Instructions.length);
     }
 
     public static void main(String[] args) {
         Translator translator = new Translator();
         translator.runPicoBlazeFileNatively(args[0]);
-//        translator.runPicoBlazeFileOnStackMachine(args[0]);
+//        translator.runPicoBlazeFileOnJ5(args[0]);
 
         System.out.println(PicoBlazeSimulator.ScratchPad.getInstance());
     }
