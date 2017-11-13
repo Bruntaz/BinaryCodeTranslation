@@ -1,0 +1,9 @@
+LOAD s0, 7B
+LOAD s1, A2
+SUB s0, B9
+SUBCY s1, A1
+
+LOAD sA, 7B
+LOAD sB, A2
+SUB sA, sA
+SUBCY sB, sB

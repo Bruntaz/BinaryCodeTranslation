@@ -36,8 +36,14 @@ class ALU {
     }
 
     // Arithmetic
-    void ADD(InstructionArgument arg0, InstructionArgument arg1) {
+    void ADD(InstructionArgument arg0, InstructionArgument arg1, boolean includeCarry) {
+        boolean beforeZ = registers.Z;
+
         int result = arg0.getIntValue() + arg1.getIntValue();
+
+        if (includeCarry && registers.C) {
+            result += 1;
+        }
 
         if (result > Register.MAX_VALUE) {
             registers.setCarry(true);
@@ -46,30 +52,23 @@ class ALU {
             registers.setCarry(false);
         }
 
-        registers.setZero(result == Register.MIN_VALUE);
+        if (beforeZ) {
+            registers.setZero(result == Register.MIN_VALUE);
+        } else {
+            registers.setZero(false);
+        }
 
         arg0.setValue(result);
     }
 
-    /*
-      This was just copied from the Python implementation. It could likely be implemented better.
-     */
-    void ADDCY(InstructionArgument arg0, InstructionArgument arg1) {
+    void SUB(InstructionArgument arg0, InstructionArgument arg1, boolean includeCarry) {
         boolean beforeZ = registers.Z;
 
-        if (registers.C) {
-            ADD(arg0, new Literal(1));
-        }
-
-        ADD(arg0, arg1);
-
-        if (!beforeZ) {
-            registers.setZero(false);
-        }
-    }
-
-    void SUB(InstructionArgument arg0, InstructionArgument arg1) {
         int result = arg0.getIntValue() - arg1.getIntValue();
+
+        if (includeCarry && registers.C) {
+            result -= 1;
+        }
 
         if (result < Register.MIN_VALUE) {
             result += Register.MAX_VALUE + 1;
@@ -78,26 +77,13 @@ class ALU {
             registers.setCarry(false);
         }
 
-        registers.setZero(result == Register.MIN_VALUE);
-
-        arg0.setValue(result);
-    }
-
-    /*
-      This was just copied from the Python implementation. It could likely be implemented better.
-     */
-    void SUBCY(InstructionArgument arg0, InstructionArgument arg1) {
-        boolean beforeZ = registers.Z;
-
-        if (registers.C) {
-            SUB(arg0, new Literal(1));
-        }
-
-        SUB(arg0, arg1);
-
-        if (!beforeZ) {
+        if (beforeZ) {
+            registers.setZero(result == Register.MIN_VALUE);
+        } else {
             registers.setZero(false);
         }
+
+        arg0.setValue(result);
     }
 
     // Test and Compare

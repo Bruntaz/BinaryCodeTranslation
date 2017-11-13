@@ -198,16 +198,16 @@ public class Parser {
 
             // Arithmetic
             case ADD:
-                alu.ADD(instruction.arg0, instruction.arg1);
+                alu.ADD(instruction.arg0, instruction.arg1, false);
                 break;
             case ADDCY:
-                alu.ADDCY(instruction.arg0, instruction.arg1);
+                alu.ADD(instruction.arg0, instruction.arg1, true);
                 break;
             case SUB:
-                alu.SUB(instruction.arg0, instruction.arg1);
+                alu.SUB(instruction.arg0, instruction.arg1, false);
                 break;
             case SUBCY:
-                alu.SUBCY(instruction.arg0, instruction.arg1);
+                alu.SUB(instruction.arg0, instruction.arg1, true);
                 break;
 
             // Test and Compare
