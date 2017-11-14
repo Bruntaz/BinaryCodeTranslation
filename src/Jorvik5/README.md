@@ -5,3 +5,7 @@ Computer Science at the University of York.
 The J5 processor is defined in the lectures for one of the modules on UoY Computer Science. The instruction set is
 not fully defined and my simulator will deviate from the instructions to make it more complete and more suitable for 
 translation with the PicoBlaze machine.
+
+The circuit diagram for the J5 processor that my design is based on is here:
+
+![J5 design](../../Images/J5Architecture.png)
