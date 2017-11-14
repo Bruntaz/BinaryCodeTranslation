@@ -1,6 +1,7 @@
 package Jorvik5;
 
 import Jorvik5.InstructionArguments.InstructionArgument;
+import PicoBlazeSimulator.InstructionArguments.Register;
 
 public class Parser {
     // This will be the parser for the stack instructions (when it is implemented)
@@ -12,9 +13,20 @@ public class Parser {
     private ProgramCounter programCounter = ProgramCounter.getInstance();
     private Stack stack = Stack.getInstance();
     private ALU alu = ALU.getInstance();
+    private Registers registers = Registers.getInstance();
 
-    private void SET(InstructionArgument arg) {
-        stack.push(arg.getValue());
+    private void SET(InstructionArgument value) {
+        stack.push(value.getValue());
+    }
+
+    private void BRANCH(InstructionArgument address) {
+        programCounter.set(address.getValue());
+    }
+
+    private void BRZERO(InstructionArgument address) {
+        if (registers.getZero()) {
+            BRANCH(address);
+        }
     }
 
     public void parse(Instruction instruction) {
@@ -43,6 +55,31 @@ public class Parser {
                 break;
             case DEC:
                 alu.DEC();
+                break;
+
+            // Branching
+            case BRANCH:
+                BRANCH(instruction.arg);
+                break;
+            case BRZERO:
+                BRZERO(instruction.arg); // TODO: Implement the rest of the branch instructions
+                break;
+
+            // Stack Management
+            case DROP:
+                stack.DROP();
+                break;
+            case SWAP:
+                stack.SWAP();
+                break;
+            case ROT:
+                stack.ROT();
+                break;
+            case RROT:
+                stack.RROT();
+                break;
+            case DUP:
+                stack.DUP();
                 break;
         }
         System.out.println(stack);

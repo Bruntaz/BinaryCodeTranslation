@@ -27,8 +27,8 @@ public enum InstructionSet {
     // Stack management
     DROP,		// Remove top item
     SWAP,		// Swap top 2 on stack
-    ROT,		// Rotate top 3 items in stack
-    RROT,		// Reverse ROT
+    ROT,		// Rotate top 3 items in stack (XYZ -> YZX)
+    RROT,		// Reverse ROT (XYZ -> ZXY)
     DUP,		// Duplicate top of stack
 
     // Test and compare

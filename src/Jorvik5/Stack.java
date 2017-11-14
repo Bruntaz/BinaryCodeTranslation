@@ -34,6 +34,39 @@ public class Stack {
         values.push(newValue);
     }
 
+    void DROP() {
+        pop();
+    }
+
+    void SWAP() {
+        int top = pop();
+        int next = pop();
+        push(top);
+        push(next);
+    }
+
+    void ROT() {
+        int top = pop();
+        int next = pop();
+        int third = pop();
+        push(top);
+        push(third);
+        push(next);
+    }
+
+    void RROT() {
+        int top = pop();
+        int next = pop();
+        int third = pop();
+        push(next);
+        push(top);
+        push(third);
+    }
+
+    void DUP() {
+        push(getTop());
+    }
+
     @Override
     public String toString() {
         StringBuilder toPrint = new StringBuilder("{\n");
