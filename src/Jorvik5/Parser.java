@@ -25,10 +25,13 @@ public class Parser {
         }
 
         switch (instruction.instruction) {
+            // Assignment
 //            case SET:
             case SSET:
                 SET(instruction.arg);
                 break;
+
+            // ALU
             case ADD:
                 alu.ADD();
                 break;
@@ -42,6 +45,7 @@ public class Parser {
                 alu.DEC();
                 break;
         }
+        System.out.println(stack);
     }
 
     public void parse(Instruction[] program) {

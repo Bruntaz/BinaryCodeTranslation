@@ -81,8 +81,15 @@ public class Translator {
 
     public static void main(String[] args) {
         Translator translator = new Translator();
-//        translator.runPicoBlazeFileNatively(args[0]);
-        translator.runJ5FileNatively(args[0]);
-//        translator.runPicoBlazeFileOnJ5(args[0]);
+        if (args[1].equals("PB")) {
+            translator.runPicoBlazeFileNatively(args[0]);
+
+        } else if (args[1].equals("J5")) {
+            translator.runJ5FileNatively(args[0]);
+
+        } else {
+            System.out.println(args[1]);
+            translator.runPicoBlazeFileOnJ5(args[0]);
+        }
     }
 }

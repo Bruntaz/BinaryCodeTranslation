@@ -12,6 +12,7 @@ public class Stack {
     public static final int MIN_VALUE = 0;
 
     private java.util.Stack<Integer> values = new java.util.Stack<>();
+    private Registers registers = Registers.getInstance();
 
     public int getTop() {
         return values.peek();
@@ -31,5 +32,36 @@ public class Stack {
             throw new Error("Illegal value pushed onto stack (" + newValue + ")");
         }
         values.push(newValue);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder toPrint = new StringBuilder("{\n");
+        Object[] stackArray = values.toArray();
+        String[] names = new String[] {"TOP", "2ND", "3RD", "MEM"};
+
+        for (int pointer = 0; pointer < stackArray.length; pointer++) {
+            int i = (int) stackArray[stackArray.length - pointer - 1];
+            toPrint.append(String.format("\t%3s:", names[pointer < 3 ? pointer : 3]));
+
+            toPrint.append(
+                    String.format(
+                            "\t%2s\t(%8s)\n",
+                            Integer.toHexString(i),
+                            Integer.toBinaryString(i)
+                    ).replace(' ', '0')
+            );
+        }
+
+        toPrint.append(
+                String.format("\n\tZ = %b\n" +
+                                "\tC = %b\n",
+                                registers.getZero(),
+                                registers.getCarry()
+                )
+        );
+        toPrint.append("}");
+
+        return toPrint.toString();
     }
 }

@@ -93,8 +93,8 @@ public class Registers {
         }
 
         toPrint.append(
-                String.format("\tZ = %b\n" +
-                        "\tC = %b\n", Z, C)
+                String.format("\n\tZ = %b\n" +
+                                "\tC = %b\n", Z, C)
         );
 
         return toPrint + "}";
