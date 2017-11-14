@@ -1,5 +1,7 @@
 package Jorvik5;
 
+import Jorvik5.InstructionArguments.InstructionArgument;
+
 public class Parser {
     // This will be the parser for the stack instructions (when it is implemented)
     private static Parser ourInstance = new Parser();
@@ -9,6 +11,11 @@ public class Parser {
 
     private ProgramCounter programCounter = ProgramCounter.getInstance();
     private Stack stack = Stack.getInstance();
+    private ALU alu = ALU.getInstance();
+
+    private void SET(InstructionArgument arg) {
+        stack.push(arg.getValue());
+    }
 
     public void parse(Instruction instruction) {
         programCounter.increment();
@@ -18,6 +25,22 @@ public class Parser {
         }
 
         switch (instruction.instruction) {
+//            case SET:
+            case SSET:
+                SET(instruction.arg);
+                break;
+            case ADD:
+                alu.ADD();
+                break;
+            case SUB:
+                alu.SUB();
+                break;
+            case INC:
+                alu.INC();
+                break;
+            case DEC:
+                alu.DEC();
+                break;
         }
     }
 

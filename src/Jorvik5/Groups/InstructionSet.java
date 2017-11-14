@@ -2,12 +2,12 @@ package Jorvik5.Groups;
 
 public enum InstructionSet {
     // Assignment
-    SET,	    // Set top of stack (long)
+//    SET,	    // Set top of stack (long) // Not currently supported to make stack all 8 bit
     SSET,	    // Set top of stack (short)
 
     // ALU
     ADD,		// Add top 2
-    SUB,		// Subtract top 2 (figure out order later)
+    SUB,		// Subtract top 2 (next - top)
     INC,		// Increment top
     DEC,		// Decrement top
 

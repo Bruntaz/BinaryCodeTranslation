@@ -1,7 +1,7 @@
 package Jorvik5.InstructionArguments;
 
 public class Literal implements InstructionArgument {
-    public static final int MAX_VALUE = 0xFFFF;
+    public static final int MAX_VALUE = 0xFF;
     public static final int MIN_VALUE = 0;
 
     private int value;
