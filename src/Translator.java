@@ -36,6 +36,15 @@ public class Translator {
         PicoBlazeSimulator.Instruction[] instructions = picoBlazeLexer.lex(file);
 
         picoBlazeParser.parse(instructions);
+        System.out.println(PicoBlazeSimulator.ScratchPad.getInstance());
+    }
+
+    public void runJ5FileNatively(String filename) {
+        List<String> file = readFile(filename);
+
+        Jorvik5.Instruction[] instructions = j5Lexer.lex(file);
+
+        j5Parser.parse(instructions);
     }
 
     public void runPicoBlazeFileOnJ5(String filename) {
@@ -72,9 +81,8 @@ public class Translator {
 
     public static void main(String[] args) {
         Translator translator = new Translator();
-        translator.runPicoBlazeFileNatively(args[0]);
+//        translator.runPicoBlazeFileNatively(args[0]);
+        translator.runJ5FileNatively(args[0]);
 //        translator.runPicoBlazeFileOnJ5(args[0]);
-
-        System.out.println(PicoBlazeSimulator.ScratchPad.getInstance());
     }
 }
