@@ -93,6 +93,18 @@ public class Parser {
             case TSZ:
                 alu.TSZ();
                 break;
+            case AND:
+                alu.AND();
+                break;
+            case OR:
+                alu.OR();
+                break;
+            case XOR:
+                alu.XOR();
+                break;
+            case NOT:
+                alu.NOT();
+                break;
 
             // Branching
             case BRANCH:

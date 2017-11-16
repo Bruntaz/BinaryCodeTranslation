@@ -105,4 +105,33 @@ public class ALU {
     void TSZ() {
         flags.setZero(stack.getTop() == 0);
     }
+
+    void AND() {
+        int top = stack.pop();
+        int next = stack.pop();
+
+        stack.push(top & next);
+        flags.setZero(stack.getTop() == 0);
+    }
+
+    void OR() {
+        int top = stack.pop();
+        int next = stack.pop();
+
+        stack.push(top | next);
+        flags.setZero(stack.getTop() == 0);
+    }
+
+    void XOR() {
+        int top = stack.pop();
+        int next = stack.pop();
+
+        stack.push(top ^ next);
+        flags.setZero(stack.getTop() == 0);
+    }
+
+    void NOT() {
+        stack.setTop(stack.getTop() ^ Stack.MAX_VALUE);
+        flags.setZero(stack.getTop() == 0);
+    }
 }

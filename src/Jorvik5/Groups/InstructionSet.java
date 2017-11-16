@@ -14,6 +14,10 @@ public enum InstructionSet {
     TLT,		// Test less than
     TEQ,		// Test equal
     TSZ,		// Test stack zero
+    AND,
+    OR,
+    XOR,
+    NOT,
 
     // Branching
     BRANCH, 	// Unconditional jump
@@ -37,6 +41,6 @@ public enum InstructionSet {
     DUP,		// Duplicate top of stack
 
     // Scratch Pad Memory
-    FETCH,       // Load value from ScratchPad memory to stack
+    FETCH,      // Load value from ScratchPad memory to stack
     STORE,      // Write top of stack to memory
 }
