@@ -55,9 +55,16 @@ public class Lexer {
         String[][] allSections = new String[program.size()][];
 
         for (int lineNumber = 0; lineNumber < program.size(); lineNumber++) {
-            String line = program.get(lineNumber).split(";")[0]; // Remove comments
-            String[] sections = line.trim().split("\\s+"); // Split on (and remove) whitespace
+            String line; // Remove comments
 
+            String[] split = program.get(lineNumber).split(";");
+            if (split.length == 0) {
+                line = "";
+            } else {
+                line = split[0];
+            }
+
+            String[] sections = line.trim().split("\\s+"); // Split on (and remove) whitespace
             allSections[lineNumber] = sections;
 
             // Initialise array to empty Instructions to fill later
