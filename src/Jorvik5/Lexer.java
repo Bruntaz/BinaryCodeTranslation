@@ -1,8 +1,7 @@
 package Jorvik5;
 
 import Jorvik5.Groups.InstructionSet;
-import Jorvik5.InstructionArguments.InstructionArgument;
-import Jorvik5.InstructionArguments.Literal;
+import Jorvik5.InstructionArguments.*;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -18,8 +17,7 @@ public class Lexer {
 
     private HashSet<InstructionSet> hasArg = new HashSet<>(Arrays.asList(
             InstructionSet.SSET, InstructionSet.BRANCH, InstructionSet.SBRANCH, InstructionSet.BRZERO,
-            InstructionSet.SBRZERO, InstructionSet.BRZERO, InstructionSet.SBRANCH, InstructionSet.SBRZERO,
-            InstructionSet.LBRANCH, InstructionSet.CALL)
+            InstructionSet.SBRZERO, InstructionSet.LBRANCH, InstructionSet.CALL)
     );
 
 
@@ -28,12 +26,24 @@ public class Lexer {
         return InstructionSet.valueOf(upperCaseInstruction);
     }
 
-    /*
-    This needs to support more than just literals in the future (addresses etc)
-     */
-    private InstructionArgument getArgument(String[] sections) {
+    private InstructionArgument getArgument(InstructionSet instruction, String[] sections) {
         int intArg = Integer.parseInt(sections[1], 16);
-        return new Literal(intArg);
+
+        switch (instruction) {
+            case SSET:
+                return new ShortLiteral(intArg);
+            case BRANCH:
+            case BRZERO:
+                return new RelativeAddress(intArg);
+            case SBRANCH:
+            case SBRZERO:
+                return new ShortRelativeAddress(intArg);
+            case LBRANCH:
+            case CALL:
+                return new AbsoluteAddress(intArg);
+        }
+
+        throw new Error("Unsupported argument type in source");
     }
 
     public Instruction[] lex(List<String> program) {
@@ -63,7 +73,7 @@ public class Lexer {
             instructions[lineNumber].instruction = instruction;
 
             if (hasArg.contains(instruction)) {
-                instructions[lineNumber].arg = getArgument(sections);
+                instructions[lineNumber].arg = getArgument(instruction, sections);
             }
         }
 

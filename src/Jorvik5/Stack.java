@@ -1,6 +1,6 @@
 package Jorvik5;
 
-import Jorvik5.InstructionArguments.Literal;
+import Jorvik5.InstructionArguments.ShortLiteral;
 
 public class Stack {
     private static Stack ourInstance = new Stack();
@@ -28,7 +28,7 @@ public class Stack {
     }
 
     public void push(int newValue) {
-        if (newValue > Literal.MAX_VALUE || newValue < Literal.MIN_VALUE) {
+        if (newValue > ShortLiteral.MAX_VALUE || newValue < ShortLiteral.MIN_VALUE) {
             throw new Error("Illegal value pushed onto stack (" + newValue + ")");
         }
         values.push(newValue);
