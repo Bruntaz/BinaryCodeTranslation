@@ -12,7 +12,7 @@ public class Stack {
     public static final int MIN_VALUE = 0;
 
     private java.util.Stack<Integer> values = new java.util.Stack<>();
-    private Registers registers = Registers.getInstance();
+    private Flags flags = Flags.getInstance();
 
     public int getTop() {
         return values.peek();
@@ -89,8 +89,8 @@ public class Stack {
         toPrint.append(
                 String.format("\n\tZ = %b\n" +
                                 "\tC = %b\n",
-                                registers.getZero(),
-                                registers.getCarry()
+                                flags.getZero(),
+                                flags.getCarry()
                 )
         );
         toPrint.append("}");

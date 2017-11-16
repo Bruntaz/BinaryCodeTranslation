@@ -10,6 +10,10 @@ public enum InstructionSet {
     SUB,		// Subtract top 2 (next - top)
     INC,		// Increment top
     DEC,		// Decrement top
+    TGT,		// Test greater than
+    TLT,		// Test less than
+    TEQ,		// Test equal
+    TSZ,		// Test stack zero
 
     // Branching
     BRANCH, 	// Unconditional jump
@@ -30,10 +34,4 @@ public enum InstructionSet {
     ROT,		// Rotate top 3 items in stack (XYZ -> YZX)
     RROT,		// Reverse ROT (XYZ -> ZXY)
     DUP,		// Duplicate top of stack
-
-    // Test and compare
-    TGT,		// Test greater than
-    TLT,		// Test less than
-    TEQ,		// Test equal
-    TSZ,		// Test stack zero
 }

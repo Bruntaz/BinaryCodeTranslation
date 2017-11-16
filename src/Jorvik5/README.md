@@ -9,3 +9,8 @@ translation with the PicoBlaze machine.
 The circuit diagram for the J5 processor that my design is based on is here:
 
 ![J5 design](../../Images/J5Architecture.png)
+
+## Modifications to the design
+A list of the modifications to the standard architecture I have made is as follows:
+* Stack width is 8 bit instead of 16 bit
+    * The SET statement has been removed because of this (the SSET statement remains)

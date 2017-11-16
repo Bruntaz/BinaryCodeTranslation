@@ -1,8 +1,8 @@
 package Jorvik5;
 
-public class Registers {
-    private static Registers ourInstance = new Registers();
-    public static Registers getInstance() {
+public class Flags {
+    private static Flags ourInstance = new Flags();
+    public static Flags getInstance() {
         return ourInstance;
     }
 

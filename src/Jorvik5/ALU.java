@@ -7,7 +7,7 @@ public class ALU {
     }
 
     private Stack stack = Stack.getInstance();
-    private Registers registers = Registers.getInstance();
+    private Flags flags = Flags.getInstance();
 
     void ADD() {
         int top = stack.pop();
@@ -16,14 +16,14 @@ public class ALU {
 
         if (addition > Stack.MAX_VALUE) {
             addition = addition % (Stack.MAX_VALUE + 1);
-            registers.setCarry(true);
+            flags.setCarry(true);
 
         } else {
-            registers.setCarry(false);
+            flags.setCarry(false);
         }
 
         stack.push(addition);
-        registers.setZero(addition == 0);
+        flags.setZero(addition == 0);
     }
 
     void SUB() {
@@ -33,14 +33,14 @@ public class ALU {
 
         if (subtraction < Stack.MIN_VALUE) {
             subtraction += Stack.MAX_VALUE + 1;
-            registers.setCarry(true);
+            flags.setCarry(true);
 
         } else {
-            registers.setCarry(false);
+            flags.setCarry(false);
         }
 
         stack.push(subtraction);
-        registers.setZero(subtraction == 0);
+        flags.setZero(subtraction == 0);
     }
 
     void INC() {
@@ -49,14 +49,14 @@ public class ALU {
 
         if (incremented > Stack.MAX_VALUE) {
             incremented = incremented % (Stack.MAX_VALUE + 1);
-            registers.setCarry(true);
+            flags.setCarry(true);
 
         } else {
-            registers.setCarry(false);
+            flags.setCarry(false);
         }
 
         stack.push(incremented);
-        registers.setZero(incremented == 0);
+        flags.setZero(incremented == 0);
     }
 
     void DEC() {
@@ -65,13 +65,44 @@ public class ALU {
 
         if (decremented < Stack.MIN_VALUE) {
             decremented += Stack.MAX_VALUE + 1;
-            registers.setCarry(true);
+            flags.setCarry(true);
 
         } else {
-            registers.setCarry(false);
+            flags.setCarry(false);
         }
 
         stack.push(decremented);
-        registers.setZero(decremented == 0);
+        flags.setZero(decremented == 0);
+    }
+
+    void TGT() {
+        int top = stack.pop();
+        int next = stack.getTop();
+
+        flags.setZero(top > next);
+
+        stack.push(top);
+    }
+
+    void TLT() {
+        int top = stack.pop();
+        int next = stack.getTop();
+
+        flags.setZero(top < next);
+
+        stack.push(top);
+    }
+
+    void TEQ() {
+        int top = stack.pop();
+        int next = stack.getTop();
+
+        flags.setZero(top == next);
+
+        stack.push(top);
+    }
+
+    void TSZ() {
+        flags.setZero(stack.getTop() == 0);
     }
 }
