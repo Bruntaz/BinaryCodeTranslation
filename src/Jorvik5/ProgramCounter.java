@@ -15,25 +15,24 @@ public class ProgramCounter {
         return pc.peek();
     }
 
-    // Copied from picoblaze
     public void set(int value) {
-        set(value, false);
+        if (pc.size() != 0) {
+            pc.pop();
+        }
+
+        pc.push(value);
     }
 
-    // Copied from picoblaze
-    public void set(int value, boolean push) {
-        if (push) {
-            if (pc.size() <= 30) {
-                pc.push(value);
-            } else {
-                throw new Error("Program counter stack size reached. Program should reset here.");
-            }
-        } else if (pc.size() == 0) {
+    public void push(int value) {
+        if (pc.size() <= 30) {
             pc.push(value);
         } else {
-            pc.pop();
-            pc.push(value);
+            throw new Error("Program counter stack size reached. Program should reset here.");
         }
+    }
+
+    public void pop() {
+        pc.pop();
     }
 
     // Copied from picoblaze

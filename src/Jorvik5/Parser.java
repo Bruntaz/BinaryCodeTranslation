@@ -18,14 +18,39 @@ public class Parser {
         stack.push(value.getValue());
     }
 
-    private void BRANCH(InstructionArgument address) {
-        programCounter.set(address.getValue());
+    private void BRANCH(int address, boolean conditional) {
+        int currentAddress = programCounter.get();
+
+        int newAddress;
+        if (conditional) {
+            newAddress = currentAddress + address - 1;
+        } else {
+            newAddress = currentAddress - address - 1;
+        }
+
+        programCounter.set(newAddress);
     }
 
-    private void BRZERO(InstructionArgument address) {
+    private void BRZERO(int address) {
         if (flags.getZero()) {
-            BRANCH(address);
+            BRANCH(address, true);
         }
+    }
+
+    private void LBRANCH(int address) {
+        programCounter.set(address);
+    }
+
+    private void IBRANCH() {
+        BRANCH(stack.getTop(), false);
+    }
+
+    private void CALL(int address) {
+        programCounter.push(address);
+    }
+
+    private void RETURN() {
+        programCounter.pop();
     }
 
     public void parse(Instruction instruction) {
@@ -70,10 +95,24 @@ public class Parser {
 
             // Branching
             case BRANCH:
-                BRANCH(instruction.arg);
+            case SBRANCH:
+                BRANCH(instruction.arg.getValue(), false);
                 break;
             case BRZERO:
-                BRZERO(instruction.arg); // TODO: Implement the rest of the branch instructions
+            case SBRZERO:
+                BRZERO(instruction.arg.getValue());
+                break;
+            case LBRANCH:
+                LBRANCH(instruction.arg.getValue());
+                break;
+            case IBRANCH:
+                IBRANCH();
+                break;
+            case CALL:
+                CALL(instruction.arg.getValue());
+                break;
+            case RETURN:
+                RETURN();
                 break;
 
             // Stack Management

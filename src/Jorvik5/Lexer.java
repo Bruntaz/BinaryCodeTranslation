@@ -17,8 +17,9 @@ public class Lexer {
     }
 
     private HashSet<InstructionSet> hasArg = new HashSet<>(Arrays.asList(
-            InstructionSet.SSET, InstructionSet.BRANCH, InstructionSet.BRZERO, InstructionSet.BRZERO,
-            InstructionSet.SBRANCH, InstructionSet.SBRZERO, InstructionSet.CALL)
+            InstructionSet.SSET, InstructionSet.BRANCH, InstructionSet.SBRANCH, InstructionSet.BRZERO,
+            InstructionSet.SBRZERO, InstructionSet.BRZERO, InstructionSet.SBRANCH, InstructionSet.SBRZERO,
+            InstructionSet.LBRANCH, InstructionSet.CALL)
     );
 
 

@@ -17,10 +17,11 @@ public enum InstructionSet {
 
     // Branching
     BRANCH, 	// Unconditional jump
-    BRZERO, 	// Jump if top is 0
-    SBRANCH,
-    SBRZERO,
-    IBRANCH,
+    BRZERO, 	// Jump if zero flag is set
+    SBRANCH,    // Short branch (unconditional)
+    SBRZERO,    // Short branch if zero flag is set
+    LBRANCH,    // Long branch (absolute address, 16 bits)
+    IBRANCH,    // Indirect branch (branch to address at top of stack)
     CALL,		// Add old address+1 to program stack and jump to new address
     RETURN,	    // Pop top off program stack and add jump to it
 
