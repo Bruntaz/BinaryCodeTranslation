@@ -11,6 +11,11 @@ public class Instruction {
         this(null, null);
     }
 
+    @Override
+    public String toString() {
+        return String.format("%s %s", instruction, arg.getValue());
+    }
+
     public Instruction(InstructionSet instruction, InstructionArgument arg) {
         this.instruction = instruction;
         this.arg = arg;

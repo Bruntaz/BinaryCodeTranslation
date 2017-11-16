@@ -1,3 +1,9 @@
+import Jorvik5.Groups.InstructionSet;
+import Jorvik5.Instruction;
+import Jorvik5.InstructionArguments.ShortLiteral;
+import PicoBlazeSimulator.Groups.RegisterName;
+import PicoBlazeSimulator.InstructionArguments.Register;
+
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -13,7 +19,53 @@ public class Translator {
     private Jorvik5.Lexer j5Lexer = Jorvik5.Lexer.getInstance();
     private Jorvik5.Parser j5Parser = Jorvik5.Parser.getInstance();
 
+    private int translateRegisterIntoMemory(RegisterName registerName) {
+        switch (registerName) {
+            case S0:
+                return 0;
+            case S1:
+                return 1;
+            case S2:
+                return 2;
+            case S3:
+                return 3;
+            case S4:
+                return 4;
+            case S5:
+                return 5;
+            case S6:
+                return 6;
+            case S7:
+                return 7;
+            case S8:
+                return 8;
+            case S9:
+                return 9;
+            case SA:
+                return 10;
+            case SB:
+                return 11;
+            case SC:
+                return 12;
+            case SD:
+                return 13;
+            case SE:
+                return 14;
+            default:
+                return 15;
+        }
+    }
+
     public Jorvik5.Instruction[] translate(PicoBlazeSimulator.Instruction picoBlazeInstruction) {
+        switch (picoBlazeInstruction.instruction) {
+            case LOAD:
+                return new Jorvik5.Instruction[] {
+                        new Instruction(InstructionSet.SSET, new ShortLiteral(picoBlazeInstruction.arg1.getIntValue())),
+                        new Instruction(Jorvik5.Groups.InstructionSet.STORE, new ShortLiteral(
+                                translateRegisterIntoMemory(((Register)picoBlazeInstruction.arg0).getRegisterName()))),
+                };
+
+        }
         return new Jorvik5.Instruction[] {};
     }
 
@@ -64,11 +116,18 @@ public class Translator {
                 int nextBlockStart = picoBlazeParser.getNextBlockStart(picoBlazeInstructions, j5PC);
 
                 for (int instructionNumber = j5PC; instructionNumber < nextBlockStart; instructionNumber++) {
-                    j5Instructions[instructionNumber] = translate(picoBlazeInstructions[instructionNumber]);
+                    if (picoBlazeInstructions[instructionNumber].instruction != null) {
+                        j5Instructions[instructionNumber] = translate(picoBlazeInstructions[instructionNumber]);
+                    } else {
+                        j5Instructions[instructionNumber] = new Instruction[] {};
+                    }
                 }
             }
 
-            j5Parser.parse(j5Instructions[j5PC]);
+            for (Instruction instruction : j5Instructions[j5PC]) { // This doesn't work properly yet. It will execute
+                // on the J5 but the incrementing of the PC is broken so it won't execute everything its suppsed to.
+                j5Parser.parse(instruction);
+            }
 
             this.j5PC.increment();
             j5PC = this.j5PC.get();
@@ -77,7 +136,8 @@ public class Translator {
         for (int i=0; i<j5Instructions.length; i++) {
             System.out.println(Arrays.toString(j5Instructions[i]) + ", " + picoBlazeInstructions[i].instruction);
         }
-        System.out.println(j5Instructions.length);
+//        System.out.println(j5Instructions.length);
+        System.out.println(Jorvik5.ScratchPad.getInstance());
     }
 
     public static void main(String[] args) {
@@ -89,7 +149,6 @@ public class Translator {
             translator.runJ5FileNatively(args[0]);
 
         } else {
-            System.out.println(args[1]);
             translator.runPicoBlazeFileOnJ5(args[0]);
         }
     }

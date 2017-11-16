@@ -14,10 +14,10 @@ public enum InstructionSet {
     TLT,		// Test less than
     TEQ,		// Test equal
     TSZ,		// Test stack zero
-    AND,
-    OR,
-    XOR,
-    NOT,
+    AND,        // And together top 2 (destructive)
+    OR,         // Or together top 2 (destructive)
+    XOR,        // Xor together top 2 (destructive)
+    NOT,        // Not the top (destructive)
 
     // Branching
     BRANCH, 	// Unconditional jump
