@@ -45,6 +45,7 @@ public class Translator {
         Jorvik5.Instruction[] instructions = j5Lexer.lex(file);
 
         j5Parser.parse(instructions);
+        System.out.println(Jorvik5.ScratchPad.getInstance());
     }
 
     public void runPicoBlazeFileOnJ5(String filename) {

@@ -12,6 +12,7 @@ public class Parser {
     private ProgramCounter programCounter = ProgramCounter.getInstance();
     private Stack stack = Stack.getInstance();
     private ALU alu = ALU.getInstance();
+    private ScratchPad scratchPad = ScratchPad.getInstance();
     private Flags flags = Flags.getInstance();
 
     private void SET(InstructionArgument value) {
@@ -130,6 +131,14 @@ public class Parser {
                 break;
             case DUP:
                 stack.DUP();
+                break;
+
+            // Scratch Pad
+            case FETCH:
+                scratchPad.FETCH(instruction.arg.getValue());
+                break;
+            case STORE:
+                scratchPad.STORE(instruction.arg.getValue());
                 break;
         }
         System.out.println(stack);

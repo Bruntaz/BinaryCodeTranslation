@@ -29,10 +29,14 @@ public enum InstructionSet {
     NOP,		// No operation (could be SKIP)
     STOP,		// Halt execution
 
-    // Stack management
+    // Stack Management
     DROP,		// Remove top item
     SWAP,		// Swap top 2 on stack
     ROT,		// Rotate top 3 items in stack (XYZ -> YZX)
     RROT,		// Reverse ROT (XYZ -> ZXY)
     DUP,		// Duplicate top of stack
+
+    // Scratch Pad Memory
+    FETCH,       // Load value from ScratchPad memory to stack
+    STORE,      // Write top of stack to memory
 }

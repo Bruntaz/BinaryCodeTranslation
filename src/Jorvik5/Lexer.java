@@ -17,7 +17,8 @@ public class Lexer {
 
     private HashSet<InstructionSet> hasArg = new HashSet<>(Arrays.asList(
             InstructionSet.SSET, InstructionSet.BRANCH, InstructionSet.SBRANCH, InstructionSet.BRZERO,
-            InstructionSet.SBRZERO, InstructionSet.LBRANCH, InstructionSet.CALL)
+            InstructionSet.SBRZERO, InstructionSet.LBRANCH, InstructionSet.CALL, InstructionSet.FETCH,
+            InstructionSet.STORE)
     );
 
 
@@ -40,6 +41,8 @@ public class Lexer {
                 return new ShortRelativeAddress(intArg);
             case LBRANCH:
             case CALL:
+            case FETCH:
+            case STORE:
                 return new AbsoluteAddress(intArg);
         }
 
