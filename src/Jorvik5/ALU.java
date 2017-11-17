@@ -79,27 +79,27 @@ public class ALU {
         int top = stack.pop();
         int next = stack.getTop();
 
-        flags.setZero(top > next);
-
         stack.push(top);
+
+        flags.setZero(top > next);
     }
 
     void TLT() {
         int top = stack.pop();
         int next = stack.getTop();
 
-        flags.setZero(top < next);
-
         stack.push(top);
+
+        flags.setZero(top < next);
     }
 
     void TEQ() {
         int top = stack.pop();
         int next = stack.getTop();
 
-        flags.setZero(top == next);
-
         stack.push(top);
+
+        flags.setZero(top == next);
     }
 
     void TSZ() {
