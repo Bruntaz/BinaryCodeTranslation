@@ -1,22 +1,10 @@
 LOAD S0, 5
 LOAD s1, FF
-
-;loadRegisters:
-;    LOAD s0, FF
-;    LOAD s1, 1
-;    JUMP callSubroutines
-;
-;setS2:
-;    LOAD s2, EE
-;    RETURN
-;
-;setS3:
-;    LOAD s3, DD
-;    RETURN
-;
-;callSubroutines:
-;    ADD s0, s1
-;    CALL C, setS2
-;    ADD s0, s1
-;    CALL C, setS3
-;    LOAD s4, CC
+XOR s0, s1
+JUMP 6
+LOAD S2, EE
+AND s0, s4
+JUMP NZ, 11
+LOAD s3, DD
+JUMP Z, 11
+LOAD s4, CC

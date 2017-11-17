@@ -1,7 +1,7 @@
-import Jorvik5.Groups.InstructionSet;
 import Jorvik5.Instruction;
-import Jorvik5.InstructionArguments.ShortLiteral;
 import PicoBlazeSimulator.Groups.RegisterName;
+import PicoBlazeSimulator.InstructionArguments.AbsoluteAddress;
+import PicoBlazeSimulator.InstructionArguments.FlagArgument;
 import PicoBlazeSimulator.InstructionArguments.InstructionArgument;
 import PicoBlazeSimulator.InstructionArguments.Register;
 
@@ -46,6 +46,10 @@ public class Translator {
         return registerMemoryLocation.get(registerName);
     }
 
+    /*
+    NOTE: This currently only supports register arguments for the logical operators. It will be necessary to add SSET
+     <value> at some point instead of FETCH <register>
+     */
     public Jorvik5.Instruction[] translate(PicoBlazeSimulator.Instruction picoBlazeInstruction) {
         PicoBlazeSimulator.Groups.InstructionSet instruction = picoBlazeInstruction.instruction;
         PicoBlazeSimulator.InstructionArguments.InstructionArgument arg0 = picoBlazeInstruction.arg0;
@@ -57,7 +61,6 @@ public class Translator {
                 return new Jorvik5.Instruction[] {
                         j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
                         j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
-                        j5Lexer.lex("DROP"),
                 };
 
             // Logical
@@ -67,7 +70,6 @@ public class Translator {
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
                         j5Lexer.lex("AND"),
                         j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
-                        j5Lexer.lex("DROP"),
                 };
             case OR:
                 return new Jorvik5.Instruction[] {
@@ -75,7 +77,6 @@ public class Translator {
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
                         j5Lexer.lex("OR"),
                         j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
-                        j5Lexer.lex("DROP"),
                 };
             case XOR:
                 return new Jorvik5.Instruction[] {
@@ -83,8 +84,31 @@ public class Translator {
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
                         j5Lexer.lex("XOR"),
                         j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
-                        j5Lexer.lex("DROP"),
                 };
+
+            // Jump
+            case JUMP:
+                if (arg0 instanceof AbsoluteAddress) {
+                    return new Jorvik5.Instruction[] {
+                            j5Lexer.lex("LBRANCH " + arg0.getIntValue())
+                    };
+                } else {
+                    FlagArgument a0 = (FlagArgument) arg0;
+                    if (a0.getStringValue().equals(FlagArgument.Z)) {
+                        return new Jorvik5.Instruction[] {
+                                j5Lexer.lex("BRZERO " + (arg1.getIntValue() + 1 - picoBlazePC.get())), // This will
+                                // crash if the jump instruction isn't forward.
+                        };
+                    } else if (a0.getStringValue().equals(FlagArgument.NZ)) { // TODO: Fix this. If a LOAD is before
+                        // TODO: here, it may fail because the NOTs will affect the Z flag where the LOADs shouldn't
+                        return new Jorvik5.Instruction[] {
+                                j5Lexer.lex("NOT"), // This tests zero for us
+                                j5Lexer.lex("BRZERO " + (arg1.getIntValue() + 1 - picoBlazePC.get())),// This will
+                                // crash if the jump instruction isn't forward.
+                                j5Lexer.lex("NOT"),
+                        };
+                    }
+                }
         }
         return new Jorvik5.Instruction[] {};
     }
@@ -145,6 +169,7 @@ public class Translator {
             }
 
             j5PC.reset();
+            System.out.println(picoBlazeInstructions[pbPC]);
             for (Instruction instruction : j5Instructions[pbPC]) {
                 // Loop here because parse(Instruction[]) will break on jumps
                 // For example if you have a block whick loops to itself
@@ -154,9 +179,10 @@ public class Translator {
             // Move the PBPC if the J5 machine has jumped
             if (j5PC.hasJustJumped()) {
                 picoBlazePC.set(j5PC.get());
+            } else {
+                this.picoBlazePC.increment();
             }
 
-            this.picoBlazePC.increment();
             pbPC = this.picoBlazePC.get();
         }
 
