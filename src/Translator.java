@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Translator {
+    private PicoBlazeSimulator.ProgramCounter picoBlazePC = PicoBlazeSimulator.ProgramCounter.getInstance();
     private PicoBlazeSimulator.Lexer picoBlazeLexer = PicoBlazeSimulator.Lexer.getInstance();
     private PicoBlazeSimulator.Parser picoBlazeParser = PicoBlazeSimulator.Parser.getInstance();
 

@@ -19,65 +19,37 @@ public class Parser {
     private ScratchPad scratchPad = ScratchPad.getInstance();
     private ALU alu = ALU.getInstance();
 
-    public Stack<Integer> programCounter = new Stack<>();
+    private ProgramCounter programCounter = ProgramCounter.getInstance();
     private int clockCycles;
 
     HashSet<InstructionSet> blockEntrances = new HashSet<>(Arrays.asList(InstructionSet.RETURN, InstructionSet.CALL,
             InstructionSet.CALLAT, InstructionSet.JUMP, InstructionSet.JUMPAT));
 
     public void RESET() {
-        programCounter = new Stack<>();
-        setProgramCounter(0);
+        programCounter.reset();
 
         registers.setCarry(false);
         registers.setZero(false);
     }
 
-    public void setProgramCounter(int value) {
-        setProgramCounter(value, false);
-    }
-
-    /*
-     Requires error handling for max size of stack being reached
-     */
-    public void setProgramCounter(int value, boolean push) {
-        if (push) {
-            if (programCounter.size() <= 30) {
-                programCounter.push(value);
-            } else {
-                System.out.println("Program counter stack size reached. Program should reset here.");
-            }
-        } else if (programCounter.size() == 0){
-            programCounter.push(value);
-        } else {
-            programCounter.pop();
-            programCounter.push(value);
-        }
-    }
-
-    public void incrementProgramCounter() {
-        int nextValue = programCounter.peek() + 1;
-        setProgramCounter(nextValue > 0x3ff ? 0 : nextValue);
-    }
-
     // Jump
     private void JUMP(InstructionArgument arg0) {
-        setProgramCounter(arg0.getIntValue());
+        programCounter.set(arg0.getIntValue());
     }
 
     private void JUMP(InstructionArgument arg0, InstructionArgument arg1) {
         switch (arg0.getStringValue()) {
             case FlagArgument.C:
-                setProgramCounter(registers.C ? arg1.getIntValue() : programCounter.peek());
+                programCounter.set(registers.C ? arg1.getIntValue() : programCounter.get());
                 break;
             case FlagArgument.NC:
-                setProgramCounter(registers.C ? programCounter.peek() : arg1.getIntValue());
+                programCounter.set(registers.C ? programCounter.get() : arg1.getIntValue());
                 break;
             case FlagArgument.Z:
-                setProgramCounter(registers.Z ? arg1.getIntValue() : programCounter.peek());
+                programCounter.set(registers.Z ? arg1.getIntValue() : programCounter.get());
                 break;
             case FlagArgument.NZ:
-                setProgramCounter(registers.Z ? programCounter.peek() : arg1.getIntValue());
+                programCounter.set(registers.Z ? programCounter.get() : arg1.getIntValue());
                 break;
         }
     }
@@ -85,27 +57,27 @@ public class Parser {
     private void JUMPAT(InstructionArgument arg0, InstructionArgument arg1) {
         int top4Bits = (arg0.getIntValue() & 0b00001111) << 8;
 
-        setProgramCounter(top4Bits + arg1.getIntValue());
+        programCounter.set(top4Bits + arg1.getIntValue());
     }
 
     // Subroutines
     private void CALL(InstructionArgument arg0, InstructionArgument arg1) {
         if (arg0 instanceof AbsoluteAddress) {
-            setProgramCounter(arg0.getIntValue(), true);
+            programCounter.push(arg0.getIntValue());
 
         } else {
             switch (arg0.getStringValue()) {
                 case FlagArgument.C:
-                    setProgramCounter(registers.C ? arg1.getIntValue() : programCounter.peek(), true);
+                    programCounter.push(registers.C ? arg1.getIntValue() : programCounter.get());
                     break;
                 case FlagArgument.NC:
-                    setProgramCounter(registers.C ? programCounter.peek() : arg1.getIntValue(), true);
+                    programCounter.push(registers.C ? programCounter.get() : arg1.getIntValue());
                     break;
                 case FlagArgument.Z:
-                    setProgramCounter(registers.Z ? arg1.getIntValue() : programCounter.peek(), true);
+                    programCounter.push(registers.Z ? arg1.getIntValue() : programCounter.get());
                     break;
                 case FlagArgument.NZ:
-                    setProgramCounter(registers.Z ? programCounter.peek() : arg1.getIntValue(), true);
+                    programCounter.push(registers.Z ? programCounter.get() : arg1.getIntValue());
                     break;
             }
         }
@@ -114,7 +86,7 @@ public class Parser {
     private void CALLAT(InstructionArgument arg0, InstructionArgument arg1) {
         int top4Bits = (arg0.getIntValue() & 0b00001111) << 8;
 
-        setProgramCounter(top4Bits + arg1.getIntValue(), true);
+        programCounter.push(top4Bits + arg1.getIntValue());
     }
 
     private void RETURN() {
@@ -170,7 +142,7 @@ public class Parser {
     }
 
     public void parse(Instruction instruction) {
-        incrementProgramCounter();
+        programCounter.increment();
 
         if (instruction.instruction == null) {
             return;
@@ -300,8 +272,8 @@ public class Parser {
     public void parse(Instruction[] program) {
         clockCycles = 0;
 
-        while (programCounter.peek() < program.length) {
-            Instruction instruction = program[programCounter.peek()];
+        while (programCounter.get() < program.length) {
+            Instruction instruction = program[programCounter.get()];
 
             parse(instruction);
 
