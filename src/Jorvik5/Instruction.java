@@ -16,7 +16,7 @@ public class Instruction {
         if (arg == null) {
             return instruction.toString();
         } else {
-            return String.format("%s %s", instruction, arg.getValue());
+            return String.format("%s %s", instruction, Integer.toHexString(arg.getValue()));
         }
     }
 
