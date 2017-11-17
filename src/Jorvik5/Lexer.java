@@ -49,23 +49,44 @@ public class Lexer {
         throw new Error("Unsupported argument type in source");
     }
 
+    private String[] splitInput(String input) {
+        String line; // Remove comments
+
+        String[] split = input.split(";");
+        if (split.length == 0) {
+            line = "";
+        } else {
+            line = split[0];
+        }
+
+        return line.trim().split("\\s+"); // Split on (and remove) whitespace
+    }
+
+    public Instruction lex(String instruction) {
+        String[] sections = splitInput(instruction);
+
+        if (sections[0].isEmpty()) {
+            // Blank line
+            return null;
+        }
+
+        Instruction toReturn = new Instruction();
+        toReturn.instruction = getInstruction(sections);
+
+        if (hasArg.contains(toReturn.instruction)) {
+            toReturn.arg = getArgument(toReturn.instruction, sections);
+        }
+
+        return toReturn;
+    }
+
     public Instruction[] lex(List<String> program) {
         Instruction[] instructions = new Instruction[program.size()];
 
         String[][] allSections = new String[program.size()][];
 
         for (int lineNumber = 0; lineNumber < program.size(); lineNumber++) {
-            String line; // Remove comments
-
-            String[] split = program.get(lineNumber).split(";");
-            if (split.length == 0) {
-                line = "";
-            } else {
-                line = split[0];
-            }
-
-            String[] sections = line.trim().split("\\s+"); // Split on (and remove) whitespace
-            allSections[lineNumber] = sections;
+            allSections[lineNumber] = splitInput(program.get(lineNumber));
 
             // Initialise array to empty Instructions to fill later
             instructions[lineNumber] = new Instruction();

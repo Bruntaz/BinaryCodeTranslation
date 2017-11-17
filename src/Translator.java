@@ -2,6 +2,7 @@ import Jorvik5.Groups.InstructionSet;
 import Jorvik5.Instruction;
 import Jorvik5.InstructionArguments.ShortLiteral;
 import PicoBlazeSimulator.Groups.RegisterName;
+import PicoBlazeSimulator.InstructionArguments.InstructionArgument;
 import PicoBlazeSimulator.InstructionArguments.Register;
 
 import java.io.IOException;
@@ -9,6 +10,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 public class Translator {
@@ -20,54 +22,71 @@ public class Translator {
     private Jorvik5.Lexer j5Lexer = Jorvik5.Lexer.getInstance();
     private Jorvik5.Parser j5Parser = Jorvik5.Parser.getInstance();
 
-    private int translateRegisterIntoMemory(RegisterName registerName) {
-        switch (registerName) {
-            case S0:
-                return 0;
-            case S1:
-                return 1;
-            case S2:
-                return 2;
-            case S3:
-                return 3;
-            case S4:
-                return 4;
-            case S5:
-                return 5;
-            case S6:
-                return 6;
-            case S7:
-                return 7;
-            case S8:
-                return 8;
-            case S9:
-                return 9;
-            case SA:
-                return 10;
-            case SB:
-                return 11;
-            case SC:
-                return 12;
-            case SD:
-                return 13;
-            case SE:
-                return 14;
-            default:
-                return 15;
-        }
+    private HashMap<RegisterName, Integer> registerMemoryLocation = new HashMap<RegisterName, Integer>() {{
+        put(RegisterName.S0, 0);
+        put(RegisterName.S1, 1);
+        put(RegisterName.S2, 2);
+        put(RegisterName.S3, 3);
+        put(RegisterName.S4, 4);
+        put(RegisterName.S5, 5);
+        put(RegisterName.S6, 6);
+        put(RegisterName.S7, 7);
+        put(RegisterName.S8, 8);
+        put(RegisterName.S9, 9);
+        put(RegisterName.SA, 10);
+        put(RegisterName.SB, 11);
+        put(RegisterName.SC, 12);
+        put(RegisterName.SD, 13);
+        put(RegisterName.SE, 14);
+        put(RegisterName.SF, 15);
+    }};
+
+    private int translateRegisterIntoMemory(InstructionArgument register) {
+        RegisterName registerName = ((Register) register).getRegisterName();
+        return registerMemoryLocation.get(registerName);
     }
 
     public Jorvik5.Instruction[] translate(PicoBlazeSimulator.Instruction picoBlazeInstruction) {
-        switch (picoBlazeInstruction.instruction) {
+        PicoBlazeSimulator.Groups.InstructionSet instruction = picoBlazeInstruction.instruction;
+        PicoBlazeSimulator.InstructionArguments.InstructionArgument arg0 = picoBlazeInstruction.arg0;
+        PicoBlazeSimulator.InstructionArguments.InstructionArgument arg1 = picoBlazeInstruction.arg1;
+
+        switch (instruction) {
+            // Register loading
             case LOAD:
                 return new Jorvik5.Instruction[] {
-                        new Instruction(InstructionSet.SSET, new ShortLiteral(picoBlazeInstruction.arg1.getIntValue())),
-                        new Instruction(Jorvik5.Groups.InstructionSet.STORE, new ShortLiteral(
-                                translateRegisterIntoMemory(((Register)picoBlazeInstruction.arg0).getRegisterName()))),
+                        j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
+                        j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("DROP"),
                 };
 
+            // Logical
+            case AND:
+                return new Jorvik5.Instruction[] {
+                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
+                        j5Lexer.lex("AND"),
+                        j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("DROP"),
+                };
+            case OR:
+                return new Jorvik5.Instruction[] {
+                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
+                        j5Lexer.lex("OR"),
+                        j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("DROP"),
+                };
+            case XOR:
+                return new Jorvik5.Instruction[] {
+                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
+                        j5Lexer.lex("XOR"),
+                        j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("DROP"),
+                };
         }
-        return new Jorvik5.Instruction[] {new Instruction()};
+        return new Jorvik5.Instruction[] {};
     }
 
     private List<String> readFile(String filename) {

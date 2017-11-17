@@ -13,7 +13,11 @@ public class Instruction {
 
     @Override
     public String toString() {
-        return String.format("%s %s", instruction, arg.getValue());
+        if (arg == null) {
+            return instruction.toString();
+        } else {
+            return String.format("%s %s", instruction, arg.getValue());
+        }
     }
 
     public Instruction(InstructionSet instruction, InstructionArgument arg) {
