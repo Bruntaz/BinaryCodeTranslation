@@ -67,7 +67,7 @@ public class Translator {
                 };
 
         }
-        return new Jorvik5.Instruction[] {};
+        return new Jorvik5.Instruction[] {new Instruction()};
     }
 
     private List<String> readFile(String filename) {
@@ -108,15 +108,15 @@ public class Translator {
 
         Jorvik5.Instruction[][] j5Instructions = new Jorvik5.Instruction[picoBlazeInstructions.length][];
 
-        int j5PC = this.j5PC.get();
-        while (j5PC < j5Instructions.length) {
-            if (j5Instructions[j5PC] == null) { // Currently this just converts everything because the program
+        int pbPC = this.picoBlazePC.get();
+        while (pbPC < picoBlazeInstructions.length) {
+            if (j5Instructions[pbPC] == null) { // Currently this just converts everything because the program
                                                       // counter isn't being changed on jumps in the stack machine.
-                // Translate next block
-                picoBlazeInstructions[j5PC].isBlockStart = true;
-                int nextBlockStart = picoBlazeParser.getNextBlockStart(picoBlazeInstructions, j5PC);
+                picoBlazeInstructions[pbPC].isBlockStart = true;
+                int nextBlockStart = picoBlazeParser.getNextBlockStart(picoBlazeInstructions, pbPC);
 
-                for (int instructionNumber = j5PC; instructionNumber < nextBlockStart; instructionNumber++) {
+                // Iterate through current PicoBlaze block and translate it
+                for (int instructionNumber = pbPC; instructionNumber < nextBlockStart; instructionNumber++) {
                     if (picoBlazeInstructions[instructionNumber].instruction != null) {
                         j5Instructions[instructionNumber] = translate(picoBlazeInstructions[instructionNumber]);
                     } else {
@@ -125,13 +125,20 @@ public class Translator {
                 }
             }
 
-            for (Instruction instruction : j5Instructions[j5PC]) { // This doesn't work properly yet. It will execute
-                // on the J5 but the incrementing of the PC is broken so it won't execute everything its suppsed to.
+            j5PC.reset();
+            for (Instruction instruction : j5Instructions[pbPC]) {
+                // Loop here because parse(Instruction[]) will break on jumps
+                // For example if you have a block whick loops to itself
                 j5Parser.parse(instruction);
             }
 
-            this.j5PC.increment();
-            j5PC = this.j5PC.get();
+            // Move the PBPC if the J5 machine has jumped
+            if (j5PC.hasJustJumped()) {
+                picoBlazePC.set(j5PC.get());
+            }
+
+            this.picoBlazePC.increment();
+            pbPC = this.picoBlazePC.get();
         }
 
         for (int i=0; i<j5Instructions.length; i++) {

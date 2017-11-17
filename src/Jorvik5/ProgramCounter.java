@@ -10,22 +10,39 @@ public class ProgramCounter {
     }
 
     private Stack<Integer> pc;
+    private boolean justJumped;
+
+    public void setJustJumped(boolean state) {
+        justJumped = state;
+    }
+
+    public boolean hasJustJumped() {
+        return justJumped;
+    }
 
     public int get() {
         return pc.peek();
     }
 
     public void set(int value) {
+        int previousValue = 0;
         if (pc.size() != 0) {
-            pc.pop();
+            previousValue = pc.pop();
         }
 
         pc.push(value);
+
+        if (previousValue == value - 1) {
+            setJustJumped(false);
+        } else {
+            setJustJumped(true);
+        }
     }
 
     public void push(int value) {
         if (pc.size() <= 30) {
             pc.push(value);
+            setJustJumped(true);
         } else {
             throw new Error("Program counter stack size reached. Program should reset here.");
         }
@@ -44,6 +61,7 @@ public class ProgramCounter {
     public void reset() {
         pc = new Stack<>();
         pc.push(0);
+        setJustJumped(false);
     }
 
     private ProgramCounter() {
