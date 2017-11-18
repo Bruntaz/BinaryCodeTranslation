@@ -56,4 +56,7 @@ public enum InstructionSet {
 
     // Directives
     CONSTANT,
+
+    // Misc
+    NOP,
 }

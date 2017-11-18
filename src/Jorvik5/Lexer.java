@@ -68,7 +68,7 @@ public class Lexer {
 
         if (sections[0].isEmpty()) {
             // Blank line
-            return null;
+            return new Instruction(InstructionSet.NOP, null);
         }
 
         Instruction toReturn = new Instruction();
@@ -90,7 +90,7 @@ public class Lexer {
             allSections[lineNumber] = splitInput(program.get(lineNumber));
 
             // Initialise array to empty Instructions to fill later
-            instructions[lineNumber] = new Instruction();
+            instructions[lineNumber] = new Instruction(InstructionSet.NOP, null);
         }
 
         for (int lineNumber = 0; lineNumber < program.size(); lineNumber++) {

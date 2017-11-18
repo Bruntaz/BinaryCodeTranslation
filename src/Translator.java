@@ -51,14 +51,14 @@ public class Translator {
     NOTE: This currently only supports register arguments for the logical operators. It will be necessary to add SSET
      <value> at some point instead of FETCH <register>
      */
-    public Jorvik5.Instruction[] translate(PicoBlazeSimulator.Instruction picoBlazeInstruction) {
-        if (picoBlazeInstruction == null || picoBlazeInstruction.instruction == null) {
+    public Jorvik5.Instruction[] translate(PicoBlazeSimulator.Instruction pbInstruction) {
+        if (pbInstruction == null || pbInstruction.instruction == PicoBlazeSimulator.Groups.InstructionSet.NOP) {
             return new Jorvik5.Instruction[] {new Instruction(InstructionSet.NOP, null)};
         }
 
-        PicoBlazeSimulator.Groups.InstructionSet instruction = picoBlazeInstruction.instruction;
-        PicoBlazeSimulator.InstructionArguments.InstructionArgument arg0 = picoBlazeInstruction.arg0;
-        PicoBlazeSimulator.InstructionArguments.InstructionArgument arg1 = picoBlazeInstruction.arg1;
+        PicoBlazeSimulator.Groups.InstructionSet instruction = pbInstruction.instruction;
+        PicoBlazeSimulator.InstructionArguments.InstructionArgument arg0 = pbInstruction.arg0;
+        PicoBlazeSimulator.InstructionArguments.InstructionArgument arg1 = pbInstruction.arg1;
 
         switch (instruction) {
             // Register loading

@@ -11,7 +11,7 @@ public class Instruction {
     public boolean isBlockStart;
 
     public Instruction() {
-        this(null, null, null, false);
+        this(InstructionSet.NOP, null, null, false);
     }
 
     @Override
