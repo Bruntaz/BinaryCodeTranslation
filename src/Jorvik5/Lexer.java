@@ -41,6 +41,7 @@ public class Lexer {
                 return new ShortRelativeAddress(intArg);
             case LBRANCH:
             case CALL:
+                return new AbsoluteAddress(intArg - 1);
             case FETCH:
             case STORE:
                 return new AbsoluteAddress(intArg);
