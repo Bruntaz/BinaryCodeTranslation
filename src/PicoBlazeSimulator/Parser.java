@@ -142,6 +142,7 @@ public class Parser {
     }
 
     public void parse(Instruction instruction) {
+        System.out.println(instruction);
         programCounter.increment();
 
         if (instruction.instruction == null) {

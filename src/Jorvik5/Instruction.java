@@ -13,6 +13,10 @@ public class Instruction {
 
     @Override
     public String toString() {
+        if (instruction == null) {
+            return null;
+        }
+
         if (arg == null) {
             return instruction.toString();
         } else {

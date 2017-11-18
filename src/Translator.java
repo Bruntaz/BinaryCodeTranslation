@@ -1,3 +1,4 @@
+import Jorvik5.Groups.InstructionSet;
 import Jorvik5.Instruction;
 import PicoBlazeSimulator.Groups.RegisterName;
 import PicoBlazeSimulator.InstructionArguments.AbsoluteAddress;
@@ -51,6 +52,10 @@ public class Translator {
      <value> at some point instead of FETCH <register>
      */
     public Jorvik5.Instruction[] translate(PicoBlazeSimulator.Instruction picoBlazeInstruction) {
+        if (picoBlazeInstruction == null || picoBlazeInstruction.instruction == null) {
+            return new Jorvik5.Instruction[] {new Instruction(InstructionSet.NOP, null)};
+        }
+
         PicoBlazeSimulator.Groups.InstructionSet instruction = picoBlazeInstruction.instruction;
         PicoBlazeSimulator.InstructionArguments.InstructionArgument arg0 = picoBlazeInstruction.arg0;
         PicoBlazeSimulator.InstructionArguments.InstructionArgument arg1 = picoBlazeInstruction.arg1;
@@ -86,6 +91,23 @@ public class Translator {
                         j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
                 };
 
+            // Arithmetic
+            case ADD:
+                return new Jorvik5.Instruction[] {
+                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
+                        j5Lexer.lex("ADD"),
+                        j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                };
+            case SUB:
+                return new Jorvik5.Instruction[] {
+                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
+                        j5Lexer.lex("SUB"),
+                        j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                };
+
+
             // Jump
             case JUMP:
                 if (arg0 instanceof AbsoluteAddress) {
@@ -110,7 +132,8 @@ public class Translator {
                     }
                 }
         }
-        return new Jorvik5.Instruction[] {};
+
+        throw new Error("Translation for this command (" + instruction + ") is not supported yet.");
     }
 
     private List<String> readFile(String filename) {
@@ -160,16 +183,18 @@ public class Translator {
 
                 // Iterate through current PicoBlaze block and translate it
                 for (int instructionNumber = pbPC; instructionNumber < nextBlockStart; instructionNumber++) {
-                    if (picoBlazeInstructions[instructionNumber].instruction != null) {
-                        j5Instructions[instructionNumber] = translate(picoBlazeInstructions[instructionNumber]);
-                    } else {
-                        j5Instructions[instructionNumber] = new Instruction[] {};
-                    }
+                    j5Instructions[instructionNumber] = translate(picoBlazeInstructions[instructionNumber]);
                 }
+
+                System.out.println("-------------Currently translated---------------");
+                for (int i=0; i<j5Instructions.length; i++) {
+                    System.out.println(Arrays.toString(j5Instructions[i]) + ", " + picoBlazeInstructions[i].instruction);
+                }
+                System.out.println("-------------Currently translated---------------");
             }
 
-            j5PC.reset();
-            System.out.println(picoBlazeInstructions[pbPC]);
+            j5PC.set(pbPC);
+            System.out.println("PicoBlaze Instruction: " + picoBlazeInstructions[pbPC]);
             for (Instruction instruction : j5Instructions[pbPC]) {
                 // Loop here because parse(Instruction[]) will break on jumps
                 // For example if you have a block whick loops to itself
@@ -186,9 +211,9 @@ public class Translator {
             pbPC = this.picoBlazePC.get();
         }
 
-        for (int i=0; i<j5Instructions.length; i++) {
-            System.out.println(Arrays.toString(j5Instructions[i]) + ", " + picoBlazeInstructions[i].instruction);
-        }
+//        for (int i=0; i<j5Instructions.length; i++) {
+//            System.out.println(Arrays.toString(j5Instructions[i]) + ", " + picoBlazeInstructions[i].instruction);
+//        }
 //        System.out.println(j5Instructions.length);
         System.out.println(Jorvik5.ScratchPad.getInstance());
     }

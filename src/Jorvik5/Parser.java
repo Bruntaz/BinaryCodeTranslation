@@ -1,5 +1,6 @@
 package Jorvik5;
 
+import Jorvik5.Groups.InstructionSet;
 import Jorvik5.InstructionArguments.InstructionArgument;
 
 public class Parser {
@@ -54,9 +55,10 @@ public class Parser {
     }
 
     public void parse(Instruction instruction) {
+        System.out.println(instruction);
         programCounter.increment();
 
-        if (instruction.instruction == null) {
+        if (instruction.instruction == null || instruction.instruction == InstructionSet.NOP) {
             return;
         }
 

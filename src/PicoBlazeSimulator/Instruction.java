@@ -16,6 +16,10 @@ public class Instruction {
 
     @Override
     public String toString() {
+        if (instruction == null) {
+            return null;
+        }
+
         StringBuilder toReturn = new StringBuilder(instruction.toString());
 
         if (arg0 != null) {

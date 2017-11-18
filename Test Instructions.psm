@@ -1,10 +1,14 @@
 LOAD S0, 5
-LOAD s1, FF
+LOAD s1, F
 XOR s0, s1
-JUMP 6
+JUMP 6'd
 LOAD S2, EE
-AND s0, s4
-JUMP NZ, 11
+LOAD s4, 1
+subtractLine: SUB s0, s4
+JUMP Z, 10'd
+JUMP subtractLine
 LOAD s3, DD
-JUMP Z, 11
+JUMP NZ, 13'd
 LOAD s4, CC
+
+; 00, 0f, 00, dd, cc
