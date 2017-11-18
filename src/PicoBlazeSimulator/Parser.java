@@ -145,7 +145,7 @@ public class Parser {
         System.out.println(instruction);
         programCounter.increment();
 
-        if (instruction.instruction == null || instruction.instruction == InstructionSet.NOP) {
+        if (instruction.instruction == InstructionSet.NOP) {
             return;
         }
 
