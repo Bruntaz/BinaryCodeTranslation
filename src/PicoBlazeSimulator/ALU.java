@@ -52,10 +52,10 @@ class ALU {
             registers.setCarry(false);
         }
 
-        if (beforeZ) {
-            registers.setZero(result == Register.MIN_VALUE);
-        } else {
+        if (includeCarry && !beforeZ) {
             registers.setZero(false);
+        } else {
+            registers.setZero(result == Register.MIN_VALUE);
         }
 
         arg0.setValue(result);
@@ -77,10 +77,11 @@ class ALU {
             registers.setCarry(false);
         }
 
-        if (beforeZ) {
-            registers.setZero(result == Register.MIN_VALUE);
-        } else {
+
+        if (includeCarry && !beforeZ) {
             registers.setZero(false);
+        } else {
+            registers.setZero(result == Register.MIN_VALUE);
         }
 
         arg0.setValue(result);
