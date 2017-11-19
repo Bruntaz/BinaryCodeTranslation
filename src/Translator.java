@@ -137,7 +137,7 @@ public class Translator {
     }
 
     private List<String> readFile(String filename) {
-        Path filePath = FileSystems.getDefault().getPath(filename);
+        Path filePath = FileSystems.getDefault().getPath("src/TestCode/" + filename);
 
         List<String> file = null;
         try {
