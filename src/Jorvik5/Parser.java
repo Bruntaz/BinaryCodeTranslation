@@ -150,8 +150,14 @@ public class Parser {
             case FETCH:
                 scratchPad.FETCH(instruction.arg.getValue());
                 break;
+            case IFETCH:
+                scratchPad.IFETCH();
+                break;
             case STORE:
                 scratchPad.STORE(instruction.arg.getValue());
+                break;
+            case ISTORE:
+                scratchPad.ISTORE();
                 break;
         }
         System.out.println(stack);

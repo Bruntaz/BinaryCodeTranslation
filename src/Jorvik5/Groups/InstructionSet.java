@@ -42,5 +42,7 @@ public enum InstructionSet {
 
     // Scratch Pad Memory
     FETCH,      // Load value from ScratchPad memory to stack
+    IFETCH,     // Indirect fetch (location from TOS)
     STORE,      // Write top of stack to memory
+    ISTORE,     // Indirect store (location from TOS)
 }

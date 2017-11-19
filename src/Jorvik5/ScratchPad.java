@@ -34,8 +34,21 @@ public class ScratchPad {
         memory[location] = value;
     }
 
+    void ISTORE() {
+        int location = stack.pop();
+        STORE(location);
+        stack.push(location);
+    }
+
     void STORE(int location) {
         setMemory(location, stack.getTop());
+    }
+
+    void IFETCH() {
+        int location = stack.pop();
+        FETCH(location);
+        stack.push(location);
+        stack.SWAP();
     }
 
     void FETCH(int location) {
