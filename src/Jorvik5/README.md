@@ -14,5 +14,5 @@ The circuit diagram for the J5 processor that my design is based on is here:
 A list of the modifications to the standard architecture I have made is as follows:
 * Stack width is 8 bit instead of 16 bit
     * The SET statement has been removed because of this (the SSET statement remains)
-* Add FETCH and STORE instructions for Scratch Pad Memory
+* Add FETCH, IFETCH, STORE and ISTORE instructions for Scratch Pad Memory
 * Add AND, OR, XOR and NOT instructions

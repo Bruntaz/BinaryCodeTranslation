@@ -5,19 +5,23 @@ public enum InstructionSet {
 //    SET,	    // Set top of stack (long) // Not currently supported to make stack all 8 bit
     SSET,	    // Set top of stack (short)
 
-    // ALU
-    ADD,		// Add top 2
-    SUB,		// Subtract top 2 (next - top)
-    INC,		// Increment top
-    DEC,		// Decrement top
-    TGT,		// Test greater than
-    TLT,		// Test less than
-    TEQ,		// Test equal
-    TSZ,		// Test stack zero
+    // Logical
     AND,        // And together top 2 (destructive)
     OR,         // Or together top 2 (destructive)
     XOR,        // Xor together top 2 (destructive)
     NOT,        // Not the top (destructive)
+
+    // Arithmetic
+    ADD,		// Add top 2
+    SUB,		// Subtract top 2 (next - top)
+    INC,		// Increment top
+    DEC,		// Decrement top
+
+    // Test and Compare
+    TGT,		// Test greater than
+    TLT,		// Test less than
+    TEQ,		// Test equal
+    TSZ,		// Test stack zero
 
     // Branching
     BRANCH, 	// Unconditional jump

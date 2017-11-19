@@ -23,10 +23,10 @@ loadRegisters:
 
 swapRegisters:
     COMPARE s1, s0
-    CALL C, positiveResult
+    CALL C, shouldSwap
     RETURN
 
-    positiveResult:
+    shouldSwap:
         ADD s3, 1
         STORE s0, s2        ; Store s0 in s1's position
         SUB s2, 1

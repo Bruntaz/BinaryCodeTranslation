@@ -1,0 +1,84 @@
+; ScratchPad 0-4 will be used as outputs
+; ScratchPad 10 will be used to track swaps
+
+initialiseMemory:
+    SSET 4
+    SSET 3
+    SSET 1
+    SSET 5
+    SSET 2
+    STORE 0
+    DROP
+    STORE 1
+    DROP
+    STORE 2
+    DROP
+    STORE 3
+    DROP
+    STORE 4
+    DROP
+    LBRANCH main
+
+loadToStack:
+    IFETCH
+    SWAP
+    INC
+    IFETCH
+    RROT                ; Put address pointer to bottom of stack
+    RETURN
+
+swapValues:
+    SWAP
+    TLT                 ; If second < first, swap
+    BRZERO 2            ; Jump to shouldSwap call if second < first
+    LBRANCH resetStack  ; If not, jump to resetStack
+    CALL shouldSwap     ; When returned from, intentionally fall through to resetStack
+
+    resetStack:
+        DROP            ; Remove values from stack
+        DROP
+        RETURN          ; Leave swapValues (not just resetStack)
+
+    setSwaps:           ; Set SP 10 to 1 to indicate swaps have occurred
+        SSET 1
+        STORE 10
+        DROP
+        RETURN
+
+    shouldSwap:         ; Swap the values in inspected memory locations
+        CALL setSwaps
+        RROT
+        DEC             ; Set pointer to first location
+        ISTORE          ; Store second in first location
+        RROT
+        SWAP
+        INC             ; Set pointer to second location
+        ISTORE          ; Store first in second location
+        ROT             ; Put pointer back to BOS
+        RETURN
+
+loopThrough:
+    SSET 0              ; Both used for address and resetting swaps
+    STORE 10
+
+    loop:
+        CALL loadToStack
+        CALL swapValues
+        SSET 4          ; Test if reached the end of the array
+        TEQ
+        DROP
+        BRZERO 2
+        LBRANCH loop
+
+    FETCH 10            ; Have there been any swaps?
+    SSET 0
+    TEQ
+    DROP
+    DROP
+    DROP
+    BRZERO 2            ; If not, the numbers are sorted
+    LBRANCH loopThrough
+    RETURN
+
+main:
+    CALL loopThrough

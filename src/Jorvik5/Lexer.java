@@ -4,6 +4,7 @@ import Jorvik5.Groups.InstructionSet;
 import Jorvik5.InstructionArguments.*;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -15,12 +16,23 @@ public class Lexer {
         return ourInstance;
     }
 
+    private HashMap<String, Integer> labelMap = new HashMap<>();
     private HashSet<InstructionSet> hasArg = new HashSet<>(Arrays.asList(
             InstructionSet.SSET, InstructionSet.BRANCH, InstructionSet.SBRANCH, InstructionSet.BRZERO,
             InstructionSet.SBRZERO, InstructionSet.LBRANCH, InstructionSet.CALL, InstructionSet.FETCH,
             InstructionSet.STORE)
     );
 
+    /*
+    Labels must be on a blank line for simplicity
+     */
+    private String getLabel(String[] sections) {
+        if (sections[0].endsWith(":")) {
+            return sections[0].split(":")[0];
+        } else {
+            return null;
+        }
+    }
 
     private InstructionSet getInstruction(String[] sections) {
         String upperCaseInstruction = sections[0].toUpperCase();
@@ -28,7 +40,12 @@ public class Lexer {
     }
 
     private InstructionArgument getArgument(InstructionSet instruction, String[] sections) {
-        int intArg = Integer.parseInt(sections[1], 16);
+        int intArg;
+        if (labelMap.containsKey(sections[1])) {
+            intArg = labelMap.get(sections[1]) + 1;
+        } else {
+            intArg = Integer.parseInt(sections[1], 16);
+        }
 
         switch (instruction) {
             case SSET:
@@ -89,6 +106,11 @@ public class Lexer {
         for (int lineNumber = 0; lineNumber < program.size(); lineNumber++) {
             allSections[lineNumber] = splitInput(program.get(lineNumber));
 
+            String label = getLabel(allSections[lineNumber]);
+            if (label != null) {
+                labelMap.put(label, lineNumber);
+            }
+
             // Initialise array to empty Instructions to fill later
             instructions[lineNumber] = new Instruction(InstructionSet.NOP, null);
         }
@@ -96,7 +118,7 @@ public class Lexer {
         for (int lineNumber = 0; lineNumber < program.size(); lineNumber++) {
             String[] sections = allSections[lineNumber];
 
-            if (sections[0].isEmpty()) {
+            if (sections[0].isEmpty() || getLabel(sections) != null) {
                 // Blank line
                 continue;
             }
