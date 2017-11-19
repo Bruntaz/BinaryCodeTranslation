@@ -174,6 +174,7 @@ public class Translator {
 
         Jorvik5.Instruction[][] j5Instructions = new Jorvik5.Instruction[picoBlazeInstructions.length][];
 
+        picoBlazeParser.RESET();
         int pbPC = this.picoBlazePC.get();
         while (pbPC < picoBlazeInstructions.length) {
             if (j5Instructions[pbPC] == null) { // Currently this just converts everything because the program
@@ -215,6 +216,7 @@ public class Translator {
 //            System.out.println(Arrays.toString(j5Instructions[i]) + ", " + picoBlazeInstructions[i].instruction);
 //        }
 //        System.out.println(j5Instructions.length);
+        System.out.println(String.format("\nFinished in %d clock cycles", j5Parser.getClockCycles()));
         System.out.println(Jorvik5.ScratchPad.getInstance());
     }
 

@@ -16,9 +16,17 @@ public class Parser {
     private Flags flags = Flags.getInstance();
     private int clockCycles;
 
+    public void setClockCycles(int number) {
+        clockCycles = number;
+    }
+
+    public int getClockCycles() {
+        return clockCycles;
+    }
+
     public void RESET() {
         programCounter.reset();
-        clockCycles = 0;
+        setClockCycles(0);
 
         flags.setCarry(false);
         flags.setZero(false);

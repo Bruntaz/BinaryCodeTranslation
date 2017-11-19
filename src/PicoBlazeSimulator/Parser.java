@@ -25,9 +25,17 @@ public class Parser {
     HashSet<InstructionSet> blockEntrances = new HashSet<>(Arrays.asList(InstructionSet.RETURN, InstructionSet.CALL,
             InstructionSet.CALLAT, InstructionSet.JUMP, InstructionSet.JUMPAT));
 
+    public void setClockCycles(int number) {
+        clockCycles = number;
+    }
+
+    public int getClockCycles() {
+        return clockCycles;
+    }
+
     public void RESET() {
         programCounter.reset();
-        clockCycles = 0;
+        setClockCycles(0);
 
         registers.setCarry(false);
         registers.setZero(false);
