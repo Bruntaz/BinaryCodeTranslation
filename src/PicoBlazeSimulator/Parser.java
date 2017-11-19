@@ -27,6 +27,7 @@ public class Parser {
 
     public void RESET() {
         programCounter.reset();
+        clockCycles = 0;
 
         registers.setCarry(false);
         registers.setZero(false);
@@ -268,17 +269,16 @@ public class Parser {
             default:
                 throw new UnsupportedOperationException("Unrecognised instruction. Has the instruction been added to the switch statement in Parser?");
         }
+
+        clockCycles += 1;
     }
 
     public void parse(Instruction[] program) {
-        clockCycles = 0;
-
         while (programCounter.get() < program.length) {
             Instruction instruction = program[programCounter.get()];
 
             parse(instruction);
 
-            clockCycles += 1;
             System.out.println(registers);
         }
 

@@ -14,6 +14,15 @@ public class Parser {
     private ALU alu = ALU.getInstance();
     private ScratchPad scratchPad = ScratchPad.getInstance();
     private Flags flags = Flags.getInstance();
+    private int clockCycles;
+
+    public void RESET() {
+        programCounter.reset();
+        clockCycles = 0;
+
+        flags.setCarry(false);
+        flags.setZero(false);
+    }
 
     private void SET(InstructionArgument value) {
         stack.push(value.getValue());
@@ -160,18 +169,20 @@ public class Parser {
                 scratchPad.ISTORE();
                 break;
         }
+
         System.out.println(stack);
+        clockCycles += 1;
     }
 
     public void parse(Instruction[] program) {
-        int clockCycles = 0;
-
         while (programCounter.get() < program.length) {
             parse(program[programCounter.get()]);
-
-            clockCycles += 1;
         }
 
-        System.out.println("Finished in " + clockCycles + " clock cycles");
+        System.out.println(String.format("Finished in %d clock cycles", clockCycles));
+    }
+
+    private Parser() {
+        RESET();
     }
 }
