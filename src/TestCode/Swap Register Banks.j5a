@@ -1,0 +1,45 @@
+setMemory:
+    SSET FF
+    SSET 0
+
+    ISTORE
+    INC
+    SSET 1F
+    TLT
+    DROP
+    BRZERO 5
+    SWAP
+    DEC
+    SWAP
+    BRANCH 9
+
+    DROP
+    DROP
+    LBRANCH main        ; Jump to main label
+
+swapRegisterBanks:
+	DUP             ; (X, X)             Duplicate memory location
+	IFETCH          ; (X, X, sXA)        Fetch A value of register
+	SWAP            ; (X, sXA, X)        Get memory pointer to top
+	SSET 10         ; (X, sXA, X, 10)
+	ADD             ; (X, sXA, 10)       Add offset to memory pointer
+	IFETCH          ; (X, sXA, 10, sXB)  Fetch B value of register
+	ROT             ; (X, sXB, sXA, 10)  Rotate top 3 values
+	ISTORE          ; (X, sXB, sXA, 10)  Store A value in B location
+	DROP            ; (X, sXB, sXA)
+	DROP            ; (X, sXB)           Drop A value and offset pointer
+	SWAP            ; (sXB, X)
+	ISTORE          ; (sXB, X)           Store B value in A location
+	SWAP            ; (X, sXB)
+	DROP            ; (X)                Drop B value to reset stack
+	RETURN
+
+main:
+	SSET 0          ; (0)
+	CALL swapRegisterBanks
+	INC             ; (1)
+	SSET F          ; (1, F)
+	TLT             ; (1, F)
+	DROP            ; (1)
+	BRZERO 2
+	BRANCH 6

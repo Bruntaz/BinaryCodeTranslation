@@ -1,8 +1,8 @@
 package Jorvik5.InstructionArguments;
 
 public class ShortRelativeAddress implements InstructionArgument {
-    public static final int MAX_VALUE = 0xFF;
-    public static final int MIN_VALUE = 0xFF;
+    public static final int MAX_VALUE = 0xF;
+    public static final int MIN_VALUE = 0x0;
 
     private int value;
 
