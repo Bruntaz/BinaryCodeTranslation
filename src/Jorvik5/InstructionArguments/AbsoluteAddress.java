@@ -1,8 +1,8 @@
 package Jorvik5.InstructionArguments;
 
 public class AbsoluteAddress implements InstructionArgument {
-    public static final int MAX_VALUE = 0xFFFF;
-    public static final int MIN_VALUE = 0x0000;
+    public static final int MAX_VALUE = 0xFFF;
+    public static final int MIN_VALUE = 0x000;
 
     private int value;
 
