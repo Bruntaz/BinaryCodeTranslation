@@ -1,29 +1,28 @@
 package PicoBlazeSimulator;
 
-import PicoBlazeSimulator.Groups.InstructionSet;
-import PicoBlazeSimulator.InstructionArguments.AbsoluteAddress;
-import PicoBlazeSimulator.InstructionArguments.FlagArgument;
-import PicoBlazeSimulator.InstructionArguments.InstructionArgument;
-import PicoBlazeSimulator.InstructionArguments.NoArgument;
+import PicoBlazeSimulator.Groups.PBInstructionSet;
+import PicoBlazeSimulator.InstructionArguments.PBAbsoluteAddress;
+import PicoBlazeSimulator.InstructionArguments.PBFlagArgument;
+import PicoBlazeSimulator.InstructionArguments.PBInstructionArgument;
+import PicoBlazeSimulator.InstructionArguments.PBNoArgument;
 
 import java.util.*;
-import java.util.Stack;
 
-public class Parser {
-    private static Parser ourInstance = new Parser();
-    public static Parser getInstance() {
+public class PBParser {
+    private static PBParser ourInstance = new PBParser();
+    public static PBParser getInstance() {
         return ourInstance;
     }
 
-    private Registers registers = Registers.getInstance();
-    private ScratchPad scratchPad = ScratchPad.getInstance();
-    private ALU alu = ALU.getInstance();
+    private PBRegisters registers = PBRegisters.getInstance();
+    private PBScratchPad scratchPad = PBScratchPad.getInstance();
+    private PBALU alu = PBALU.getInstance();
 
-    private ProgramCounter programCounter = ProgramCounter.getInstance();
+    private PBProgramCounter programCounter = PBProgramCounter.getInstance();
     private int clockCycles;
 
-    HashSet<InstructionSet> blockEntrances = new HashSet<>(Arrays.asList(InstructionSet.RETURN, InstructionSet.CALL,
-            InstructionSet.CALLAT, InstructionSet.JUMP, InstructionSet.JUMPAT));
+    HashSet<PBInstructionSet> blockEntrances = new HashSet<>(Arrays.asList(PBInstructionSet.RETURN, PBInstructionSet.CALL,
+            PBInstructionSet.CALLAT, PBInstructionSet.JUMP, PBInstructionSet.JUMPAT));
 
     public void setClockCycles(int number) {
         clockCycles = number;
@@ -42,57 +41,57 @@ public class Parser {
     }
 
     // Jump
-    private void JUMP(InstructionArgument arg0) {
+    private void JUMP(PBInstructionArgument arg0) {
         programCounter.set(arg0.getIntValue());
     }
 
-    private void JUMP(InstructionArgument arg0, InstructionArgument arg1) {
+    private void JUMP(PBInstructionArgument arg0, PBInstructionArgument arg1) {
         switch (arg0.getStringValue()) {
-            case FlagArgument.C:
+            case PBFlagArgument.C:
                 programCounter.set(registers.C ? arg1.getIntValue() : programCounter.get());
                 break;
-            case FlagArgument.NC:
+            case PBFlagArgument.NC:
                 programCounter.set(registers.C ? programCounter.get() : arg1.getIntValue());
                 break;
-            case FlagArgument.Z:
+            case PBFlagArgument.Z:
                 programCounter.set(registers.Z ? arg1.getIntValue() : programCounter.get());
                 break;
-            case FlagArgument.NZ:
+            case PBFlagArgument.NZ:
                 programCounter.set(registers.Z ? programCounter.get() : arg1.getIntValue());
                 break;
         }
     }
 
-    private void JUMPAT(InstructionArgument arg0, InstructionArgument arg1) {
+    private void JUMPAT(PBInstructionArgument arg0, PBInstructionArgument arg1) {
         int top4Bits = (arg0.getIntValue() & 0b00001111) << 8;
 
         programCounter.set(top4Bits + arg1.getIntValue());
     }
 
     // Subroutines
-    private void CALL(InstructionArgument arg0, InstructionArgument arg1) {
-        if (arg0 instanceof AbsoluteAddress) {
+    private void CALL(PBInstructionArgument arg0, PBInstructionArgument arg1) {
+        if (arg0 instanceof PBAbsoluteAddress) {
             programCounter.push(arg0.getIntValue());
 
         } else {
             switch (arg0.getStringValue()) {
-                case FlagArgument.C:
+                case PBFlagArgument.C:
                     programCounter.push(registers.C ? arg1.getIntValue() : programCounter.get());
                     break;
-                case FlagArgument.NC:
+                case PBFlagArgument.NC:
                     programCounter.push(registers.C ? programCounter.get() : arg1.getIntValue());
                     break;
-                case FlagArgument.Z:
+                case PBFlagArgument.Z:
                     programCounter.push(registers.Z ? arg1.getIntValue() : programCounter.get());
                     break;
-                case FlagArgument.NZ:
+                case PBFlagArgument.NZ:
                     programCounter.push(registers.Z ? programCounter.get() : arg1.getIntValue());
                     break;
             }
         }
     }
 
-    private void CALLAT(InstructionArgument arg0, InstructionArgument arg1) {
+    private void CALLAT(PBInstructionArgument arg0, PBInstructionArgument arg1) {
         int top4Bits = (arg0.getIntValue() & 0b00001111) << 8;
 
         programCounter.push(top4Bits + arg1.getIntValue());
@@ -102,37 +101,37 @@ public class Parser {
         programCounter.pop();
     }
 
-    private void RETURN(InstructionArgument arg0, InstructionArgument arg1) {
+    private void RETURN(PBInstructionArgument arg0, PBInstructionArgument arg1) {
         switch (arg0.getStringValue()) {
-            case FlagArgument.C:
+            case PBFlagArgument.C:
                 if (registers.C) programCounter.pop();
                 break;
-            case FlagArgument.NC:
+            case PBFlagArgument.NC:
                 if (!registers.C) programCounter.pop();
                 break;
-            case FlagArgument.Z:
+            case PBFlagArgument.Z:
                 if (registers.Z) programCounter.pop();
                 break;
-            case FlagArgument.NZ:
+            case PBFlagArgument.NZ:
                 if (!registers.Z) programCounter.pop();
                 break;
         }
     }
 
-    private void LOADANDRETURN(InstructionArgument arg0, InstructionArgument arg1) {
+    private void LOADANDRETURN(PBInstructionArgument arg0, PBInstructionArgument arg1) {
         arg0.setValue(arg1.getIntValue());
         programCounter.pop();
         clockCycles += 1; // This instruction takes 2 clock cycles to run
     }
 
     // Version Control
-    private void HWBUILD(InstructionArgument arg0) {
+    private void HWBUILD(PBInstructionArgument arg0) {
         arg0.setValue(0); // This should be definable, setting to 0 for now for simplicity
         registers.setCarry(true);
         registers.setZero(arg0.getIntValue() == 0);
     }
 
-    public int getNextBlockStart(Instruction[] instructions, int startOfBlock) {
+    public int getNextBlockStart(PBInstruction[] instructions, int startOfBlock) {
         int nextBlockStart = startOfBlock + 1;
 
         if (instructions.length <= nextBlockStart) {
@@ -150,16 +149,16 @@ public class Parser {
         return nextBlockStart;
     }
 
-    public void parse(Instruction instruction) {
+    public void parse(PBInstruction instruction) {
         System.out.println(instruction);
         programCounter.increment();
 
-        if (instruction.instruction == InstructionSet.NOP) {
+        if (instruction.instruction == PBInstructionSet.NOP) {
             return;
         }
 
         switch (instruction.instruction) {
-            // Register loading
+            // PBRegister loading
             case LOAD:
                 registers.LOAD(instruction.arg0, instruction.arg1);
                 break;
@@ -226,7 +225,7 @@ public class Parser {
                 alu.RR(instruction.arg0);
                 break;
 
-            // Register Bank Selection
+            // PBRegister Bank Selection
             case REGBANK:
                 registers.REGBANK(instruction.arg0);
                 break;
@@ -241,7 +240,7 @@ public class Parser {
 
             // Jump
             case JUMP:
-                if (instruction.arg0 instanceof AbsoluteAddress) {
+                if (instruction.arg0 instanceof PBAbsoluteAddress) {
                     JUMP(instruction.arg0);
                 } else {
                     JUMP(instruction.arg0, instruction.arg1);
@@ -259,7 +258,7 @@ public class Parser {
                 CALLAT(instruction.arg0, instruction.arg1);
                 break;
             case RETURN:
-                if (instruction.arg0 instanceof NoArgument) {
+                if (instruction.arg0 instanceof PBNoArgument) {
                     RETURN();
                 } else {
                     RETURN(instruction.arg0, instruction.arg1);
@@ -275,15 +274,15 @@ public class Parser {
                 break;
 
             default:
-                throw new UnsupportedOperationException("Unrecognised instruction. Has the instruction been added to the switch statement in Parser?");
+                throw new UnsupportedOperationException("Unrecognised instruction. Has the instruction been added to the switch statement in J5Parser?");
         }
 
         clockCycles += 1;
     }
 
-    public void parse(Instruction[] program) {
+    public void parse(PBInstruction[] program) {
         while (programCounter.get() < program.length) {
-            Instruction instruction = program[programCounter.get()];
+            PBInstruction instruction = program[programCounter.get()];
 
             parse(instruction);
 
@@ -293,7 +292,7 @@ public class Parser {
         System.out.println(String.format("Finished in %d clock cycles", clockCycles));
     }
 
-    private Parser() {
+    private PBParser() {
         RESET();
     }
 }

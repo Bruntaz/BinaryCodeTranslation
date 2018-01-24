@@ -1,9 +1,9 @@
 package PicoBlazeSimulator;
 
-import PicoBlazeSimulator.Groups.RegisterName;
-import PicoBlazeSimulator.InstructionArguments.InstructionArgument;
-import PicoBlazeSimulator.InstructionArguments.Register;
-import PicoBlazeSimulator.InstructionArguments.RegisterBank;
+import PicoBlazeSimulator.Groups.PBRegisterName;
+import PicoBlazeSimulator.InstructionArguments.PBInstructionArgument;
+import PicoBlazeSimulator.InstructionArguments.PBRegister;
+import PicoBlazeSimulator.InstructionArguments.PBRegisterBank;
 
 import java.util.HashMap;
 
@@ -11,9 +11,9 @@ import java.util.HashMap;
  * Created by jamesbrunton on 06/10/2017.
  */
 
-public class Registers {
-    private static Registers ourInstance = new Registers();
-    public static Registers getInstance() {
+public class PBRegisters {
+    private static PBRegisters ourInstance = new PBRegisters();
+    public static PBRegisters getInstance() {
         return ourInstance;
     }
 
@@ -21,9 +21,9 @@ public class Registers {
     public boolean Z = false;
     public boolean aRegisterBank = true;
 
-    private HashMap<RegisterName, Register> registers = new HashMap<>();
+    private HashMap<PBRegisterName, PBRegister> registers = new HashMap<>();
 
-    public Register getRegister(RegisterName register) {
+    public PBRegister getRegister(PBRegisterName register) {
         return registers.get(register);
     }
 
@@ -38,7 +38,7 @@ public class Registers {
     public void useARegisterBank(boolean newState) {
         aRegisterBank = newState;
 
-        for (Register register : registers.values()) {
+        for (PBRegister register : registers.values()) {
             register.useARegisterBank(newState);
         }
     }
@@ -48,16 +48,16 @@ public class Registers {
     }
 
     public void resetRegisters() {
-        for (Register register : registers.values()) {
+        for (PBRegister register : registers.values()) {
             register.reset();
         }
     }
 
-    void LOAD(InstructionArgument arg0, InstructionArgument arg1) {
+    void LOAD(PBInstructionArgument arg0, PBInstructionArgument arg1) {
         arg0.setValue(arg1.getIntValue());
     }
 
-    void STAR(InstructionArgument arg0, InstructionArgument arg1) {
+    void STAR(PBInstructionArgument arg0, PBInstructionArgument arg1) {
         int copiedValue = arg1.getIntValue();
         toggleActiveRegisters();
 
@@ -65,14 +65,14 @@ public class Registers {
         toggleActiveRegisters();
     }
 
-    // Register Bank Selection
-    void REGBANK(InstructionArgument arg0) {
-        useARegisterBank(arg0.getStringValue().equals(RegisterBank.A));
+    // PBRegister Bank Selection
+    void REGBANK(PBInstructionArgument arg0) {
+        useARegisterBank(arg0.getStringValue().equals(PBRegisterBank.A));
     }
 
-    private Registers() {
-        for (RegisterName registerName : RegisterName.values()) {
-            this.registers.put(registerName, new Register(registerName));
+    private PBRegisters() {
+        for (PBRegisterName registerName : PBRegisterName.values()) {
+            this.registers.put(registerName, new PBRegister(registerName));
         }
     }
 
@@ -80,7 +80,7 @@ public class Registers {
     public String toString() {
         StringBuilder toPrint = new StringBuilder("{\n");
 
-        for (RegisterName registerName : RegisterName.values()) {
+        for (PBRegisterName registerName : PBRegisterName.values()) {
             int registerValue = registers.get(registerName).getIntValue();
             toPrint.append(
                     String.format(

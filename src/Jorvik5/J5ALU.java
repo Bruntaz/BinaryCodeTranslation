@@ -1,21 +1,21 @@
 package Jorvik5;
 
-public class ALU {
-    private static ALU ourInstance = new ALU();
-    public static ALU getInstance() {
+public class J5ALU {
+    private static J5ALU ourInstance = new J5ALU();
+    public static J5ALU getInstance() {
         return ourInstance;
     }
 
-    private Stack stack = Stack.getInstance();
-    private Flags flags = Flags.getInstance();
+    private J5Stack stack = J5Stack.getInstance();
+    private J5Flags flags = J5Flags.getInstance();
 
     void ADD() {
         int top = stack.pop();
         int next = stack.pop();
         int addition = top + next;
 
-        if (addition > Stack.MAX_VALUE) {
-            addition = addition % (Stack.MAX_VALUE + 1);
+        if (addition > J5Stack.MAX_VALUE) {
+            addition = addition % (J5Stack.MAX_VALUE + 1);
             flags.setCarry(true);
 
         } else {
@@ -31,8 +31,8 @@ public class ALU {
         int next = stack.pop();
         int subtraction = next - top;
 
-        if (subtraction < Stack.MIN_VALUE) {
-            subtraction += Stack.MAX_VALUE + 1;
+        if (subtraction < J5Stack.MIN_VALUE) {
+            subtraction += J5Stack.MAX_VALUE + 1;
             flags.setCarry(true);
 
         } else {
@@ -47,8 +47,8 @@ public class ALU {
         int top = stack.pop();
         int incremented = top + 1;
 
-        if (incremented > Stack.MAX_VALUE) {
-            incremented = incremented % (Stack.MAX_VALUE + 1);
+        if (incremented > J5Stack.MAX_VALUE) {
+            incremented = incremented % (J5Stack.MAX_VALUE + 1);
             flags.setCarry(true);
 
         } else {
@@ -63,8 +63,8 @@ public class ALU {
         int top = stack.pop();
         int decremented = top - 1;
 
-        if (decremented < Stack.MIN_VALUE) {
-            decremented += Stack.MAX_VALUE + 1;
+        if (decremented < J5Stack.MIN_VALUE) {
+            decremented += J5Stack.MAX_VALUE + 1;
             flags.setCarry(true);
 
         } else {
@@ -131,7 +131,7 @@ public class ALU {
     }
 
     void NOT() {
-        stack.setTop(stack.getTop() ^ Stack.MAX_VALUE);
+        stack.setTop(stack.getTop() ^ J5Stack.MAX_VALUE);
         flags.setZero(stack.getTop() == 0);
     }
 }

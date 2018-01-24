@@ -1,8 +1,8 @@
 package Jorvik5;
 
-public class Flags {
-    private static Flags ourInstance = new Flags();
-    public static Flags getInstance() {
+public class J5Flags {
+    private static J5Flags ourInstance = new J5Flags();
+    public static J5Flags getInstance() {
         return ourInstance;
     }
 

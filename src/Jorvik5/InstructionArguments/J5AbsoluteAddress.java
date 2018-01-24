@@ -1,8 +1,8 @@
 package Jorvik5.InstructionArguments;
 
-public class ShortRelativeAddress implements InstructionArgument {
-    public static final int MAX_VALUE = 0xF;
-    public static final int MIN_VALUE = 0x0;
+public class J5AbsoluteAddress implements J5InstructionArgument {
+    public static final int MAX_VALUE = 0xFFF;
+    public static final int MIN_VALUE = 0x000;
 
     private int value;
 
@@ -14,13 +14,13 @@ public class ShortRelativeAddress implements InstructionArgument {
     @Override
     public void setValue(int newValue) {
         if (newValue > MAX_VALUE || newValue < MIN_VALUE) {
-            throw new Error("Short relative address set to illegal value (" + newValue + ")");
+            throw new Error("Absolute address set to illegal value (" + newValue + ")");
         }
 
         value = newValue;
     }
 
-    public ShortRelativeAddress(int address) {
+    public J5AbsoluteAddress(int address) {
         value = address;
     }
 }

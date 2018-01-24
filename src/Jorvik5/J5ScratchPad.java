@@ -1,17 +1,16 @@
 package Jorvik5;
 
-import Jorvik5.InstructionArguments.InstructionArgument;
-import Jorvik5.InstructionArguments.ShortLiteral;
+import Jorvik5.InstructionArguments.J5ShortLiteral;
 
-public class ScratchPad {
-    private static ScratchPad ourInstance = new ScratchPad();
-    public static ScratchPad getInstance() {
+public class J5ScratchPad {
+    private static J5ScratchPad ourInstance = new J5ScratchPad();
+    public static J5ScratchPad getInstance() {
         return ourInstance;
     }
 
     private int memorySize;
     private int[] memory;
-    private Stack stack = Stack.getInstance();
+    private J5Stack stack = J5Stack.getInstance();
 
     public int getMemorySize() {
         return memorySize;
@@ -27,7 +26,7 @@ public class ScratchPad {
     }
 
     public void setMemory(int location, int value) {
-        if (value < ShortLiteral.MIN_VALUE || value > ShortLiteral.MAX_VALUE) {
+        if (value < J5ShortLiteral.MIN_VALUE || value > J5ShortLiteral.MAX_VALUE) {
             throw new Error("Scratch pad set to an illegal number (" + value + ")");
         }
 
@@ -78,7 +77,7 @@ public class ScratchPad {
         return toReturn.toString();
     }
 
-    private ScratchPad() {
+    private J5ScratchPad() {
         this.memorySize = 64;
         this.memory = new int[memorySize];
     }

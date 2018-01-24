@@ -1,21 +1,14 @@
 package PicoBlazeSimulator.InstructionArguments;
 
-public class FlagArgument implements InstructionArgument {
-    public static final String C = "C";
-    public static final String NC = "NC";
-    public static final String Z = "Z";
-    public static final String NZ = "NZ";
-
-    private String value;
-
+public class PBNoArgument implements PBInstructionArgument {
     @Override
     public boolean hasStringValue() {
-        return true;
+        return false;
     }
 
     @Override
     public String getStringValue() {
-        return value;
+        return null;
     }
 
     @Override
@@ -30,15 +23,9 @@ public class FlagArgument implements InstructionArgument {
 
     @Override
     public void setValue(int newValue) {
-
     }
 
     @Override
     public void setValue(String newValue) {
-        value = newValue;
-    }
-
-    public FlagArgument(String flag) {
-        value = flag;
     }
 }

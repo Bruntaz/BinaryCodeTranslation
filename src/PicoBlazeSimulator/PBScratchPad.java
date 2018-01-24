@@ -1,11 +1,11 @@
 package PicoBlazeSimulator;
 
-import PicoBlazeSimulator.InstructionArguments.InstructionArgument;
-import PicoBlazeSimulator.InstructionArguments.Register;
+import PicoBlazeSimulator.InstructionArguments.PBInstructionArgument;
+import PicoBlazeSimulator.InstructionArguments.PBRegister;
 
-public class ScratchPad {
-    private static ScratchPad ourInstance = new ScratchPad();
-    public static ScratchPad getInstance() {
+public class PBScratchPad {
+    private static PBScratchPad ourInstance = new PBScratchPad();
+    public static PBScratchPad getInstance() {
         return ourInstance;
     }
 
@@ -26,18 +26,18 @@ public class ScratchPad {
     }
 
     public void setMemory(int location, int value) {
-        if (value < Register.MIN_VALUE || value > Register.MAX_VALUE) {
+        if (value < PBRegister.MIN_VALUE || value > PBRegister.MAX_VALUE) {
             throw new Error("Scratch pad set to an illegal number (" + value + ")");
         }
 
         memory[location] = value;
     }
 
-    void STORE(InstructionArgument arg0, InstructionArgument arg1) {
+    void STORE(PBInstructionArgument arg0, PBInstructionArgument arg1) {
         setMemory(arg1.getIntValue(), arg0.getIntValue());
     }
 
-    void FETCH(InstructionArgument arg0, InstructionArgument arg1) {
+    void FETCH(PBInstructionArgument arg0, PBInstructionArgument arg1) {
         arg0.setValue(getMemory(arg1.getIntValue()));
     }
 
@@ -64,7 +64,7 @@ public class ScratchPad {
         return toReturn.toString();
     }
 
-    private ScratchPad() {
+    private PBScratchPad() {
         this.memorySize = 64;
         this.memory = new int[memorySize];
     }

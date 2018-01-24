@@ -1,19 +1,19 @@
 package Jorvik5;
 
-import Jorvik5.Groups.InstructionSet;
-import Jorvik5.InstructionArguments.InstructionArgument;
+import Jorvik5.Groups.J5InstructionSet;
+import Jorvik5.InstructionArguments.J5InstructionArgument;
 
-public class Parser {
-    private static Parser ourInstance = new Parser();
-    public static Parser getInstance() {
+public class J5Parser {
+    private static J5Parser ourInstance = new J5Parser();
+    public static J5Parser getInstance() {
         return ourInstance;
     }
 
-    private ProgramCounter programCounter = ProgramCounter.getInstance();
-    private Stack stack = Stack.getInstance();
-    private ALU alu = ALU.getInstance();
-    private ScratchPad scratchPad = ScratchPad.getInstance();
-    private Flags flags = Flags.getInstance();
+    private J5ProgramCounter programCounter = J5ProgramCounter.getInstance();
+    private J5Stack stack = J5Stack.getInstance();
+    private J5ALU alu = J5ALU.getInstance();
+    private J5ScratchPad scratchPad = J5ScratchPad.getInstance();
+    private J5Flags flags = J5Flags.getInstance();
     private int clockCycles;
 
     public void setClockCycles(int number) {
@@ -32,7 +32,7 @@ public class Parser {
         flags.setZero(false);
     }
 
-    private void SET(InstructionArgument value) {
+    private void SET(J5InstructionArgument value) {
         stack.push(value.getValue());
     }
 
@@ -71,11 +71,11 @@ public class Parser {
         programCounter.pop();
     }
 
-    public void parse(Instruction instruction) {
+    public void parse(J5Instruction instruction) {
         System.out.println(instruction);
         programCounter.increment();
 
-        if (instruction.instruction == InstructionSet.NOP) {
+        if (instruction.instruction == J5InstructionSet.NOP) {
             return;
         }
 
@@ -86,7 +86,7 @@ public class Parser {
                 SET(instruction.arg);
                 break;
 
-            // ALU
+            // J5ALU
             case ADD:
                 alu.ADD();
                 break;
@@ -146,7 +146,7 @@ public class Parser {
                 RETURN();
                 break;
 
-            // Stack Management
+            // J5Stack Management
             case DROP:
                 stack.DROP();
                 break;
@@ -182,7 +182,7 @@ public class Parser {
         clockCycles += 1;
     }
 
-    public void parse(Instruction[] program) {
+    public void parse(J5Instruction[] program) {
         while (programCounter.get() < program.length) {
             parse(program[programCounter.get()]);
         }
@@ -190,7 +190,7 @@ public class Parser {
         System.out.println(String.format("Finished in %d clock cycles", clockCycles));
     }
 
-    private Parser() {
+    private J5Parser() {
         RESET();
     }
 }

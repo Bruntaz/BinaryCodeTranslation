@@ -1,17 +1,17 @@
 package PicoBlazeSimulator.InstructionArguments;
 
-import PicoBlazeSimulator.Groups.RegisterName;
+import PicoBlazeSimulator.Groups.PBRegisterName;
 
-public class Register implements InstructionArgument {
+public class PBRegister implements PBInstructionArgument {
     public static final int MAX_VALUE = 255;
     public static final int MIN_VALUE = 0;
 
     private boolean aRegisterBank = true;
-    private RegisterName registerName;
+    private PBRegisterName registerName;
     private int aValue;
     private int bValue;
 
-    public RegisterName getRegisterName() {
+    public PBRegisterName getRegisterName() {
         return registerName;
     }
 
@@ -38,7 +38,7 @@ public class Register implements InstructionArgument {
     @Override
     public void setValue(int newValue) {
         if (newValue < MIN_VALUE || newValue > MAX_VALUE) {
-            throw new Error("PicoBlazeSimulator.InstructionArguments.Register set to an illegal number (" + newValue + ")");
+            throw new Error("PicoBlazeSimulator.InstructionArguments.PBRegister set to an illegal number (" + newValue + ")");
         }
 
         if (aRegisterBank) {
@@ -64,7 +64,7 @@ public class Register implements InstructionArgument {
         bValue = 0;
     }
 
-    public Register(RegisterName registerName) {
+    public PBRegister(PBRegisterName registerName) {
         this.registerName = registerName;
         this.aValue = MIN_VALUE;
         this.bValue = MIN_VALUE;

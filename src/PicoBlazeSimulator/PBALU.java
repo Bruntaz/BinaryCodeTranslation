@@ -1,42 +1,41 @@
 package PicoBlazeSimulator;
 
-import PicoBlazeSimulator.Groups.InstructionSet;
-import PicoBlazeSimulator.InstructionArguments.InstructionArgument;
-import PicoBlazeSimulator.InstructionArguments.Literal;
-import PicoBlazeSimulator.InstructionArguments.Register;
+import PicoBlazeSimulator.Groups.PBInstructionSet;
+import PicoBlazeSimulator.InstructionArguments.PBInstructionArgument;
+import PicoBlazeSimulator.InstructionArguments.PBRegister;
 
-class ALU {
-    private static ALU ourInstance = new ALU();
-    static ALU getInstance() {
+class PBALU {
+    private static PBALU ourInstance = new PBALU();
+    static PBALU getInstance() {
         return ourInstance;
     }
 
-    private Registers registers = Registers.getInstance();
+    private PBRegisters registers = PBRegisters.getInstance();
 
     // Logical
-    void AND(InstructionArgument arg0, InstructionArgument arg1) {
+    void AND(PBInstructionArgument arg0, PBInstructionArgument arg1) {
         arg0.setValue(arg0.getIntValue() & arg1.getIntValue());
 
         registers.setCarry(false);
-        registers.setZero(arg0.getIntValue() == Register.MIN_VALUE);
+        registers.setZero(arg0.getIntValue() == PBRegister.MIN_VALUE);
     }
 
-    void OR(InstructionArgument arg0, InstructionArgument arg1) {
+    void OR(PBInstructionArgument arg0, PBInstructionArgument arg1) {
         arg0.setValue(arg0.getIntValue() | arg1.getIntValue());
 
         registers.setCarry(false);
-        registers.setZero(arg0.getIntValue() == Register.MIN_VALUE);
+        registers.setZero(arg0.getIntValue() == PBRegister.MIN_VALUE);
     }
 
-    void XOR(InstructionArgument arg0, InstructionArgument arg1) {
+    void XOR(PBInstructionArgument arg0, PBInstructionArgument arg1) {
         arg0.setValue(arg0.getIntValue() ^ arg1.getIntValue());
 
         registers.setCarry(false);
-        registers.setZero(arg0.getIntValue() == Register.MIN_VALUE);
+        registers.setZero(arg0.getIntValue() == PBRegister.MIN_VALUE);
     }
 
     // Arithmetic
-    void ADD(InstructionArgument arg0, InstructionArgument arg1, boolean includeCarry) {
+    void ADD(PBInstructionArgument arg0, PBInstructionArgument arg1, boolean includeCarry) {
         boolean beforeZ = registers.Z;
 
         int result = arg0.getIntValue() + arg1.getIntValue();
@@ -45,9 +44,9 @@ class ALU {
             result += 1;
         }
 
-        if (result > Register.MAX_VALUE) {
+        if (result > PBRegister.MAX_VALUE) {
             registers.setCarry(true);
-            result = result % (Register.MAX_VALUE + 1);
+            result = result % (PBRegister.MAX_VALUE + 1);
         } else {
             registers.setCarry(false);
         }
@@ -55,13 +54,13 @@ class ALU {
         if (includeCarry && !beforeZ) {
             registers.setZero(false);
         } else {
-            registers.setZero(result == Register.MIN_VALUE);
+            registers.setZero(result == PBRegister.MIN_VALUE);
         }
 
         arg0.setValue(result);
     }
 
-    void SUB(InstructionArgument arg0, InstructionArgument arg1, boolean includeCarry) {
+    void SUB(PBInstructionArgument arg0, PBInstructionArgument arg1, boolean includeCarry) {
         boolean beforeZ = registers.Z;
 
         int result = arg0.getIntValue() - arg1.getIntValue();
@@ -70,8 +69,8 @@ class ALU {
             result -= 1;
         }
 
-        if (result < Register.MIN_VALUE) {
-            result += Register.MAX_VALUE + 1;
+        if (result < PBRegister.MIN_VALUE) {
+            result += PBRegister.MAX_VALUE + 1;
             registers.setCarry(true);
         } else {
             registers.setCarry(false);
@@ -81,14 +80,14 @@ class ALU {
         if (includeCarry && !beforeZ) {
             registers.setZero(false);
         } else {
-            registers.setZero(result == Register.MIN_VALUE);
+            registers.setZero(result == PBRegister.MIN_VALUE);
         }
 
         arg0.setValue(result);
     }
 
     // Test and Compare
-    void TEST(InstructionArgument arg0, InstructionArgument arg1) {
+    void TEST(PBInstructionArgument arg0, PBInstructionArgument arg1) {
         int result = arg0.getIntValue() & arg1.getIntValue();
 
         // Carry bit true if odd number of 1 bits
@@ -98,10 +97,10 @@ class ALU {
         }
 
         registers.setCarry(carry);
-        registers.setZero(result == Register.MIN_VALUE);
+        registers.setZero(result == PBRegister.MIN_VALUE);
     }
 
-    void TESTCY(InstructionArgument arg0, InstructionArgument arg1) {
+    void TESTCY(PBInstructionArgument arg0, PBInstructionArgument arg1) {
         int result = arg0.getIntValue() & arg1.getIntValue();
 
         // Carry bit true if odd number of 1 bits including carry bit
@@ -111,17 +110,17 @@ class ALU {
         }
 
         registers.setCarry(carry);
-        registers.setZero(result == Register.MIN_VALUE && registers.Z);
+        registers.setZero(result == PBRegister.MIN_VALUE && registers.Z);
     }
 
-    void COMPARE(InstructionArgument arg0, InstructionArgument arg1) {
+    void COMPARE(PBInstructionArgument arg0, PBInstructionArgument arg1) {
         int result = arg0.getIntValue() - arg1.getIntValue();
 
         registers.setCarry(result < 0);
-        registers.setZero(result == Register.MIN_VALUE);
+        registers.setZero(result == PBRegister.MIN_VALUE);
     }
 
-    void COMPARECY(InstructionArgument arg0, InstructionArgument arg1) {
+    void COMPARECY(PBInstructionArgument arg0, PBInstructionArgument arg1) {
         int result = arg0.getIntValue() - arg1.getIntValue();
 
         if (registers.C) {
@@ -129,11 +128,11 @@ class ALU {
         }
 
         registers.setCarry(result < 0);
-        registers.setZero(result == Register.MIN_VALUE && registers.Z);
+        registers.setZero(result == PBRegister.MIN_VALUE && registers.Z);
     }
 
     // Shift and Rotate
-    void SL(InstructionSet instruction, InstructionArgument arg0) {
+    void SL(PBInstructionSet instruction, PBInstructionArgument arg0) {
         int leastSignificantBit;
         switch (instruction) {
             case SL0:
@@ -153,12 +152,12 @@ class ALU {
         registers.setCarry((arg0.getIntValue() & 0b10000000) != 0);
 
         int newValue = (arg0.getIntValue() << 1) + leastSignificantBit;
-        arg0.setValue(newValue & Register.MAX_VALUE);
+        arg0.setValue(newValue & PBRegister.MAX_VALUE);
 
         registers.setZero(arg0.getIntValue() == 0);
     }
 
-    void SR(InstructionSet instruction, InstructionArgument arg0) {
+    void SR(PBInstructionSet instruction, PBInstructionArgument arg0) {
         int mostSignificantBit;
         switch (instruction) {
             case SR0:
@@ -178,18 +177,18 @@ class ALU {
         registers.setCarry((arg0.getIntValue() & 0b00000001) != 0);
 
         int newValue = (arg0.getIntValue() >> 1) + mostSignificantBit;
-        arg0.setValue(newValue & Register.MAX_VALUE);
+        arg0.setValue(newValue & PBRegister.MAX_VALUE);
 
         registers.setZero(arg0.getIntValue() == 0);
     }
 
-    void RL(InstructionArgument arg0) {
+    void RL(PBInstructionArgument arg0) {
         registers.setCarry((arg0.getIntValue() & 0b10000000) != 0);
-        SL(InstructionSet.SLA, arg0);
+        SL(PBInstructionSet.SLA, arg0);
     }
 
-    void RR(InstructionArgument arg0) {
+    void RR(PBInstructionArgument arg0) {
         registers.setCarry((arg0.getIntValue() & 0b00000001) != 0);
-        SR(InstructionSet.SRA, arg0);
+        SR(PBInstructionSet.SRA, arg0);
     }
 }

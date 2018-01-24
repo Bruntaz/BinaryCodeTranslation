@@ -1,11 +1,11 @@
-package PicoBlazeSimulator;
+package Jorvik5;
 
 import java.util.Stack;
 
-public class ProgramCounter {
-    private static ProgramCounter ourInstance = new ProgramCounter();
+public class J5ProgramCounter {
+    private static J5ProgramCounter ourInstance = new J5ProgramCounter();
 
-    public static ProgramCounter getInstance() {
+    public static J5ProgramCounter getInstance() {
         return ourInstance;
     }
 
@@ -64,7 +64,7 @@ public class ProgramCounter {
         setJustJumped(false);
     }
 
-    private ProgramCounter() {
+    private J5ProgramCounter() {
         reset();
     }
 }

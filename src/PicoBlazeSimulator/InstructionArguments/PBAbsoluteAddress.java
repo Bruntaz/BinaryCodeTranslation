@@ -1,6 +1,6 @@
 package PicoBlazeSimulator.InstructionArguments;
 
-public class AbsoluteAddress implements InstructionArgument {
+public class PBAbsoluteAddress implements PBInstructionArgument {
     public static final int MAX_VALUE = 0xFFF;
     public static final int MIN_VALUE = 0x000;
 
@@ -39,7 +39,7 @@ public class AbsoluteAddress implements InstructionArgument {
     public void setValue(String newValue) {
     }
 
-    public AbsoluteAddress(int address) {
+    public PBAbsoluteAddress(int address) {
         value = address;
     }
 }

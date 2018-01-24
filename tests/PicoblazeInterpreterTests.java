@@ -1,13 +1,13 @@
-import PicoBlazeSimulator.Groups.RegisterName;
-import PicoBlazeSimulator.Parser;
-import PicoBlazeSimulator.Registers;
+import PicoBlazeSimulator.Groups.PBRegisterName;
+import PicoBlazeSimulator.PBParser;
+import PicoBlazeSimulator.PBRegisters;
 import PicoBlazeSimulator.*;
 
 public class PicoblazeInterpreterTests {
     static Translator picoblazeInterpreter = new Translator();
-    static Registers registers = Registers.getInstance();
-    static ScratchPad scratchPad = ScratchPad.getInstance();
-    static Parser parser = Parser.getInstance();
+    static PBRegisters registers = PBRegisters.getInstance();
+    static PBScratchPad scratchPad = PBScratchPad.getInstance();
+    static PBParser parser = PBParser.getInstance();
 
     private static void resetAll() {
         PicoblazeInterpreterTests.picoblazeInterpreter = new Translator();
@@ -16,58 +16,58 @@ public class PicoblazeInterpreterTests {
         PicoblazeInterpreterTests.parser.RESET();
     }
 
-    private static boolean testRegister( RegisterName registerName, int shouldEqual) {
-        Registers registers = Registers.getInstance();
+    private static boolean testRegister(PBRegisterName registerName, int shouldEqual) {
+        PBRegisters registers = PBRegisters.getInstance();
         return registers.getRegister(registerName).getIntValue() == shouldEqual;
     }
 
     private static boolean invertRegister() {
         resetAll();
-        picoblazeInterpreter.runPicoBlazeFileNatively("tests/Invert Register.psm");
-        return testRegister(RegisterName.S0, 0b01010101);
+        picoblazeInterpreter.runPicoBlazeFileNatively("tests/Invert PBRegister.psm");
+        return testRegister(PBRegisterName.S0, 0b01010101);
     }
 
     private static boolean toggleBit() {
         resetAll();
         picoblazeInterpreter.runPicoBlazeFileNatively("tests/Toggle Bit.psm");
-        return testRegister(RegisterName.S0, 0b00000001);
+        return testRegister(PBRegisterName.S0, 0b00000001);
 
     }
 
     private static boolean clearRegister() {
         resetAll();
-        picoblazeInterpreter.runPicoBlazeFileNatively("tests/Clear Register.psm");
-        return testRegister(RegisterName.S0, 0b00000000);
+        picoblazeInterpreter.runPicoBlazeFileNatively("tests/Clear PBRegister.psm");
+        return testRegister(PBRegisterName.S0, 0b00000000);
     }
 
     private static boolean setBit() {
         resetAll();
         picoblazeInterpreter.runPicoBlazeFileNatively("tests/Set Bit.psm");
-        return testRegister(RegisterName.S0, 0b00000001);
+        return testRegister(PBRegisterName.S0, 0b00000001);
     }
 
     private static boolean clearBit() {
         resetAll();
         picoblazeInterpreter.runPicoBlazeFileNatively("tests/Clear Bit.psm");
-        return testRegister(RegisterName.S0, 0b11111110);
+        return testRegister(PBRegisterName.S0, 0b11111110);
     }
 
     private static boolean addCarry() {
         resetAll();
         picoblazeInterpreter.runPicoBlazeFileNatively("tests/Add Carry.psm");
-        return     testRegister(RegisterName.S0, 0x95)
-                && testRegister(RegisterName.S1, 0x00)
-                && testRegister(RegisterName.SA, 0x00)
-                && testRegister(RegisterName.SB, 0x00);
+        return     testRegister(PBRegisterName.S0, 0x95)
+                && testRegister(PBRegisterName.S1, 0x00)
+                && testRegister(PBRegisterName.SA, 0x00)
+                && testRegister(PBRegisterName.SB, 0x00);
     }
 
     private static boolean subCarry() {
         resetAll();
         picoblazeInterpreter.runPicoBlazeFileNatively("tests/Sub Carry.psm");
-        return     testRegister(RegisterName.S0, 0xC2)
-                && testRegister(RegisterName.S1, 0x00)
-                && testRegister(RegisterName.SA, 0x00)
-                && testRegister(RegisterName.SB, 0x00);
+        return     testRegister(PBRegisterName.S0, 0xC2)
+                && testRegister(PBRegisterName.S1, 0x00)
+                && testRegister(PBRegisterName.SA, 0x00)
+                && testRegister(PBRegisterName.SB, 0x00);
     }
 
     public static void main(String args[]) throws Exception {

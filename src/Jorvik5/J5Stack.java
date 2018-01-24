@@ -1,10 +1,10 @@
 package Jorvik5;
 
-import Jorvik5.InstructionArguments.ShortLiteral;
+import Jorvik5.InstructionArguments.J5ShortLiteral;
 
-public class Stack {
-    private static Stack ourInstance = new Stack();
-    public static Stack getInstance() {
+public class J5Stack {
+    private static J5Stack ourInstance = new J5Stack();
+    public static J5Stack getInstance() {
         return ourInstance;
     }
 
@@ -12,7 +12,7 @@ public class Stack {
     public static final int MIN_VALUE = 0;
 
     private java.util.Stack<Integer> values = new java.util.Stack<>();
-    private Flags flags = Flags.getInstance();
+    private J5Flags flags = J5Flags.getInstance();
 
     public int getTop() {
         return values.peek();
@@ -28,7 +28,7 @@ public class Stack {
     }
 
     public void push(int newValue) {
-        if (newValue > ShortLiteral.MAX_VALUE || newValue < ShortLiteral.MIN_VALUE) {
+        if (newValue > J5ShortLiteral.MAX_VALUE || newValue < J5ShortLiteral.MIN_VALUE) {
             throw new Error("Illegal value pushed onto stack (" + newValue + ")");
         }
         values.push(newValue);

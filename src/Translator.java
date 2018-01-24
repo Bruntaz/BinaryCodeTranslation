@@ -1,10 +1,12 @@
-import Jorvik5.Groups.InstructionSet;
-import Jorvik5.Instruction;
-import PicoBlazeSimulator.Groups.RegisterName;
-import PicoBlazeSimulator.InstructionArguments.AbsoluteAddress;
-import PicoBlazeSimulator.InstructionArguments.FlagArgument;
-import PicoBlazeSimulator.InstructionArguments.InstructionArgument;
-import PicoBlazeSimulator.InstructionArguments.Register;
+import Jorvik5.*;
+import Jorvik5.Groups.J5InstructionSet;
+import PicoBlazeSimulator.*;
+import PicoBlazeSimulator.Groups.PBInstructionSet;
+import PicoBlazeSimulator.Groups.PBRegisterName;
+import PicoBlazeSimulator.InstructionArguments.PBAbsoluteAddress;
+import PicoBlazeSimulator.InstructionArguments.PBFlagArgument;
+import PicoBlazeSimulator.InstructionArguments.PBInstructionArgument;
+import PicoBlazeSimulator.InstructionArguments.PBRegister;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -15,35 +17,35 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Translator {
-    private PicoBlazeSimulator.ProgramCounter picoBlazePC = PicoBlazeSimulator.ProgramCounter.getInstance();
-    private PicoBlazeSimulator.Lexer picoBlazeLexer = PicoBlazeSimulator.Lexer.getInstance();
-    private PicoBlazeSimulator.Parser picoBlazeParser = PicoBlazeSimulator.Parser.getInstance();
+    private PBProgramCounter picoBlazePC = PBProgramCounter.getInstance();
+    private PBLexer picoBlazeLexer = PBLexer.getInstance();
+    private PBParser picoBlazeParser = PBParser.getInstance();
 
-    private Jorvik5.ProgramCounter j5PC = Jorvik5.ProgramCounter.getInstance();
-    private Jorvik5.Lexer j5Lexer = Jorvik5.Lexer.getInstance();
-    private Jorvik5.Parser j5Parser = Jorvik5.Parser.getInstance();
+    private J5ProgramCounter j5PC = J5ProgramCounter.getInstance();
+    private J5Lexer j5Lexer = J5Lexer.getInstance();
+    private J5Parser j5Parser = J5Parser.getInstance();
 
-    private HashMap<RegisterName, Integer> registerMemoryLocation = new HashMap<RegisterName, Integer>() {{
-        put(RegisterName.S0, 0);
-        put(RegisterName.S1, 1);
-        put(RegisterName.S2, 2);
-        put(RegisterName.S3, 3);
-        put(RegisterName.S4, 4);
-        put(RegisterName.S5, 5);
-        put(RegisterName.S6, 6);
-        put(RegisterName.S7, 7);
-        put(RegisterName.S8, 8);
-        put(RegisterName.S9, 9);
-        put(RegisterName.SA, 10);
-        put(RegisterName.SB, 11);
-        put(RegisterName.SC, 12);
-        put(RegisterName.SD, 13);
-        put(RegisterName.SE, 14);
-        put(RegisterName.SF, 15);
+    private HashMap<PBRegisterName, Integer> registerMemoryLocation = new HashMap<PBRegisterName, Integer>() {{
+        put(PBRegisterName.S0, 0);
+        put(PBRegisterName.S1, 1);
+        put(PBRegisterName.S2, 2);
+        put(PBRegisterName.S3, 3);
+        put(PBRegisterName.S4, 4);
+        put(PBRegisterName.S5, 5);
+        put(PBRegisterName.S6, 6);
+        put(PBRegisterName.S7, 7);
+        put(PBRegisterName.S8, 8);
+        put(PBRegisterName.S9, 9);
+        put(PBRegisterName.SA, 10);
+        put(PBRegisterName.SB, 11);
+        put(PBRegisterName.SC, 12);
+        put(PBRegisterName.SD, 13);
+        put(PBRegisterName.SE, 14);
+        put(PBRegisterName.SF, 15);
     }};
 
-    private int translateRegisterIntoMemory(InstructionArgument register) {
-        RegisterName registerName = ((Register) register).getRegisterName();
+    private int translateRegisterIntoMemory(PBInstructionArgument register) {
+        PBRegisterName registerName = ((PBRegister) register).getRegisterName();
         return registerMemoryLocation.get(registerName);
     }
 
@@ -51,40 +53,40 @@ public class Translator {
     NOTE: This currently only supports register arguments for the logical operators. It will be necessary to add SSET
      <value> at some point instead of FETCH <register>
      */
-    public Jorvik5.Instruction[] translate(PicoBlazeSimulator.Instruction pbInstruction) {
-        if (pbInstruction == null || pbInstruction.instruction == PicoBlazeSimulator.Groups.InstructionSet.NOP) {
-            return new Jorvik5.Instruction[] {new Instruction(InstructionSet.NOP, null)};
+    public J5Instruction[] translate(PBInstruction pbInstruction) {
+        if (pbInstruction == null || pbInstruction.instruction == PBInstructionSet.NOP) {
+            return new J5Instruction[] {new J5Instruction(J5InstructionSet.NOP, null)};
         }
 
-        PicoBlazeSimulator.Groups.InstructionSet instruction = pbInstruction.instruction;
-        PicoBlazeSimulator.InstructionArguments.InstructionArgument arg0 = pbInstruction.arg0;
-        PicoBlazeSimulator.InstructionArguments.InstructionArgument arg1 = pbInstruction.arg1;
+        PBInstructionSet instruction = pbInstruction.instruction;
+        PBInstructionArgument arg0 = pbInstruction.arg0;
+        PBInstructionArgument arg1 = pbInstruction.arg1;
 
         switch (instruction) {
-            // Register loading
+            // PBRegister loading
             case LOAD:
-                return new Jorvik5.Instruction[] {
+                return new J5Instruction[] {
                         j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
                         j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
                 };
 
             // Logical
             case AND:
-                return new Jorvik5.Instruction[] {
+                return new J5Instruction[] {
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
                         j5Lexer.lex("AND"),
                         j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
                 };
             case OR:
-                return new Jorvik5.Instruction[] {
+                return new J5Instruction[] {
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
                         j5Lexer.lex("OR"),
                         j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
                 };
             case XOR:
-                return new Jorvik5.Instruction[] {
+                return new J5Instruction[] {
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
                         j5Lexer.lex("XOR"),
@@ -93,14 +95,14 @@ public class Translator {
 
             // Arithmetic
             case ADD:
-                return new Jorvik5.Instruction[] {
+                return new J5Instruction[] {
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
                         j5Lexer.lex("ADD"),
                         j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
                 };
             case SUB:
-                return new Jorvik5.Instruction[] {
+                return new J5Instruction[] {
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
                         j5Lexer.lex("SUB"),
@@ -110,20 +112,20 @@ public class Translator {
 
             // Jump
             case JUMP:
-                if (arg0 instanceof AbsoluteAddress) {
-                    return new Jorvik5.Instruction[] {
+                if (arg0 instanceof PBAbsoluteAddress) {
+                    return new J5Instruction[] {
                             j5Lexer.lex("LBRANCH " + arg0.getIntValue())
                     };
                 } else {
-                    FlagArgument a0 = (FlagArgument) arg0;
-                    if (a0.getStringValue().equals(FlagArgument.Z)) {
-                        return new Jorvik5.Instruction[] {
+                    PBFlagArgument a0 = (PBFlagArgument) arg0;
+                    if (a0.getStringValue().equals(PBFlagArgument.Z)) {
+                        return new J5Instruction[] {
                                 j5Lexer.lex("BRZERO " + (arg1.getIntValue() + 1 - picoBlazePC.get())), // This will
                                 // crash if the jump instruction isn't forward.
                         };
-                    } else if (a0.getStringValue().equals(FlagArgument.NZ)) { // TODO: Fix this. If a LOAD is before
+                    } else if (a0.getStringValue().equals(PBFlagArgument.NZ)) { // TODO: Fix this. If a LOAD is before
                         // TODO: here, it may fail because the NOTs will affect the Z flag where the LOADs shouldn't
-                        return new Jorvik5.Instruction[] {
+                        return new J5Instruction[] {
                                 j5Lexer.lex("NOT"), // This tests zero for us
                                 j5Lexer.lex("BRZERO " + (arg1.getIntValue() + 1 - picoBlazePC.get())),// This will
                                 // crash if the jump instruction isn't forward.
@@ -152,27 +154,27 @@ public class Translator {
     public void runPicoBlazeFileNatively(String filename) {
         List<String> file = readFile(filename);
 
-        PicoBlazeSimulator.Instruction[] instructions = picoBlazeLexer.lex(file);
+        PBInstruction[] instructions = picoBlazeLexer.lex(file);
 
         picoBlazeParser.parse(instructions);
-        System.out.println(PicoBlazeSimulator.ScratchPad.getInstance());
+        System.out.println(PBScratchPad.getInstance());
     }
 
     public void runJ5FileNatively(String filename) {
         List<String> file = readFile(filename);
 
-        Jorvik5.Instruction[] instructions = j5Lexer.lex(file);
+        J5Instruction[] instructions = j5Lexer.lex(file);
 
         j5Parser.parse(instructions);
-        System.out.println(Jorvik5.ScratchPad.getInstance());
+        System.out.println(J5ScratchPad.getInstance());
     }
 
     public void runPicoBlazeFileOnJ5(String filename) {
         List<String> file = readFile(filename);
 
-        PicoBlazeSimulator.Instruction[] picoBlazeInstructions = picoBlazeLexer.lex(file);
+        PBInstruction[] picoBlazeInstructions = picoBlazeLexer.lex(file);
 
-        Jorvik5.Instruction[][] j5Instructions = new Jorvik5.Instruction[picoBlazeInstructions.length][];
+        J5Instruction[][] j5Instructions = new J5Instruction[picoBlazeInstructions.length][];
 
         picoBlazeParser.RESET();
         int pbPC = this.picoBlazePC.get();
@@ -195,9 +197,9 @@ public class Translator {
             }
 
             j5PC.set(pbPC);
-            System.out.println("PicoBlaze Instruction: " + picoBlazeInstructions[pbPC]);
-            for (Instruction instruction : j5Instructions[pbPC]) {
-                // Loop here because parse(Instruction[]) will break on jumps
+            System.out.println("PicoBlaze J5Instruction: " + picoBlazeInstructions[pbPC]);
+            for (J5Instruction instruction : j5Instructions[pbPC]) {
+                // Loop here because parse(J5Instruction[]) will break on jumps
                 // For example if you have a block whick loops to itself
                 j5Parser.parse(instruction);
             }
@@ -217,7 +219,7 @@ public class Translator {
 //        }
 //        System.out.println(j5Instructions.length);
         System.out.println(String.format("\nFinished in %d clock cycles", j5Parser.getClockCycles()));
-        System.out.println(Jorvik5.ScratchPad.getInstance());
+        System.out.println(J5ScratchPad.getInstance());
     }
 
     public static void main(String[] args) {

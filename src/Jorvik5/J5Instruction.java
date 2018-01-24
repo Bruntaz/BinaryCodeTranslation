@@ -1,13 +1,13 @@
 package Jorvik5;
 
-import Jorvik5.Groups.InstructionSet;
-import Jorvik5.InstructionArguments.InstructionArgument;
+import Jorvik5.Groups.J5InstructionSet;
+import Jorvik5.InstructionArguments.J5InstructionArgument;
 
-public class Instruction {
-    public InstructionSet instruction;
-    public InstructionArgument arg;
+public class J5Instruction {
+    public J5InstructionSet instruction;
+    public J5InstructionArgument arg;
 
-    public Instruction() {
+    public J5Instruction() {
         this(null, null);
     }
 
@@ -24,7 +24,7 @@ public class Instruction {
         }
     }
 
-    public Instruction(InstructionSet instruction, InstructionArgument arg) {
+    public J5Instruction(J5InstructionSet instruction, J5InstructionArgument arg) {
         this.instruction = instruction;
         this.arg = arg;
     }

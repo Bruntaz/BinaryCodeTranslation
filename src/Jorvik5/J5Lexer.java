@@ -1,6 +1,6 @@
 package Jorvik5;
 
-import Jorvik5.Groups.InstructionSet;
+import Jorvik5.Groups.J5InstructionSet;
 import Jorvik5.InstructionArguments.*;
 
 import java.util.Arrays;
@@ -8,19 +8,19 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-public class Lexer {
+public class J5Lexer {
     // This will be the lexer for the stack assembly code (when it is implemented)
 
-    private static Lexer ourInstance = new Lexer();
-    public static Lexer getInstance() {
+    private static J5Lexer ourInstance = new J5Lexer();
+    public static J5Lexer getInstance() {
         return ourInstance;
     }
 
     private HashMap<String, Integer> labelMap = new HashMap<>();
-    private HashSet<InstructionSet> hasArg = new HashSet<>(Arrays.asList(
-            InstructionSet.SSET, InstructionSet.BRANCH, InstructionSet.SBRANCH, InstructionSet.BRZERO,
-            InstructionSet.SBRZERO, InstructionSet.LBRANCH, InstructionSet.CALL, InstructionSet.FETCH,
-            InstructionSet.STORE)
+    private HashSet<J5InstructionSet> hasArg = new HashSet<>(Arrays.asList(
+            J5InstructionSet.SSET, J5InstructionSet.BRANCH, J5InstructionSet.SBRANCH, J5InstructionSet.BRZERO,
+            J5InstructionSet.SBRZERO, J5InstructionSet.LBRANCH, J5InstructionSet.CALL, J5InstructionSet.FETCH,
+            J5InstructionSet.STORE)
     );
 
     /*
@@ -34,12 +34,12 @@ public class Lexer {
         }
     }
 
-    private InstructionSet getInstruction(String[] sections) {
+    private J5InstructionSet getInstruction(String[] sections) {
         String upperCaseInstruction = sections[0].toUpperCase();
-        return InstructionSet.valueOf(upperCaseInstruction);
+        return J5InstructionSet.valueOf(upperCaseInstruction);
     }
 
-    private InstructionArgument getArgument(InstructionSet instruction, String[] sections) {
+    private J5InstructionArgument getArgument(J5InstructionSet instruction, String[] sections) {
         int intArg;
         if (labelMap.containsKey(sections[1])) {
             intArg = labelMap.get(sections[1]) + 1;
@@ -49,19 +49,19 @@ public class Lexer {
 
         switch (instruction) {
             case SSET:
-                return new ShortLiteral(intArg);
+                return new J5ShortLiteral(intArg);
             case BRANCH:
             case BRZERO:
-                return new RelativeAddress(intArg);
+                return new J5RelativeAddress(intArg);
             case SBRANCH:
             case SBRZERO:
-                return new ShortRelativeAddress(intArg);
+                return new J5ShortRelativeAddress(intArg);
             case LBRANCH:
             case CALL:
-                return new AbsoluteAddress(intArg - 1);
+                return new J5AbsoluteAddress(intArg - 1);
             case FETCH:
             case STORE:
-                return new AbsoluteAddress(intArg);
+                return new J5AbsoluteAddress(intArg);
         }
 
         throw new Error("Unsupported argument type in source");
@@ -80,15 +80,15 @@ public class Lexer {
         return line.trim().split("\\s+"); // Split on (and remove) whitespace
     }
 
-    public Instruction lex(String instruction) {
+    public J5Instruction lex(String instruction) {
         String[] sections = splitInput(instruction);
 
         if (sections[0].isEmpty()) {
             // Blank line
-            return new Instruction(InstructionSet.NOP, null);
+            return new J5Instruction(J5InstructionSet.NOP, null);
         }
 
-        Instruction toReturn = new Instruction();
+        J5Instruction toReturn = new J5Instruction();
         toReturn.instruction = getInstruction(sections);
 
         if (hasArg.contains(toReturn.instruction)) {
@@ -98,8 +98,8 @@ public class Lexer {
         return toReturn;
     }
 
-    public Instruction[] lex(List<String> program) {
-        Instruction[] instructions = new Instruction[program.size()];
+    public J5Instruction[] lex(List<String> program) {
+        J5Instruction[] instructions = new J5Instruction[program.size()];
 
         String[][] allSections = new String[program.size()][];
 
@@ -112,7 +112,7 @@ public class Lexer {
             }
 
             // Initialise array to empty Instructions to fill later
-            instructions[lineNumber] = new Instruction(InstructionSet.NOP, null);
+            instructions[lineNumber] = new J5Instruction(J5InstructionSet.NOP, null);
         }
 
         for (int lineNumber = 0; lineNumber < program.size(); lineNumber++) {
@@ -123,7 +123,7 @@ public class Lexer {
                 continue;
             }
 
-            InstructionSet instruction = getInstruction(sections);
+            J5InstructionSet instruction = getInstruction(sections);
             instructions[lineNumber].instruction = instruction;
 
             if (hasArg.contains(instruction)) {

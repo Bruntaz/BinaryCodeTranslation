@@ -1,7 +1,7 @@
 package PicoBlazeSimulator.Groups;
 
-public enum InstructionSet {
-    // Register loading
+public enum PBInstructionSet {
+    // PBRegister loading
     LOAD,       // sX, kk/sY    Load value into register
     STAR,       // sX, sY       Send to alternate register (load register to alternate register)
 
@@ -34,7 +34,7 @@ public enum InstructionSet {
     SRA,        // sX           Shift bits right, spilling overflow into carry and inserting C at MSB
     RR,         // sX           Barrel shift bits right, updating C if an overflow occurs
 
-    // Register Bank Selection
+    // PBRegister Bank Selection
     REGBANK,    // A/B          Set the active bank of registers
 
     // Scratch Pad Memory

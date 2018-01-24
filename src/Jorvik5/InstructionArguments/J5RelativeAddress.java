@@ -1,6 +1,6 @@
 package Jorvik5.InstructionArguments;
 
-public class RelativeAddress implements InstructionArgument {
+public class J5RelativeAddress implements J5InstructionArgument {
     public static final int MAX_VALUE = 0xFF;
     public static final int MIN_VALUE = 0x00;
 
@@ -20,7 +20,7 @@ public class RelativeAddress implements InstructionArgument {
         value = newValue;
     }
 
-    public RelativeAddress(int address) {
+    public J5RelativeAddress(int address) {
         value = address;
     }
 }

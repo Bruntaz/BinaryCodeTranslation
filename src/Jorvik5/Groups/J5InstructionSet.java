@@ -1,6 +1,6 @@
 package Jorvik5.Groups;
 
-public enum InstructionSet {
+public enum J5InstructionSet {
     // Assignment
 //    SET,	    // Set top of stack (long) // Not currently supported to make stack all 8 bit
     SSET,	    // Set top of stack (short)
@@ -37,7 +37,7 @@ public enum InstructionSet {
     NOP,		// No operation (could be SKIP)
     STOP,		// Halt execution
 
-    // Stack Management
+    // J5Stack Management
     DROP,		// Remove top item
     SWAP,		// Swap top 2 on stack
     ROT,		// Rotate top 3 items in stack (XYZ -> YZX)
@@ -45,7 +45,7 @@ public enum InstructionSet {
     DUP,		// Duplicate top of stack
 
     // Scratch Pad Memory
-    FETCH,      // Load value from ScratchPad memory to stack
+    FETCH,      // Load value from J5ScratchPad memory to stack
     IFETCH,     // Indirect fetch (location from TOS)
     STORE,      // Write top of stack to memory
     ISTORE,     // Indirect store (location from TOS)

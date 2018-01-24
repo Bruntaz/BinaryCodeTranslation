@@ -1,6 +1,6 @@
 package PicoBlazeSimulator.InstructionArguments;
 
-public class Literal implements InstructionArgument {
+public class PBLiteral implements PBInstructionArgument {
     private int value;
 
     @Override
@@ -33,7 +33,7 @@ public class Literal implements InstructionArgument {
 
     }
 
-    public Literal(int value) {
+    public PBLiteral(int value) {
         this.value = value;
     }
 }

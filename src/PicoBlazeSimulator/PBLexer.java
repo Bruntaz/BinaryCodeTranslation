@@ -1,33 +1,33 @@
 package PicoBlazeSimulator;
 
-import PicoBlazeSimulator.Groups.InstructionSet;
-import PicoBlazeSimulator.Groups.RegisterName;
+import PicoBlazeSimulator.Groups.PBInstructionSet;
+import PicoBlazeSimulator.Groups.PBRegisterName;
 import PicoBlazeSimulator.InstructionArguments.*;
 
 import java.util.*;
 
-public class Lexer {
-    private static Lexer ourInstance = new Lexer();
-    public static Lexer getInstance() {
+public class PBLexer {
+    private static PBLexer ourInstance = new PBLexer();
+    public static PBLexer getInstance() {
         return ourInstance;
     }
 
-    private Registers registers = Registers.getInstance();
+    private PBRegisters registers = PBRegisters.getInstance();
     private HashMap<String, Integer> labelMap = new HashMap<>();
     private HashMap<String, Integer> constantMap = new HashMap<>();
 
-    private HashSet<InstructionSet> noArgs = new HashSet<>(Collections.singletonList(InstructionSet.RETURN));
-    private HashSet<InstructionSet> oneArg = new HashSet<>(Arrays.asList(
-            InstructionSet.SL0, InstructionSet.SL1, InstructionSet.SLX, InstructionSet.SLA, InstructionSet.RL,
-            InstructionSet.SR0, InstructionSet.SR1, InstructionSet.SRX, InstructionSet.SRA, InstructionSet.RR,
-            InstructionSet.REGBANK, InstructionSet.JUMP, InstructionSet.CALL, InstructionSet.RETURN)
+    private HashSet<PBInstructionSet> noArgs = new HashSet<>(Collections.singletonList(PBInstructionSet.RETURN));
+    private HashSet<PBInstructionSet> oneArg = new HashSet<>(Arrays.asList(
+            PBInstructionSet.SL0, PBInstructionSet.SL1, PBInstructionSet.SLX, PBInstructionSet.SLA, PBInstructionSet.RL,
+            PBInstructionSet.SR0, PBInstructionSet.SR1, PBInstructionSet.SRX, PBInstructionSet.SRA, PBInstructionSet.RR,
+            PBInstructionSet.REGBANK, PBInstructionSet.JUMP, PBInstructionSet.CALL, PBInstructionSet.RETURN)
     );
-    private HashSet<InstructionSet> twoArgs = new HashSet<>(Arrays.asList(
-            InstructionSet.LOAD, InstructionSet.STAR, InstructionSet.AND, InstructionSet.OR, InstructionSet.XOR,
-            InstructionSet.ADD, InstructionSet.ADDCY, InstructionSet.SUB, InstructionSet.SUBCY,
-            InstructionSet.TEST, InstructionSet.TESTCY, InstructionSet.COMPARE, InstructionSet.COMPARECY,
-            InstructionSet.STORE, InstructionSet.FETCH, InstructionSet.JUMP, InstructionSet.JUMPAT,
-            InstructionSet.CALL, InstructionSet.RETURN, InstructionSet.LOADANDRETURN, InstructionSet.CONSTANT)
+    private HashSet<PBInstructionSet> twoArgs = new HashSet<>(Arrays.asList(
+            PBInstructionSet.LOAD, PBInstructionSet.STAR, PBInstructionSet.AND, PBInstructionSet.OR, PBInstructionSet.XOR,
+            PBInstructionSet.ADD, PBInstructionSet.ADDCY, PBInstructionSet.SUB, PBInstructionSet.SUBCY,
+            PBInstructionSet.TEST, PBInstructionSet.TESTCY, PBInstructionSet.COMPARE, PBInstructionSet.COMPARECY,
+            PBInstructionSet.STORE, PBInstructionSet.FETCH, PBInstructionSet.JUMP, PBInstructionSet.JUMPAT,
+            PBInstructionSet.CALL, PBInstructionSet.RETURN, PBInstructionSet.LOADANDRETURN, PBInstructionSet.CONSTANT)
     );
 
     private class LabelAndColon {
@@ -41,10 +41,10 @@ public class Lexer {
     }
 
     private class InstructionAndSection {
-        InstructionSet instruction;
+        PBInstructionSet instruction;
         int instructionSection;
 
-        InstructionAndSection(InstructionSet instruction, int instructionSection) {
+        InstructionAndSection(PBInstructionSet instruction, int instructionSection) {
             this.instruction = instruction;
             this.instructionSection = instructionSection;
         }
@@ -93,10 +93,10 @@ public class Lexer {
         upperCaseInstruction = upperCaseInstruction.replaceAll("@", "AT");
         upperCaseInstruction = upperCaseInstruction.replaceAll("&", "AND");
 
-        return new InstructionAndSection(InstructionSet.valueOf(upperCaseInstruction), instructionSection);
+        return new InstructionAndSection(PBInstructionSet.valueOf(upperCaseInstruction), instructionSection);
     }
 
-    private boolean isValidNumberOfArguments(InstructionSet instructionName, int number) {
+    private boolean isValidNumberOfArguments(PBInstructionSet instructionName, int number) {
         switch (number) {
             case 0:
                 return noArgs.contains(instructionName);
@@ -138,69 +138,69 @@ public class Lexer {
     /*
     Not finished but it's a start
      */
-    private InstructionArgument convertStringToArgument(InstructionSet instructionName, boolean firstArgument, String toConvert) {
+    private PBInstructionArgument convertStringToArgument(PBInstructionSet instructionName, boolean firstArgument, String toConvert) {
         if (toConvert == null) {
-            return new NoArgument();
+            return new PBNoArgument();
         }
 
-        if (instructionName == InstructionSet.CONSTANT && firstArgument) {
-            return new NamedArgument(toConvert);
+        if (instructionName == PBInstructionSet.CONSTANT && firstArgument) {
+            return new PBNamedArgument(toConvert);
         }
 
-        if (instructionName == InstructionSet.REGBANK) {
-            return new RegisterBank(toConvert);
+        if (instructionName == PBInstructionSet.REGBANK) {
+            return new PBRegisterBank(toConvert);
         }
 
         try {
-            return registers.getRegister(RegisterName.valueOf(toConvert.toUpperCase()));
+            return registers.getRegister(PBRegisterName.valueOf(toConvert.toUpperCase()));
 
         } catch (IllegalArgumentException ignored) {}
 
-        if (firstArgument && (instructionName == InstructionSet.JUMP
-                           || instructionName == InstructionSet.CALL
-                           || instructionName == InstructionSet.RETURN)) {
+        if (firstArgument && (instructionName == PBInstructionSet.JUMP
+                           || instructionName == PBInstructionSet.CALL
+                           || instructionName == PBInstructionSet.RETURN)) {
             switch (toConvert) {
                 case "C":
-                    return new FlagArgument(FlagArgument.C);
+                    return new PBFlagArgument(PBFlagArgument.C);
                 case "NC":
-                    return new FlagArgument(FlagArgument.NC);
+                    return new PBFlagArgument(PBFlagArgument.NC);
                 case "Z":
-                    return new FlagArgument(FlagArgument.Z);
+                    return new PBFlagArgument(PBFlagArgument.Z);
                 case "NZ":
-                    return new FlagArgument(FlagArgument.NZ);
+                    return new PBFlagArgument(PBFlagArgument.NZ);
             }
         }
 
-        if (instructionName == InstructionSet.JUMP
-                || instructionName == InstructionSet.CALL
-                || instructionName == InstructionSet.RETURN) {
+        if (instructionName == PBInstructionSet.JUMP
+                || instructionName == PBInstructionSet.CALL
+                || instructionName == PBInstructionSet.RETURN) {
 
             try {
-                return new AbsoluteAddress(labelMap.get(toConvert));
+                return new PBAbsoluteAddress(labelMap.get(toConvert));
 
             } catch (NullPointerException ignore) {
                 try {
-                    return new AbsoluteAddress(convertToInteger(toConvert) - 1);
+                    return new PBAbsoluteAddress(convertToInteger(toConvert) - 1);
                 } catch (NumberFormatException ignored) {}
             }
         }
 
         try {
-            return new Literal(convertToInteger(toConvert));
+            return new PBLiteral(convertToInteger(toConvert));
         } catch (NumberFormatException ignored) {}
 
-        return new NoArgument();
+        return new PBNoArgument();
     }
 
-    private InstructionArgument[] getArguments(String[] sections, InstructionAndSection instruction) {
+    private PBInstructionArgument[] getArguments(String[] sections, InstructionAndSection instruction) {
         int firstArgSection = instruction.instructionSection + 1;
 
         // No arguments
         if (sections.length == firstArgSection) {
             if (isValidNumberOfArguments(instruction.instruction, 0)) {
-                return new InstructionArgument[]{
-                        new NoArgument(),
-                        new NoArgument(),
+                return new PBInstructionArgument[]{
+                        new PBNoArgument(),
+                        new PBNoArgument(),
                 };
             } else {
                 return null;
@@ -257,7 +257,7 @@ public class Lexer {
                 return null;
 
             } else {
-                return new InstructionArgument[] {
+                return new PBInstructionArgument[] {
                         convertStringToArgument(instruction.instruction, true, firstArgument),
                         convertStringToArgument(instruction.instruction, false, secondArgument),
                 };
@@ -265,8 +265,8 @@ public class Lexer {
         }
     }
 
-    public Instruction[] lex(List<String> program) {
-        Instruction[] instructions = new Instruction[program.size()];
+    public PBInstruction[] lex(List<String> program) {
+        PBInstruction[] instructions = new PBInstruction[program.size()];
 
         String[][] allSections = new String[program.size()][];
         for (int lineNumber=0; lineNumber<program.size(); lineNumber++) {
@@ -292,7 +292,7 @@ public class Lexer {
             }
 
             // Initialise array to empty Instructions to fill later
-            instructions[lineNumber] = new Instruction();
+            instructions[lineNumber] = new PBInstruction();
         }
 
         for (int lineNumber=0; lineNumber<program.size(); lineNumber++) {
@@ -310,10 +310,10 @@ public class Lexer {
 
             InstructionAndSection instructionAndSection = getInstruction(sections, label);
             if (instructionAndSection != null) {
-                InstructionSet instructionName = instructionAndSection.instruction;
+                PBInstructionSet instructionName = instructionAndSection.instruction;
                 System.out.println(instructionName);
 
-                InstructionArgument[] args = getArguments(sections, instructionAndSection);
+                PBInstructionArgument[] args = getArguments(sections, instructionAndSection);
 
                 if (args == null) {
                     throw new IllegalArgumentException(String.format("Illegal number of arguments on line %d", lineNumber + 1));
@@ -322,7 +322,7 @@ public class Lexer {
                 System.out.println(args[0]);
                 System.out.println(args[1]);
 
-                if (instructionName == InstructionSet.CONSTANT) {
+                if (instructionName == PBInstructionSet.CONSTANT) {
                     // Convert all constants to values in lexer so don't include constants in instructions array
                     constantMap.put(args[0].getStringValue(), args[1].getIntValue());
 
@@ -333,7 +333,7 @@ public class Lexer {
                 }
 
                 // This does not cover all cases of block entrances. The JUMP@ and CALL@ instructions can still start
-                // new blocks (by jumping). This needs to be covered in the PicoBlazeSimulator.Parser though because the values are
+                // new blocks (by jumping). This needs to be covered in the PicoBlazeSimulator.J5Parser though because the values are
                 // calculated at runtime.
                 switch (instructionName) {
                     case JUMP:
@@ -347,8 +347,8 @@ public class Lexer {
                         }
                 }
 
-                if (instructionName == InstructionSet.CALL || instructionName == InstructionSet.JUMP) {
-                    int arg = args[0] instanceof AbsoluteAddress ? 0 : 1;
+                if (instructionName == PBInstructionSet.CALL || instructionName == PBInstructionSet.JUMP) {
+                    int arg = args[0] instanceof PBAbsoluteAddress ? 0 : 1;
                     int address = args[arg].getIntValue();
 
                     if (instructions.length > address) {
@@ -363,7 +363,7 @@ public class Lexer {
         return instructions;
     }
 
-    private Lexer() {
+    private PBLexer() {
         constantMap.put("NUL", 0x00);
         constantMap.put("BEL", 0x07);
         constantMap.put("BS",  0x08);
