@@ -13,7 +13,9 @@ public enum J5InstructionSet {
 
     // Arithmetic
     ADD,		// Add top 2
+    ADDCY,      // Add top 2 and carry
     SUB,		// Subtract top 2 (next - top)
+    SUBCY,      // Subtract top 2 and carry (next - top - carry)
     INC,		// Increment top
     DEC,		// Decrement top
 

@@ -94,10 +94,16 @@ public class J5Parser {
 
             // J5ALU
             case ADD:
-                alu.ADD();
+                alu.ADD(false);
+                break;
+            case ADDCY:
+                alu.ADD(true);
                 break;
             case SUB:
-                alu.SUB();
+                alu.SUB(false);
+                break;
+            case SUBCY:
+                alu.SUB(true);
                 break;
             case INC:
                 alu.INC();

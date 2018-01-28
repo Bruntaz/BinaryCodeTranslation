@@ -7,7 +7,7 @@ setMemory:
     SSET 1F
     TLT
     DROP
-    BRZERO 5
+    BRCARRY 5
     SWAP
     DEC
     SWAP
@@ -41,5 +41,5 @@ main:
 	SSET F          ; (1, F)
 	TLT             ; (1, F)
 	DROP            ; (1)
-	BRZERO 2
+	BRCARRY 2
 	BRANCH 6

@@ -9,10 +9,16 @@ public class J5ALU {
     private J5Stack stack = J5Stack.getInstance();
     private J5Flags flags = J5Flags.getInstance();
 
-    void ADD() {
+    void ADD(boolean includeCarry) {
+        boolean beforeZ = flags.getZero();
+
         int top = stack.pop();
         int next = stack.pop();
         int addition = top + next;
+
+        if (includeCarry && flags.getCarry()) {
+            addition += 1;
+        }
 
         if (addition > J5Stack.MAX_VALUE) {
             addition = addition % (J5Stack.MAX_VALUE + 1);
@@ -22,14 +28,25 @@ public class J5ALU {
             flags.setCarry(false);
         }
 
+        if (includeCarry && !beforeZ) {
+            flags.setZero(false);
+        } else {
+            flags.setZero(addition == J5Stack.MIN_VALUE);
+        }
+
         stack.push(addition);
-        flags.setZero(addition == J5Stack.MIN_VALUE);
     }
 
-    void SUB() {
+    void SUB(boolean includeCarry) {
+        boolean beforeZ = flags.getZero();
+
         int top = stack.pop();
         int next = stack.pop();
         int subtraction = next - top;
+
+        if (includeCarry && flags.getCarry()) {
+            subtraction -= 1;
+        }
 
         if (subtraction < J5Stack.MIN_VALUE) {
             subtraction += J5Stack.MAX_VALUE + 1;
@@ -39,8 +56,13 @@ public class J5ALU {
             flags.setCarry(false);
         }
 
+        if (includeCarry && !beforeZ) {
+            flags.setZero(false);
+        } else {
+            flags.setZero(subtraction == J5Stack.MIN_VALUE);
+        }
+
         stack.push(subtraction);
-        flags.setZero(subtraction == J5Stack.MIN_VALUE);
     }
 
     void INC() {
