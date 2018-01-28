@@ -1,12 +1,8 @@
 import Jorvik5.*;
 import Jorvik5.Groups.J5InstructionSet;
 import PicoBlazeSimulator.*;
-import PicoBlazeSimulator.Groups.PBInstructionSet;
-import PicoBlazeSimulator.Groups.PBRegisterName;
-import PicoBlazeSimulator.InstructionArguments.PBAbsoluteAddress;
-import PicoBlazeSimulator.InstructionArguments.PBFlagArgument;
-import PicoBlazeSimulator.InstructionArguments.PBInstructionArgument;
-import PicoBlazeSimulator.InstructionArguments.PBRegister;
+import PicoBlazeSimulator.Groups.*;
+import PicoBlazeSimulator.InstructionArguments.*;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -17,9 +13,9 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Translator {
-    private PBProgramCounter picoBlazePC = PBProgramCounter.getInstance();
-    private PBLexer picoBlazeLexer = PBLexer.getInstance();
-    private PBParser picoBlazeParser = PBParser.getInstance();
+    private PBProgramCounter pbPC = PBProgramCounter.getInstance();
+    private PBLexer pbLexer = PBLexer.getInstance();
+    private PBParser pbParser = PBParser.getInstance();
 
     private J5ProgramCounter j5PC = J5ProgramCounter.getInstance();
     private J5Lexer j5Lexer = J5Lexer.getInstance();
@@ -120,14 +116,14 @@ public class Translator {
                     PBFlagArgument a0 = (PBFlagArgument) arg0;
                     if (a0.getStringValue().equals(PBFlagArgument.Z)) {
                         return new J5Instruction[] {
-                                j5Lexer.lex("BRZERO " + (arg1.getIntValue() + 1 - picoBlazePC.get())), // This will
+                                j5Lexer.lex("BRZERO " + (arg1.getIntValue() + 1 - pbPC.get())), // This will
                                 // crash if the jump instruction isn't forward.
                         };
                     } else if (a0.getStringValue().equals(PBFlagArgument.NZ)) { // TODO: Fix this. If a LOAD is before
                         // TODO: here, it may fail because the NOTs will affect the Z flag where the LOADs shouldn't
                         return new J5Instruction[] {
                                 j5Lexer.lex("NOT"), // This tests zero for us
-                                j5Lexer.lex("BRZERO " + (arg1.getIntValue() + 1 - picoBlazePC.get())),// This will
+                                j5Lexer.lex("BRZERO " + (arg1.getIntValue() + 1 - pbPC.get())),// This will
                                 // crash if the jump instruction isn't forward.
                                 j5Lexer.lex("NOT"),
                         };
@@ -138,9 +134,7 @@ public class Translator {
         throw new Error("Translation for this command (" + instruction + ") is not supported yet.");
     }
 
-    private List<String> readFile(String filename) {
-        Path filePath = FileSystems.getDefault().getPath("src/TestCode/" + filename);
-
+    private List<String> readFile(Path filePath) {
         List<String> file = null;
         try {
             file = Files.readAllLines(filePath);
@@ -151,17 +145,17 @@ public class Translator {
         return file;
     }
 
-    public void runPicoBlazeFileNatively(String filename) {
-        List<String> file = readFile(filename);
+    public void runPicoBlazeFileNatively(Path filePath) {
+        List<String> file = readFile(filePath);
 
-        PBInstruction[] instructions = picoBlazeLexer.lex(file);
+        PBInstruction[] instructions = pbLexer.lex(file);
 
-        picoBlazeParser.parse(instructions);
+        pbParser.parse(instructions);
         System.out.println(PBScratchPad.getInstance());
     }
 
-    public void runJ5FileNatively(String filename) {
-        List<String> file = readFile(filename);
+    public void runJ5FileNatively(Path filePath) {
+        List<String> file = readFile(filePath);
 
         J5Instruction[] instructions = j5Lexer.lex(file);
 
@@ -169,20 +163,20 @@ public class Translator {
         System.out.println(J5ScratchPad.getInstance());
     }
 
-    public void runPicoBlazeFileOnJ5(String filename) {
-        List<String> file = readFile(filename);
+    public void runPicoBlazeFileOnJ5(Path filePath) {
+        List<String> file = readFile(filePath);
 
-        PBInstruction[] picoBlazeInstructions = picoBlazeLexer.lex(file);
+        PBInstruction[] picoBlazeInstructions = pbLexer.lex(file);
 
         J5Instruction[][] j5Instructions = new J5Instruction[picoBlazeInstructions.length][];
 
-        picoBlazeParser.RESET();
-        int pbPC = this.picoBlazePC.get();
+        pbParser.RESET();
+        int pbPC = this.pbPC.get();
         while (pbPC < picoBlazeInstructions.length) {
             if (j5Instructions[pbPC] == null) { // Currently this just converts everything because the program
                                                       // counter isn't being changed on jumps in the stack machine.
                 picoBlazeInstructions[pbPC].isBlockStart = true;
-                int nextBlockStart = picoBlazeParser.getNextBlockStart(picoBlazeInstructions, pbPC);
+                int nextBlockStart = pbParser.getNextBlockStart(picoBlazeInstructions, pbPC);
 
                 // Iterate through current PicoBlaze block and translate it
                 for (int instructionNumber = pbPC; instructionNumber < nextBlockStart; instructionNumber++) {
@@ -206,12 +200,12 @@ public class Translator {
 
             // Move the PBPC if the J5 machine has jumped
             if (j5PC.hasJustJumped()) {
-                picoBlazePC.set(j5PC.get());
+                this.pbPC.set(j5PC.get());
             } else {
-                this.picoBlazePC.increment();
+                this.pbPC.increment();
             }
 
-            pbPC = this.picoBlazePC.get();
+            pbPC = this.pbPC.get();
         }
 
 //        for (int i=0; i<j5Instructions.length; i++) {
@@ -223,15 +217,17 @@ public class Translator {
     }
 
     public static void main(String[] args) {
+        Path filePath = FileSystems.getDefault().getPath("src", "TestCode", args[0]);
+
         Translator translator = new Translator();
         if (args[1].equals("PB")) {
-            translator.runPicoBlazeFileNatively(args[0]);
+            translator.runPicoBlazeFileNatively(filePath);
 
         } else if (args[1].equals("J5")) {
-            translator.runJ5FileNatively(args[0]);
+            translator.runJ5FileNatively(filePath);
 
         } else {
-            translator.runPicoBlazeFileOnJ5(args[0]);
+            translator.runPicoBlazeFileOnJ5(filePath);
         }
     }
 }

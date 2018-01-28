@@ -3,11 +3,15 @@ import PicoBlazeSimulator.PBParser;
 import PicoBlazeSimulator.PBRegisters;
 import PicoBlazeSimulator.*;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class PicoblazeInterpreterTests {
     static Translator picoblazeInterpreter = new Translator();
     static PBRegisters registers = PBRegisters.getInstance();
     static PBScratchPad scratchPad = PBScratchPad.getInstance();
     static PBParser parser = PBParser.getInstance();
+    static Path currentPath = Paths.get(System.getProperty("user.dir"), "tests");
 
     private static void resetAll() {
         PicoblazeInterpreterTests.picoblazeInterpreter = new Translator();
@@ -23,38 +27,50 @@ public class PicoblazeInterpreterTests {
 
     private static boolean invertRegister() {
         resetAll();
-        picoblazeInterpreter.runPicoBlazeFileNatively("tests/Invert PBRegister.psm");
+        Path filePath = Paths.get(currentPath.toString(), "Invert Register.psm");
+
+        picoblazeInterpreter.runPicoBlazeFileNatively(filePath);
         return testRegister(PBRegisterName.S0, 0b01010101);
     }
 
     private static boolean toggleBit() {
         resetAll();
-        picoblazeInterpreter.runPicoBlazeFileNatively("tests/Toggle Bit.psm");
+        Path filePath = Paths.get(currentPath.toString(), "Toggle Bit.psm");
+
+        picoblazeInterpreter.runPicoBlazeFileNatively(filePath);
         return testRegister(PBRegisterName.S0, 0b00000001);
 
     }
 
     private static boolean clearRegister() {
         resetAll();
-        picoblazeInterpreter.runPicoBlazeFileNatively("tests/Clear PBRegister.psm");
+        Path filePath = Paths.get(currentPath.toString(), "Clear Register.psm");
+
+        picoblazeInterpreter.runPicoBlazeFileNatively(filePath);
         return testRegister(PBRegisterName.S0, 0b00000000);
     }
 
     private static boolean setBit() {
         resetAll();
-        picoblazeInterpreter.runPicoBlazeFileNatively("tests/Set Bit.psm");
+        Path filePath = Paths.get(currentPath.toString(), "Set Bit.psm");
+
+        picoblazeInterpreter.runPicoBlazeFileNatively(filePath);
         return testRegister(PBRegisterName.S0, 0b00000001);
     }
 
     private static boolean clearBit() {
         resetAll();
-        picoblazeInterpreter.runPicoBlazeFileNatively("tests/Clear Bit.psm");
+        Path filePath = Paths.get(currentPath.toString(), "Clear Bit.psm");
+
+        picoblazeInterpreter.runPicoBlazeFileNatively(filePath);
         return testRegister(PBRegisterName.S0, 0b11111110);
     }
 
     private static boolean addCarry() {
         resetAll();
-        picoblazeInterpreter.runPicoBlazeFileNatively("tests/Add Carry.psm");
+        Path filePath = Paths.get(currentPath.toString(), "Add Carry.psm");
+
+        picoblazeInterpreter.runPicoBlazeFileNatively(filePath);
         return     testRegister(PBRegisterName.S0, 0x95)
                 && testRegister(PBRegisterName.S1, 0x00)
                 && testRegister(PBRegisterName.SA, 0x00)
@@ -63,7 +79,9 @@ public class PicoblazeInterpreterTests {
 
     private static boolean subCarry() {
         resetAll();
-        picoblazeInterpreter.runPicoBlazeFileNatively("tests/Sub Carry.psm");
+        Path filePath = Paths.get(currentPath.toString(), "Sub Carry.psm");
+
+        picoblazeInterpreter.runPicoBlazeFileNatively(filePath);
         return     testRegister(PBRegisterName.S0, 0xC2)
                 && testRegister(PBRegisterName.S1, 0x00)
                 && testRegister(PBRegisterName.SA, 0x00)
