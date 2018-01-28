@@ -46,7 +46,7 @@ public class J5Parser {
             newAddress = currentAddress - address - 1;
         }
 
-        programCounter.set(newAddress);
+        programCounter.set(newAddress, true);
     }
 
     private void BRZERO(int address) {
@@ -55,8 +55,14 @@ public class J5Parser {
         }
     }
 
+    private void BRCARRY(int address) {
+        if (flags.getCarry()) {
+            BRANCH(address, true);
+        }
+    }
+
     private void LBRANCH(int address) {
-        programCounter.set(address);
+        programCounter.set(address, true);
     }
 
     private void IBRANCH() {
@@ -132,6 +138,10 @@ public class J5Parser {
             case BRZERO:
             case SBRZERO:
                 BRZERO(instruction.arg.getValue());
+                break;
+            case BRCARRY:
+            case SBRCARRY:
+                BRCARRY(instruction.arg.getValue());
                 break;
             case LBRANCH:
                 LBRANCH(instruction.arg.getValue());

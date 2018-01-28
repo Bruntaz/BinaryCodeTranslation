@@ -30,7 +30,7 @@ loadToStack:
 swapValues:
     SWAP
     TLT                 ; If second < first, swap
-    BRZERO 2            ; Jump to shouldSwap call if second < first
+    BRCARRY 2            ; Jump to shouldSwap call if second < first
     LBRANCH resetStack  ; If not, jump to resetStack
     CALL shouldSwap     ; When returned from, intentionally fall through to resetStack
 
@@ -67,7 +67,7 @@ loopThrough:
         SSET 4          ; Test if reached the end of the array
         TEQ
         DROP
-        BRZERO 2
+        BRCARRY 2
         LBRANCH loop
 
     FETCH 10            ; Have there been any swaps?
@@ -76,7 +76,7 @@ loopThrough:
     DROP
     DROP
     DROP
-    BRZERO 2            ; If not, the numbers are sorted
+    BRCARRY 2            ; If not, the numbers are sorted
     LBRANCH loopThrough
     RETURN
 

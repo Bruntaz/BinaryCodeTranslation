@@ -16,3 +16,5 @@ A list of the modifications to the standard architecture I have made is as follo
     * The SET statement has been removed because of this (the SSET statement remains)
 * Add FETCH, IFETCH, STORE and ISTORE instructions for Scratch Pad Memory
 * Add AND, OR, XOR and NOT instructions
+* Add carry flag and make its state consistent with that in PicoBlaze
+* Add ADDCY, SUBCY, BRCARRY, SBRCARRY

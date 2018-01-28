@@ -23,7 +23,7 @@ public class J5ALU {
         }
 
         stack.push(addition);
-        flags.setZero(addition == 0);
+        flags.setZero(addition == J5Stack.MIN_VALUE);
     }
 
     void SUB() {
@@ -40,7 +40,7 @@ public class J5ALU {
         }
 
         stack.push(subtraction);
-        flags.setZero(subtraction == 0);
+        flags.setZero(subtraction == J5Stack.MIN_VALUE);
     }
 
     void INC() {
@@ -56,7 +56,7 @@ public class J5ALU {
         }
 
         stack.push(incremented);
-        flags.setZero(incremented == 0);
+        flags.setZero(incremented == J5Stack.MIN_VALUE);
     }
 
     void DEC() {
@@ -72,7 +72,7 @@ public class J5ALU {
         }
 
         stack.push(decremented);
-        flags.setZero(decremented == 0);
+        flags.setZero(decremented == J5Stack.MIN_VALUE);
     }
 
     void TGT() {
@@ -81,7 +81,8 @@ public class J5ALU {
 
         stack.push(top);
 
-        flags.setZero(top > next);
+        flags.setCarry(top > next);
+        flags.setZero(false);
     }
 
     void TLT() {
@@ -90,7 +91,8 @@ public class J5ALU {
 
         stack.push(top);
 
-        flags.setZero(top < next);
+        flags.setCarry(top < next);
+        flags.setZero(false);
     }
 
     void TEQ() {
@@ -99,11 +101,13 @@ public class J5ALU {
 
         stack.push(top);
 
-        flags.setZero(top == next);
+        flags.setCarry(top == next);
+        flags.setZero(false);
     }
 
     void TSZ() {
-        flags.setZero(stack.getTop() == 0);
+        flags.setCarry(false);
+        flags.setZero(stack.getTop() == J5Stack.MIN_VALUE);
     }
 
     void AND() {
@@ -111,7 +115,8 @@ public class J5ALU {
         int next = stack.pop();
 
         stack.push(top & next);
-        flags.setZero(stack.getTop() == 0);
+        flags.setCarry(false);
+        flags.setZero(stack.getTop() == J5Stack.MIN_VALUE);
     }
 
     void OR() {
@@ -119,7 +124,8 @@ public class J5ALU {
         int next = stack.pop();
 
         stack.push(top | next);
-        flags.setZero(stack.getTop() == 0);
+        flags.setCarry(false);
+        flags.setZero(stack.getTop() == J5Stack.MIN_VALUE);
     }
 
     void XOR() {
@@ -127,11 +133,13 @@ public class J5ALU {
         int next = stack.pop();
 
         stack.push(top ^ next);
-        flags.setZero(stack.getTop() == 0);
+        flags.setCarry(false);
+        flags.setZero(stack.getTop() == J5Stack.MIN_VALUE);
     }
 
     void NOT() {
         stack.setTop(stack.getTop() ^ J5Stack.MAX_VALUE);
-        flags.setZero(stack.getTop() == 0);
+        flags.setCarry(false);
+        flags.setZero(stack.getTop() == J5Stack.MIN_VALUE);
     }
 }

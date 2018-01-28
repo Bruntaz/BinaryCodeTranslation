@@ -19,8 +19,8 @@ public class J5Lexer {
     private HashMap<String, Integer> labelMap = new HashMap<>();
     private HashSet<J5InstructionSet> hasArg = new HashSet<>(Arrays.asList(
             J5InstructionSet.SSET, J5InstructionSet.BRANCH, J5InstructionSet.SBRANCH, J5InstructionSet.BRZERO,
-            J5InstructionSet.SBRZERO, J5InstructionSet.LBRANCH, J5InstructionSet.CALL, J5InstructionSet.FETCH,
-            J5InstructionSet.STORE)
+            J5InstructionSet.SBRZERO, J5InstructionSet.BRCARRY, J5InstructionSet.SBRCARRY, J5InstructionSet.LBRANCH,
+            J5InstructionSet.CALL, J5InstructionSet.FETCH, J5InstructionSet.STORE)
     );
 
     /*
@@ -52,9 +52,11 @@ public class J5Lexer {
                 return new J5ShortLiteral(intArg);
             case BRANCH:
             case BRZERO:
+            case BRCARRY:
                 return new J5RelativeAddress(intArg);
             case SBRANCH:
             case SBRZERO:
+            case SBRCARRY:
                 return new J5ShortRelativeAddress(intArg);
             case LBRANCH:
             case CALL:

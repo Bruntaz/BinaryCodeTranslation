@@ -26,8 +26,10 @@ public enum J5InstructionSet {
     // Branching
     BRANCH, 	// Unconditional jump
     BRZERO, 	// Jump if zero flag is set
+    BRCARRY,    // Jump if carry flag is set
     SBRANCH,    // Short branch (unconditional)
     SBRZERO,    // Short branch if zero flag is set
+    SBRCARRY,   // Short branch if carry flag is set
     LBRANCH,    // Long branch (absolute address, 16 bits)
     IBRANCH,    // Indirect branch (branch to address at top of stack)
     CALL,		// Add old address+1 to program stack and jump to new address

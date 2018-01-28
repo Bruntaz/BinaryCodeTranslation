@@ -49,7 +49,7 @@ public class Translator {
     NOTE: This currently only supports register arguments for the logical operators. It will be necessary to add SSET
      <value> at some point instead of FETCH <register>
      */
-    public J5Instruction[] translate(PBInstruction pbInstruction) {
+    public J5Instruction[] translate(PBInstruction pbInstruction, int pbLineNumber) {
         if (pbInstruction == null || pbInstruction.instruction == PBInstructionSet.NOP) {
             return new J5Instruction[] {new J5Instruction(J5InstructionSet.NOP, null)};
         }
@@ -64,6 +64,7 @@ public class Translator {
                 return new J5Instruction[] {
                         j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
                         j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("DROP"),
                 };
 
             // Logical
@@ -73,6 +74,7 @@ public class Translator {
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
                         j5Lexer.lex("AND"),
                         j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("DROP"),
                 };
             case OR:
                 return new J5Instruction[] {
@@ -80,6 +82,7 @@ public class Translator {
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
                         j5Lexer.lex("OR"),
                         j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("DROP"),
                 };
             case XOR:
                 return new J5Instruction[] {
@@ -87,6 +90,7 @@ public class Translator {
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
                         j5Lexer.lex("XOR"),
                         j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("DROP"),
                 };
 
             // Arithmetic
@@ -96,6 +100,7 @@ public class Translator {
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
                         j5Lexer.lex("ADD"),
                         j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("DROP"),
                 };
             case SUB:
                 return new J5Instruction[] {
@@ -103,6 +108,7 @@ public class Translator {
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
                         j5Lexer.lex("SUB"),
                         j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("DROP"),
                 };
 
 
@@ -110,20 +116,20 @@ public class Translator {
             case JUMP:
                 if (arg0 instanceof PBAbsoluteAddress) {
                     return new J5Instruction[] {
-                            j5Lexer.lex("LBRANCH " + arg0.getIntValue())
+                            j5Lexer.lex("LBRANCH " + (arg0.getIntValue() + 1))
                     };
                 } else {
                     PBFlagArgument a0 = (PBFlagArgument) arg0;
                     if (a0.getStringValue().equals(PBFlagArgument.Z)) {
                         return new J5Instruction[] {
-                                j5Lexer.lex("BRZERO " + (arg1.getIntValue() + 1 - pbPC.get())), // This will
+                                j5Lexer.lex("BRZERO " + (arg1.getIntValue() + 1 - pbLineNumber)), // This will
                                 // crash if the jump instruction isn't forward.
                         };
                     } else if (a0.getStringValue().equals(PBFlagArgument.NZ)) { // TODO: Fix this. If a LOAD is before
                         // TODO: here, it may fail because the NOTs will affect the Z flag where the LOADs shouldn't
                         return new J5Instruction[] {
                                 j5Lexer.lex("NOT"), // This tests zero for us
-                                j5Lexer.lex("BRZERO " + (arg1.getIntValue() + 1 - pbPC.get())),// This will
+                                j5Lexer.lex("BRZERO " + (arg1.getIntValue() + 1 - pbLineNumber)),// This will
                                 // crash if the jump instruction isn't forward.
                                 j5Lexer.lex("NOT"),
                         };
@@ -180,7 +186,7 @@ public class Translator {
 
                 // Iterate through current PicoBlaze block and translate it
                 for (int instructionNumber = pbPC; instructionNumber < nextBlockStart; instructionNumber++) {
-                    j5Instructions[instructionNumber] = translate(picoBlazeInstructions[instructionNumber]);
+                    j5Instructions[instructionNumber] = translate(picoBlazeInstructions[instructionNumber], instructionNumber);
                 }
 
                 System.out.println("-------------Currently translated---------------");
@@ -190,7 +196,7 @@ public class Translator {
                 System.out.println("-------------Currently translated---------------");
             }
 
-            j5PC.set(pbPC);
+            j5PC.set(pbPC, false);
             System.out.println("PicoBlaze J5Instruction: " + picoBlazeInstructions[pbPC]);
             for (J5Instruction instruction : j5Instructions[pbPC]) {
                 // Loop here because parse(J5Instruction[]) will break on jumps

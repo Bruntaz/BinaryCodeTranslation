@@ -24,7 +24,7 @@ public class J5ProgramCounter {
         return pc.peek();
     }
 
-    public void set(int value) {
+    public void set(int value, boolean isJump) {
         int previousValue = 0;
         if (pc.size() != 0) {
             previousValue = pc.pop();
@@ -32,10 +32,10 @@ public class J5ProgramCounter {
 
         pc.push(value);
 
-        if (previousValue == value - 1) {
-            setJustJumped(false);
-        } else {
+        if (isJump) {
             setJustJumped(true);
+        } else {
+            setJustJumped(false);
         }
     }
 
@@ -55,7 +55,7 @@ public class J5ProgramCounter {
     // Copied from picoblaze
     public void increment() {
         int nextValue = pc.peek() + 1;
-        set(nextValue > 0x3ff ? 0 : nextValue);
+        set(nextValue > 0x3ff ? 0 : nextValue, false);
     }
 
     public void reset() {
