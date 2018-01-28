@@ -104,7 +104,6 @@ public class J5ALU {
         stack.push(top);
 
         flags.setCarry(top > next);
-        flags.setZero(false);
     }
 
     void TLT() {
@@ -114,7 +113,6 @@ public class J5ALU {
         stack.push(top);
 
         flags.setCarry(top < next);
-        flags.setZero(false);
     }
 
     void TEQ() {
@@ -123,12 +121,10 @@ public class J5ALU {
 
         stack.push(top);
 
-        flags.setCarry(top == next);
-        flags.setZero(false);
+        flags.setZero(top == next);
     }
 
     void TSZ() {
-        flags.setCarry(false);
         flags.setZero(stack.getTop() == J5Stack.MIN_VALUE);
     }
 
