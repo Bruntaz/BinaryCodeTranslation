@@ -19,7 +19,7 @@ public enum PBInstructionSet {
     // Test and Compare
     TEST,       // sX, kk/sY    AND arg0 and arg1 discarding result. Z updated normally, C set if odd number of 1s
     TESTCY,     // sX, kk/sY    Same as TEST but includes carry. Previous state of flags taken into account for flags
-    COMPARE,    // sX, kk/sY    SUB arg0 and arg1 discarding result. Z updated normally, C set if result is negative
+    COMPARE,    // sX, kk/sY    SUB arg1 from arg0 discarding result. Z updated normally, C set if result is negative
     COMPARECY,  // sX, kk/sY    Same as COMPARE but includes carry. Previous Z taken into account. C same as COMPARE
 
     // Shift and Rotate

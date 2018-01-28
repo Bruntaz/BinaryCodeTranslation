@@ -151,7 +151,6 @@ public class PBParser {
 
     public void parse(PBInstruction instruction) {
         System.out.println(instruction);
-        programCounter.increment();
 
         if (instruction.instruction == PBInstructionSet.NOP) {
             return;
@@ -284,6 +283,7 @@ public class PBParser {
         while (programCounter.get() < program.length) {
             PBInstruction instruction = program[programCounter.get()];
 
+            programCounter.increment();
             parse(instruction);
 
             System.out.println(registers);

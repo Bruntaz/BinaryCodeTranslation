@@ -70,7 +70,7 @@ public class Translator {
             // Logical
             case AND:
                 if (arg1 instanceof PBRegister) {
-                    return new J5Instruction[]{
+                    return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
                             j5Lexer.lex("AND"),
@@ -78,7 +78,7 @@ public class Translator {
                             j5Lexer.lex("DROP"),
                     };
                 } else {
-                    return new J5Instruction[]{
+                    return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
                             j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
                             j5Lexer.lex("AND"),
@@ -89,7 +89,7 @@ public class Translator {
                 }
             case OR:
                 if (arg1 instanceof PBRegister) {
-                    return new J5Instruction[]{
+                    return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
                             j5Lexer.lex("OR"),
@@ -97,7 +97,7 @@ public class Translator {
                             j5Lexer.lex("DROP"),
                     };
                 } else {
-                    return new J5Instruction[]{
+                    return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
                             j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
                             j5Lexer.lex("OR"),
@@ -107,7 +107,7 @@ public class Translator {
                 }
             case XOR:
                 if (arg1 instanceof PBRegister) {
-                    return new J5Instruction[]{
+                    return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
                             j5Lexer.lex("XOR"),
@@ -115,7 +115,7 @@ public class Translator {
                             j5Lexer.lex("DROP"),
                     };
                 } else {
-                    return new J5Instruction[]{
+                    return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
                             j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
                             j5Lexer.lex("XOR"),
@@ -127,7 +127,7 @@ public class Translator {
             // Arithmetic
             case ADD:
                 if (arg1 instanceof PBRegister) {
-                    return new J5Instruction[]{
+                    return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
                             j5Lexer.lex("ADD"),
@@ -135,7 +135,7 @@ public class Translator {
                             j5Lexer.lex("DROP"),
                     };
                 } else {
-                    return new J5Instruction[]{
+                    return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
                             j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
                             j5Lexer.lex("ADD"),
@@ -153,7 +153,7 @@ public class Translator {
                             j5Lexer.lex("DROP"),
                     };
                 } else {
-                    return new J5Instruction[]{
+                    return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
                             j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
                             j5Lexer.lex("ADDCY"),
@@ -171,7 +171,7 @@ public class Translator {
                             j5Lexer.lex("DROP"),
                     };
                 } else {
-                    return new J5Instruction[]{
+                    return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
                             j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
                             j5Lexer.lex("SUB"),
@@ -189,7 +189,7 @@ public class Translator {
                             j5Lexer.lex("DROP"),
                     };
                 } else {
-                    return new J5Instruction[]{
+                    return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
                             j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
                             j5Lexer.lex("SUBCY"),
@@ -198,6 +198,27 @@ public class Translator {
                     };
                 }
 
+            // Test and Compare
+            case COMPARE:
+                if (arg1 instanceof PBRegister) {
+                    return new J5Instruction[] {
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("TLT"),
+                            j5Lexer.lex("TEQ"),
+                            j5Lexer.lex("DROP"),
+                            j5Lexer.lex("DROP"),
+                    };
+                } else {
+                    return new J5Instruction[] {
+                            j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("TLT"),
+                            j5Lexer.lex("TEQ"),
+                            j5Lexer.lex("DROP"),
+                            j5Lexer.lex("DROP"),
+                    };
+                }
 
             // Jump
             case JUMP:
@@ -215,7 +236,7 @@ public class Translator {
                             };
                         case PBFlagArgument.NZ:
                             return new J5Instruction[]{
-                                    j5Lexer.lex("BRZERO " + 1), // Jump to location of next PB line
+                                    j5Lexer.lex("BRZERO 1"), // Jump to location of next PB line
                                     j5Lexer.lex("LBRANCH " + Integer.toHexString((arg1.getIntValue() + 1))),
                             };
                         case PBFlagArgument.C:
@@ -225,7 +246,7 @@ public class Translator {
                             };
                         case PBFlagArgument.NC:
                             return new J5Instruction[]{
-                                    j5Lexer.lex("BRCARRY " + 1), // Jump to location of next PB line
+                                    j5Lexer.lex("BRCARRY 1"), // Jump to location of next PB line
                                     j5Lexer.lex("LBRANCH " + Integer.toHexString((arg1.getIntValue() + 1))),
                             };
                     }
@@ -237,12 +258,41 @@ public class Translator {
                     return new J5Instruction[] {
                             j5Lexer.lex("CALL " + Integer.toHexString((arg0.getIntValue() + 1))),
                     };
+                } else {
+                    PBFlagArgument a0 = (PBFlagArgument) arg0;
+                    switch (a0.getStringValue()) {
+                        case PBFlagArgument.Z:
+                            return new J5Instruction[] {
+                                    // This won't work because jumping will exit from the code block
+//                                    j5Lexer.lex("BRZERO 1"), // Jump to location of next PB line
+//                                    j5Lexer.lex("CALL " + Integer.toHexString((arg1.getIntValue() - pbLineNumber))),
+                            };
+                        case PBFlagArgument.NZ:
+                            return new J5Instruction[] {
+                                    j5Lexer.lex("BRZERO 1"), // Jump to location of next PB line
+                                    j5Lexer.lex("CALL " + Integer.toHexString((arg1.getIntValue() + 1))),
+                            };
+                        case PBFlagArgument.C:
+                            return new J5Instruction[] {
+                                    // This won't work because jumping will exit from the code block
+//                                    j5Lexer.lex("BRCARRY 1"), // Jump to location of next PB line
+//                                    j5Lexer.lex("CALL " + Integer.toHexString((arg1.getIntValue() + 1))),
+                            };
+                        case PBFlagArgument.NC:
+                            return new J5Instruction[] {
+                                    j5Lexer.lex("BRCARRY 1"), // Jump to location of next PB line
+                                    j5Lexer.lex("CALL " + Integer.toHexString((arg1.getIntValue() + 1))),
+                            };
+                    }
                 }
+
             case RETURN:
                 if (arg0 instanceof PBNoArgument) {
                     return new J5Instruction[] {
                             j5Lexer.lex("RETURN"),
                     };
+                } else {
+                    break; // TODO: Implement this
                 }
 
             // Scratch Pad Memory
@@ -345,10 +395,11 @@ public class Translator {
             }
 
             j5PC.set(pbPC, false);
+            j5PC.increment();
             System.out.println("PicoBlaze Instruction: " + picoBlazeInstructions[pbPC]);
             for (J5Instruction instruction : j5Instructions[pbPC]) {
                 // Loop here because parse(J5Instruction[]) will break on jumps
-                // For example if you have a block whick loops to itself
+                // For example if you have a block which loops to itself
                 if (j5PC.hasJustJumped()) {
                     break;
                 }

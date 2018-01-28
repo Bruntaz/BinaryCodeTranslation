@@ -79,7 +79,6 @@ public class J5Parser {
 
     public void parse(J5Instruction instruction) {
         System.out.println(instruction);
-        programCounter.increment();
 
         if (instruction.instruction == J5InstructionSet.NOP) {
             return;
@@ -199,8 +198,11 @@ public class J5Parser {
     }
 
     public void parse(J5Instruction[] program) {
-        while (programCounter.get() < program.length) {
-            parse(program[programCounter.get()]);
+        int pc = programCounter.get();
+        while (pc < program.length) {
+            programCounter.increment();
+            parse(program[pc]);
+            pc = programCounter.get();
         }
 
         System.out.println(String.format("Finished in %d clock cycles", clockCycles));
