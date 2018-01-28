@@ -40,9 +40,9 @@ public class Translator {
         put(PBRegisterName.SF, 15);
     }};
 
-    private int translateRegisterIntoMemory(PBInstructionArgument register) {
+    private String translateRegisterIntoMemory(PBInstructionArgument register) {
         PBRegisterName registerName = ((PBRegister) register).getRegisterName();
-        return registerMemoryLocation.get(registerName);
+        return Integer.toHexString(registerMemoryLocation.get(registerName));
     }
 
     /*
@@ -122,16 +122,14 @@ public class Translator {
                     PBFlagArgument a0 = (PBFlagArgument) arg0;
                     if (a0.getStringValue().equals(PBFlagArgument.Z)) {
                         return new J5Instruction[] {
-                                j5Lexer.lex("BRZERO " + (arg1.getIntValue() + 1 - pbLineNumber)), // This will
+                                j5Lexer.lex("BRZERO " + (arg1.getIntValue() - pbLineNumber)), // This will
                                 // crash if the jump instruction isn't forward.
                         };
                     } else if (a0.getStringValue().equals(PBFlagArgument.NZ)) { // TODO: Fix this. If a LOAD is before
                         // TODO: here, it may fail because the NOTs will affect the Z flag where the LOADs shouldn't
                         return new J5Instruction[] {
-                                j5Lexer.lex("NOT"), // This tests zero for us
-                                j5Lexer.lex("BRZERO " + (arg1.getIntValue() + 1 - pbLineNumber)),// This will
-                                // crash if the jump instruction isn't forward.
-                                j5Lexer.lex("NOT"),
+                                j5Lexer.lex("BRZERO " + 1), // Jump to location of next PB line
+                                j5Lexer.lex("LBRANCH " + (arg1.getIntValue() + 1)),
                         };
                     }
                 }
@@ -201,6 +199,10 @@ public class Translator {
             for (J5Instruction instruction : j5Instructions[pbPC]) {
                 // Loop here because parse(J5Instruction[]) will break on jumps
                 // For example if you have a block whick loops to itself
+                if (j5PC.hasJustJumped()) {
+                    break;
+                }
+
                 j5Parser.parse(instruction);
             }
 

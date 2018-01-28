@@ -11,4 +11,8 @@ LOAD s3, DD
 JUMP NZ, 13'd
 LOAD s4, CC
 
+ADD sF, s1
+JUMP NZ, 17'd
+LOAD sE, FF
+
 ; 00, 0f, 00, dd, cc
