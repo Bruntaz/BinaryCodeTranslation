@@ -69,70 +69,220 @@ public class Translator {
 
             // Logical
             case AND:
-                return new J5Instruction[] {
-                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
-                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
-                        j5Lexer.lex("AND"),
-                        j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
-                        j5Lexer.lex("DROP"),
-                };
+                if (arg1 instanceof PBRegister) {
+                    return new J5Instruction[]{
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
+                            j5Lexer.lex("AND"),
+                            j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("DROP"),
+                    };
+                } else {
+                    return new J5Instruction[]{
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
+                            j5Lexer.lex("AND"),
+                            j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("DROP"),
+                    };
+
+                }
             case OR:
-                return new J5Instruction[] {
-                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
-                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
-                        j5Lexer.lex("OR"),
-                        j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
-                        j5Lexer.lex("DROP"),
-                };
+                if (arg1 instanceof PBRegister) {
+                    return new J5Instruction[]{
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
+                            j5Lexer.lex("OR"),
+                            j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("DROP"),
+                    };
+                } else {
+                    return new J5Instruction[]{
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
+                            j5Lexer.lex("OR"),
+                            j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("DROP"),
+                    };
+                }
             case XOR:
-                return new J5Instruction[] {
-                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
-                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
-                        j5Lexer.lex("XOR"),
-                        j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
-                        j5Lexer.lex("DROP"),
-                };
+                if (arg1 instanceof PBRegister) {
+                    return new J5Instruction[]{
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
+                            j5Lexer.lex("XOR"),
+                            j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("DROP"),
+                    };
+                } else {
+                    return new J5Instruction[]{
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
+                            j5Lexer.lex("XOR"),
+                            j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("DROP"),
+                    };
+                }
 
             // Arithmetic
             case ADD:
-                return new J5Instruction[] {
-                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
-                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
-                        j5Lexer.lex("ADD"),
-                        j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
-                        j5Lexer.lex("DROP"),
-                };
+                if (arg1 instanceof PBRegister) {
+                    return new J5Instruction[]{
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
+                            j5Lexer.lex("ADD"),
+                            j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("DROP"),
+                    };
+                } else {
+                    return new J5Instruction[]{
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
+                            j5Lexer.lex("ADD"),
+                            j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("DROP"),
+                    };
+                }
+            case ADDCY:
+                if (arg1 instanceof PBRegister) {
+                    return new J5Instruction[] {
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
+                            j5Lexer.lex("ADDCY"),
+                            j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("DROP"),
+                    };
+                } else {
+                    return new J5Instruction[]{
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
+                            j5Lexer.lex("ADDCY"),
+                            j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("DROP"),
+                    };
+                }
             case SUB:
-                return new J5Instruction[] {
-                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
-                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
-                        j5Lexer.lex("SUB"),
-                        j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
-                        j5Lexer.lex("DROP"),
-                };
+                if (arg1 instanceof PBRegister) {
+                    return new J5Instruction[] {
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
+                            j5Lexer.lex("SUB"),
+                            j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("DROP"),
+                    };
+                } else {
+                    return new J5Instruction[]{
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
+                            j5Lexer.lex("SUB"),
+                            j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("DROP"),
+                    };
+                }
+            case SUBCY:
+                if (arg1 instanceof PBRegister) {
+                    return new J5Instruction[] {
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
+                            j5Lexer.lex("SUBCY"),
+                            j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("DROP"),
+                    };
+                } else {
+                    return new J5Instruction[]{
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
+                            j5Lexer.lex("SUBCY"),
+                            j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("DROP"),
+                    };
+                }
 
 
             // Jump
             case JUMP:
                 if (arg0 instanceof PBAbsoluteAddress) {
                     return new J5Instruction[] {
-                            j5Lexer.lex("LBRANCH " + (arg0.getIntValue() + 1))
+                            j5Lexer.lex("LBRANCH " + Integer.toHexString(arg0.getIntValue() + 1)),
                     };
                 } else {
                     PBFlagArgument a0 = (PBFlagArgument) arg0;
-                    if (a0.getStringValue().equals(PBFlagArgument.Z)) {
-                        return new J5Instruction[] {
-                                j5Lexer.lex("BRZERO " + (arg1.getIntValue() - pbLineNumber)), // This will
-                                // crash if the jump instruction isn't forward.
-                        };
-                    } else if (a0.getStringValue().equals(PBFlagArgument.NZ)) { // TODO: Fix this. If a LOAD is before
-                        // TODO: here, it may fail because the NOTs will affect the Z flag where the LOADs shouldn't
-                        return new J5Instruction[] {
-                                j5Lexer.lex("BRZERO " + 1), // Jump to location of next PB line
-                                j5Lexer.lex("LBRANCH " + (arg1.getIntValue() + 1)),
-                        };
+                    switch (a0.getStringValue()) {
+                        case PBFlagArgument.Z:
+                            return new J5Instruction[]{
+                                    j5Lexer.lex("BRZERO " + Integer.toHexString((arg1.getIntValue() - pbLineNumber))), // This will
+                                    // crash if the jump instruction isn't forward.
+                            };
+                        case PBFlagArgument.NZ:
+                            return new J5Instruction[]{
+                                    j5Lexer.lex("BRZERO " + 1), // Jump to location of next PB line
+                                    j5Lexer.lex("LBRANCH " + Integer.toHexString((arg1.getIntValue() + 1))),
+                            };
+                        case PBFlagArgument.C:
+                            return new J5Instruction[]{
+                                    j5Lexer.lex("BRCARRY " + Integer.toHexString((arg1.getIntValue() - pbLineNumber))), // This will
+                                    // crash if the jump instruction isn't forward.
+                            };
+                        case PBFlagArgument.NC:
+                            return new J5Instruction[]{
+                                    j5Lexer.lex("BRCARRY " + 1), // Jump to location of next PB line
+                                    j5Lexer.lex("LBRANCH " + Integer.toHexString((arg1.getIntValue() + 1))),
+                            };
                     }
                 }
+
+            // Subroutines
+            case CALL:
+                if (arg0 instanceof PBAbsoluteAddress) {
+                    return new J5Instruction[] {
+                            j5Lexer.lex("CALL " + Integer.toHexString((arg0.getIntValue() + 1))),
+                    };
+                }
+            case RETURN:
+                if (arg0 instanceof PBNoArgument) {
+                    return new J5Instruction[] {
+                            j5Lexer.lex("RETURN"),
+                    };
+                }
+
+            // Scratch Pad Memory
+            case STORE:
+                if (arg1 instanceof PBRegister) {
+                    return new J5Instruction[] {
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)), // Register to store
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)), // Register with location
+                            j5Lexer.lex("SSET 10"), // Change location to next line in memory
+                            j5Lexer.lex("ADD"),
+                            j5Lexer.lex("ISTORE"), // Location at TOS
+                            j5Lexer.lex("DROP"),
+                            j5Lexer.lex("DROP"),
+                    };
+                } else {
+                    return new J5Instruction[] {
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("STORE " + Integer.toHexString(arg1.getIntValue() + 16)),
+                            j5Lexer.lex("DROP"),
+                    };
+                }
+            case FETCH:
+                if (arg1 instanceof PBRegister) {
+                    return new J5Instruction[] {
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)), // Register with location
+                            j5Lexer.lex("SSET 10"), // Change location to next line in memory
+                            j5Lexer.lex("ADD"),
+                            j5Lexer.lex("IFETCH"), // Location at TOS
+                            j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)), // Store in register
+                            j5Lexer.lex("DROP"),
+                            j5Lexer.lex("DROP"),
+                    };
+                } else {
+                    return new J5Instruction[] {
+                            j5Lexer.lex("FETCH " + Integer.toHexString(arg1.getIntValue() + 16)),
+                            j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("DROP"),
+                    };
+                }
+
         }
 
         throw new Error("Translation for this command (" + instruction + ") is not supported yet.");
@@ -195,7 +345,7 @@ public class Translator {
             }
 
             j5PC.set(pbPC, false);
-            System.out.println("PicoBlaze J5Instruction: " + picoBlazeInstructions[pbPC]);
+            System.out.println("PicoBlaze Instruction: " + picoBlazeInstructions[pbPC]);
             for (J5Instruction instruction : j5Instructions[pbPC]) {
                 // Loop here because parse(J5Instruction[]) will break on jumps
                 // For example if you have a block whick loops to itself
