@@ -5,7 +5,7 @@ setMemory:
     ISTORE
     INC
     SSET 1F
-    TLT
+    COMPARE
     DROP
     BRCARRY 5
     SWAP
@@ -39,7 +39,7 @@ main:
 	CALL swapRegisterBanks
 	INC             ; (1)
 	SSET F          ; (1, F)
-	TLT             ; (1, F)
+	COMPARE         ; (1, F)
 	DROP            ; (1)
 	BRCARRY 2
 	BRANCH 6

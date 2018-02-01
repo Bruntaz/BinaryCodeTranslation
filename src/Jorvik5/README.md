@@ -18,3 +18,4 @@ A list of the modifications to the standard architecture I have made is as follo
 * Add AND, OR, XOR and NOT instructions
 * Add carry flag and make its state consistent with that in PicoBlaze
 * Add ADDCY, SUBCY, BRCARRY, SBRCARRY, CALLCARRY, CALLZERO
+* Use the same semantics for testing & comparison as in PicoBlaze
