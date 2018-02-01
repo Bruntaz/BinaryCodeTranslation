@@ -250,17 +250,17 @@ public class Translator {
                         case PBFlagArgument.Z:
                             if (arg1.getIntValue() > pbLineNumber) {
                                 return new J5Instruction[] {
-                                        j5Lexer.lex("BRZERO " + Integer.toHexString((arg1.getIntValue() - pbLineNumber))), // This will
-                                        // crash if the jump instruction isn't forward.
+                                        j5Lexer.lex("BRZERO " + Integer.toHexString((arg1.getIntValue() - pbLineNumber))),
                                         j5Lexer.lex("STOP"),
                                 };
                             } else {
-                                throw new Error("Translation for this command (" + instruction + ") is not supported yet.");
-
-//                                return new J5Instruction[] {
-//                                        // Conditional jump backwards
-//                                        j5Lexer.lex("BRZERO 1"), //
-//                                };
+                                return new J5Instruction[] {
+                                        // Conditional jump backwards
+                                        j5Lexer.lex("BRZERO 2"),
+                                        j5Lexer.lex("NOP"),
+                                        j5Lexer.lex("LBRANCH " + Integer.toHexString((arg1.getIntValue() + 1))),
+                                        j5Lexer.lex("STOP"),
+                                };
                             }
 
                         case PBFlagArgument.NZ:
@@ -272,13 +272,10 @@ public class Translator {
                         case PBFlagArgument.C:
                             if (arg1.getIntValue() > pbLineNumber) {
                                 return new J5Instruction[]{
-                                        j5Lexer.lex("BRCARRY " + Integer.toHexString((arg1.getIntValue() - pbLineNumber))), // This will
-                                        // crash if the jump instruction isn't forward.
+                                        j5Lexer.lex("BRCARRY " + Integer.toHexString((arg1.getIntValue() - pbLineNumber))),
                                         j5Lexer.lex("STOP"),
                                 };
                             } else {
-//                                throw new Error("Translation for this command (" + instruction + ") is not supported yet.");
-
                                 return new J5Instruction[] {
                                         // Conditional jump backwards
                                         j5Lexer.lex("BRCARRY 2"),
@@ -313,7 +310,7 @@ public class Translator {
                             };
                         case PBFlagArgument.NZ:
                             return new J5Instruction[] {
-                                    j5Lexer.lex("BRZERO 2"), // Jump to location of next PB line
+                                    j5Lexer.lex("BRZERO 2"),
                                     j5Lexer.lex("CALL " + Integer.toHexString((arg1.getIntValue() + 1))),
                                     j5Lexer.lex("STOP"),
                             };
@@ -324,7 +321,7 @@ public class Translator {
                             };
                         case PBFlagArgument.NC:
                             return new J5Instruction[] {
-                                    j5Lexer.lex("BRCARRY 2"), // Jump to location of next PB line
+                                    j5Lexer.lex("BRCARRY 2"),
                                     j5Lexer.lex("CALL " + Integer.toHexString((arg1.getIntValue() + 1))),
                                     j5Lexer.lex("STOP"),
                             };
