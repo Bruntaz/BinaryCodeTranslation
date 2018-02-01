@@ -4,6 +4,8 @@ import PicoBlazeSimulator.*;
 import PicoBlazeSimulator.Groups.*;
 import PicoBlazeSimulator.InstructionArguments.*;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -392,6 +394,34 @@ public class Translator {
         return file;
     }
 
+    private void outputCodeToFile(J5Instruction[][] j5Instructions) {
+        StringBuilder outputString = new StringBuilder();
+
+        for (J5Instruction[] instructionGroup : j5Instructions) {
+            if (instructionGroup == null) {
+                continue;
+            }
+
+            for (J5Instruction instruction : instructionGroup) {
+                if (instruction == null) {
+                    continue;
+                }
+                outputString.append(instruction.toString());
+                outputString.append("\n");
+            }
+        }
+
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter("src/TestCode/Output.j5a"));
+            writer.write(outputString.toString());
+            writer.close();
+
+        } catch (IOException e) {
+            System.out.println("Failed to write output file.");
+            System.out.println(e);
+        }
+    }
+
     public void runPicoBlazeFileNatively(Path filePath) {
         List<String> file = readFile(filePath);
 
@@ -442,32 +472,21 @@ public class Translator {
             System.out.println("################################################ PBPC = " + pbPC);
             System.out.println("PicoBlaze Instruction: " + picoBlazeInstructions[pbPC]);
 
-//            for (int i=0; i<j5Instructions[pbPC].length; i++) {
-////                if (j5PC.hasJustJumped()) {
-////                    break;
-////                }
-//
-//                if (j5Instructions[pbPC][i].instruction == J5InstructionSet.STOP) {
-//
-//                }
-//
-//                j5Parser.parse(j5Instructions[pbPC][i]);
-//            }
-
             int j5InstructionPointer = 0;
             while (j5InstructionPointer < j5Instructions[pbPC].length) {
                 J5Instruction instruction = j5Instructions[pbPC][j5InstructionPointer];
 
                 if (j5PC.hasJustJumped()) {
                     if (instruction.instruction == J5InstructionSet.STOP) {
-                        break; // May need to do something with changing the PC here
+                        // NOP implies that the jump is the end of the block
+                        break;
                     } else {
-                        j5InstructionPointer = j5PC.get() - pbPC; // Unlikely to be the correct value to set the
-                        // pointer to
+                        j5InstructionPointer = j5PC.get() - pbPC;
                         j5PC.setJustJumped(false);
                         continue;
                     }
                 } else if (instruction.instruction == J5InstructionSet.NOP) {
+                    // NOP implies that there has been an intentionally missed jump
                     break;
                 }
 
@@ -475,16 +494,6 @@ public class Translator {
 
                 j5InstructionPointer++;
             }
-
-//            for (J5Instruction instruction : j5Instructions[pbPC]) {
-//                // Loop here because parse(J5Instruction[]) will break on jumps
-//                // For example if you have a block which loops to itself
-//                if (j5PC.hasJustJumped()) {
-//                    break;
-//                }
-//
-//                j5Parser.parse(instruction);
-//            }
 
             // Move the PBPC if the J5 machine has jumped
             if (j5PC.hasJustJumped()) {
@@ -500,6 +509,9 @@ public class Translator {
 //            System.out.println(Arrays.toString(j5Instructions[i]) + ", " + picoBlazeInstructions[i].instruction);
 //        }
 //        System.out.println(j5Instructions.length);
+
+        outputCodeToFile(j5Instructions);
+
         System.out.println(String.format("\nFinished in %d clock cycles", j5Parser.getClockCycles()));
         System.out.println(J5ScratchPad.getInstance());
     }
