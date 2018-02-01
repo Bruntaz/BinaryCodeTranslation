@@ -73,6 +73,18 @@ public class J5Parser {
         programCounter.push(address);
     }
 
+    private void CALLZERO(int address) {
+        if (flags.getZero()) {
+            CALL(address);
+        }
+    }
+
+    private void CALLCARRY(int address) {
+        if (flags.getCarry()) {
+            CALL(address);
+        }
+    }
+
     private void RETURN() {
         programCounter.pop();
     }
@@ -80,7 +92,7 @@ public class J5Parser {
     public void parse(J5Instruction instruction) {
         System.out.println(instruction);
 
-        if (instruction.instruction == J5InstructionSet.NOP) {
+        if (instruction.instruction == J5InstructionSet.NOP || instruction.instruction == J5InstructionSet.STOP) {
             return;
         }
 
@@ -110,18 +122,25 @@ public class J5Parser {
             case DEC:
                 alu.DEC();
                 break;
-            case TGT:
-                alu.TGT();
+
+            case TEST:
+                alu.TEST();
                 break;
-            case TLT:
-                alu.TLT();
+            case COMPARE:
+                alu.COMPARE();
                 break;
-            case TEQ:
-                alu.TEQ();
-                break;
-            case TSZ:
-                alu.TSZ();
-                break;
+//            case TGT:
+//                alu.TGT();
+//                break;
+//            case TLT:
+//                alu.TLT();
+//                break;
+//            case TEQ:
+//                alu.TEQ();
+//                break;
+//            case TSZ:
+//                alu.TSZ();
+//                break;
             case AND:
                 alu.AND();
                 break;
@@ -156,6 +175,12 @@ public class J5Parser {
                 break;
             case CALL:
                 CALL(instruction.arg.getValue());
+                break;
+            case CALLZERO:
+                CALLZERO(instruction.arg.getValue());
+                break;
+            case CALLCARRY:
+                CALLCARRY(instruction.arg.getValue());
                 break;
             case RETURN:
                 RETURN();

@@ -20,7 +20,8 @@ public class J5Lexer {
     private HashSet<J5InstructionSet> hasArg = new HashSet<>(Arrays.asList(
             J5InstructionSet.SSET, J5InstructionSet.BRANCH, J5InstructionSet.SBRANCH, J5InstructionSet.BRZERO,
             J5InstructionSet.SBRZERO, J5InstructionSet.BRCARRY, J5InstructionSet.SBRCARRY, J5InstructionSet.LBRANCH,
-            J5InstructionSet.CALL, J5InstructionSet.FETCH, J5InstructionSet.STORE)
+            J5InstructionSet.CALL, J5InstructionSet.CALLZERO, J5InstructionSet.CALLCARRY, J5InstructionSet.FETCH,
+            J5InstructionSet.STORE)
     );
 
     /*
@@ -60,6 +61,8 @@ public class J5Lexer {
                 return new J5ShortRelativeAddress(intArg);
             case LBRANCH:
             case CALL:
+            case CALLZERO:
+            case CALLCARRY:
                 return new J5AbsoluteAddress(intArg - 1);
             case FETCH:
             case STORE:

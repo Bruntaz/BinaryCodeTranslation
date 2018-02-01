@@ -20,10 +20,12 @@ public enum J5InstructionSet {
     DEC,		// Decrement top
 
     // Test and Compare
-    TGT,		// Test greater than
-    TLT,		// Test less than
-    TEQ,		// Test equal
-    TSZ,		// Test stack zero
+//    TGT,		// Test greater than
+//    TLT,		// Test less than
+//    TEQ,		// Test equal
+//    TSZ,		// Test stack zero
+    TEST,
+    COMPARE,
 
     // Branching
     BRANCH, 	// Unconditional jump
@@ -35,6 +37,8 @@ public enum J5InstructionSet {
     LBRANCH,    // Long branch (absolute address, 16 bits)
     IBRANCH,    // Indirect branch (branch to address at top of stack)
     CALL,		// Add old address+1 to program stack and jump to new address
+    CALLZERO,   // CALL but conditional on zero flag
+    CALLCARRY,  // CALL but conditional on carry flag
     RETURN,	    // Pop top off program stack and add jump to it
 
     // Misc

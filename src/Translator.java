@@ -199,13 +199,12 @@ public class Translator {
                 }
 
             // Test and Compare
-            case COMPARE:
+            case TEST:
                 if (arg1 instanceof PBRegister) {
                     return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
-                            j5Lexer.lex("TLT"),
-                            j5Lexer.lex("TEQ"),
+                            j5Lexer.lex("TEST"),
                             j5Lexer.lex("DROP"),
                             j5Lexer.lex("DROP"),
                     };
@@ -213,8 +212,26 @@ public class Translator {
                     return new J5Instruction[] {
                             j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
-                            j5Lexer.lex("TLT"),
-                            j5Lexer.lex("TEQ"),
+                            j5Lexer.lex("TEST"),
+                            j5Lexer.lex("DROP"),
+                            j5Lexer.lex("DROP"),
+                    };
+                }
+
+            case COMPARE:
+                if (arg1 instanceof PBRegister) {
+                    return new J5Instruction[] {
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("COMPARE"),
+                            j5Lexer.lex("DROP"),
+                            j5Lexer.lex("DROP"),
+                    };
+                } else {
+                    return new J5Instruction[] {
+                            j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("COMPARE"),
                             j5Lexer.lex("DROP"),
                             j5Lexer.lex("DROP"),
                     };
@@ -225,29 +242,56 @@ public class Translator {
                 if (arg0 instanceof PBAbsoluteAddress) {
                     return new J5Instruction[] {
                             j5Lexer.lex("LBRANCH " + Integer.toHexString(arg0.getIntValue() + 1)),
+                            j5Lexer.lex("STOP"),
                     };
                 } else {
                     PBFlagArgument a0 = (PBFlagArgument) arg0;
                     switch (a0.getStringValue()) {
                         case PBFlagArgument.Z:
-                            return new J5Instruction[]{
-                                    j5Lexer.lex("BRZERO " + Integer.toHexString((arg1.getIntValue() - pbLineNumber))), // This will
-                                    // crash if the jump instruction isn't forward.
-                            };
+                            if (arg1.getIntValue() > pbLineNumber) {
+                                return new J5Instruction[] {
+                                        j5Lexer.lex("BRZERO " + Integer.toHexString((arg1.getIntValue() - pbLineNumber))), // This will
+                                        // crash if the jump instruction isn't forward.
+                                        j5Lexer.lex("STOP"),
+                                };
+                            } else {
+                                throw new Error("Translation for this command (" + instruction + ") is not supported yet.");
+
+//                                return new J5Instruction[] {
+//                                        // Conditional jump backwards
+//                                        j5Lexer.lex("BRZERO 1"), //
+//                                };
+                            }
+
                         case PBFlagArgument.NZ:
-                            return new J5Instruction[]{
-                                    j5Lexer.lex("BRZERO 1"), // Jump to location of next PB line
+                            return new J5Instruction[] {
+                                    j5Lexer.lex("BRZERO 2"), // Jump to location of next PB line
                                     j5Lexer.lex("LBRANCH " + Integer.toHexString((arg1.getIntValue() + 1))),
+                                    j5Lexer.lex("STOP"),
                             };
                         case PBFlagArgument.C:
-                            return new J5Instruction[]{
-                                    j5Lexer.lex("BRCARRY " + Integer.toHexString((arg1.getIntValue() - pbLineNumber))), // This will
-                                    // crash if the jump instruction isn't forward.
-                            };
+                            if (arg1.getIntValue() > pbLineNumber) {
+                                return new J5Instruction[]{
+                                        j5Lexer.lex("BRCARRY " + Integer.toHexString((arg1.getIntValue() - pbLineNumber))), // This will
+                                        // crash if the jump instruction isn't forward.
+                                        j5Lexer.lex("STOP"),
+                                };
+                            } else {
+//                                throw new Error("Translation for this command (" + instruction + ") is not supported yet.");
+
+                                return new J5Instruction[] {
+                                        // Conditional jump backwards
+                                        j5Lexer.lex("BRCARRY 2"),
+                                        j5Lexer.lex("NOP"),
+                                        j5Lexer.lex("LBRANCH " + Integer.toHexString((arg1.getIntValue() + 1))),
+                                        j5Lexer.lex("STOP"),
+                                };
+                            }
                         case PBFlagArgument.NC:
-                            return new J5Instruction[]{
-                                    j5Lexer.lex("BRCARRY 1"), // Jump to location of next PB line
+                            return new J5Instruction[] {
+                                    j5Lexer.lex("BRCARRY 2"),
                                     j5Lexer.lex("LBRANCH " + Integer.toHexString((arg1.getIntValue() + 1))),
+                                    j5Lexer.lex("STOP"),
                             };
                     }
                 }
@@ -257,31 +301,32 @@ public class Translator {
                 if (arg0 instanceof PBAbsoluteAddress) {
                     return new J5Instruction[] {
                             j5Lexer.lex("CALL " + Integer.toHexString((arg0.getIntValue() + 1))),
+                            j5Lexer.lex("STOP"),
                     };
                 } else {
                     PBFlagArgument a0 = (PBFlagArgument) arg0;
                     switch (a0.getStringValue()) {
                         case PBFlagArgument.Z:
                             return new J5Instruction[] {
-                                    // This won't work because jumping will exit from the code block
-//                                    j5Lexer.lex("BRZERO 1"), // Jump to location of next PB line
-//                                    j5Lexer.lex("CALL " + Integer.toHexString((arg1.getIntValue() - pbLineNumber))),
+                                    j5Lexer.lex("CALLZERO " + Integer.toHexString((arg1.getIntValue() + 1))),
+                                    j5Lexer.lex("STOP"),
                             };
                         case PBFlagArgument.NZ:
                             return new J5Instruction[] {
-                                    j5Lexer.lex("BRZERO 1"), // Jump to location of next PB line
+                                    j5Lexer.lex("BRZERO 2"), // Jump to location of next PB line
                                     j5Lexer.lex("CALL " + Integer.toHexString((arg1.getIntValue() + 1))),
+                                    j5Lexer.lex("STOP"),
                             };
                         case PBFlagArgument.C:
                             return new J5Instruction[] {
-                                    // This won't work because jumping will exit from the code block
-//                                    j5Lexer.lex("BRCARRY 1"), // Jump to location of next PB line
-//                                    j5Lexer.lex("CALL " + Integer.toHexString((arg1.getIntValue() + 1))),
+                                    j5Lexer.lex("CALLCARRY " + Integer.toHexString((arg1.getIntValue() + 1))),
+                                    j5Lexer.lex("STOP"),
                             };
                         case PBFlagArgument.NC:
                             return new J5Instruction[] {
-                                    j5Lexer.lex("BRCARRY 1"), // Jump to location of next PB line
+                                    j5Lexer.lex("BRCARRY 2"), // Jump to location of next PB line
                                     j5Lexer.lex("CALL " + Integer.toHexString((arg1.getIntValue() + 1))),
+                                    j5Lexer.lex("STOP"),
                             };
                     }
                 }
@@ -290,6 +335,7 @@ public class Translator {
                 if (arg0 instanceof PBNoArgument) {
                     return new J5Instruction[] {
                             j5Lexer.lex("RETURN"),
+                            j5Lexer.lex("STOP"),
                     };
                 } else {
                     break; // TODO: Implement this
@@ -396,16 +442,52 @@ public class Translator {
 
             j5PC.set(pbPC, false);
             j5PC.increment();
+            System.out.println("################################################ PBPC = " + pbPC);
             System.out.println("PicoBlaze Instruction: " + picoBlazeInstructions[pbPC]);
-            for (J5Instruction instruction : j5Instructions[pbPC]) {
-                // Loop here because parse(J5Instruction[]) will break on jumps
-                // For example if you have a block which loops to itself
+
+//            for (int i=0; i<j5Instructions[pbPC].length; i++) {
+////                if (j5PC.hasJustJumped()) {
+////                    break;
+////                }
+//
+//                if (j5Instructions[pbPC][i].instruction == J5InstructionSet.STOP) {
+//
+//                }
+//
+//                j5Parser.parse(j5Instructions[pbPC][i]);
+//            }
+
+            int j5InstructionPointer = 0;
+            while (j5InstructionPointer < j5Instructions[pbPC].length) {
+                J5Instruction instruction = j5Instructions[pbPC][j5InstructionPointer];
+
                 if (j5PC.hasJustJumped()) {
+                    if (instruction.instruction == J5InstructionSet.STOP) {
+                        break; // May need to do something with changing the PC here
+                    } else {
+                        j5InstructionPointer = j5PC.get() - pbPC; // Unlikely to be the correct value to set the
+                        // pointer to
+                        j5PC.setJustJumped(false);
+                        continue;
+                    }
+                } else if (instruction.instruction == J5InstructionSet.NOP) {
                     break;
                 }
 
                 j5Parser.parse(instruction);
+
+                j5InstructionPointer++;
             }
+
+//            for (J5Instruction instruction : j5Instructions[pbPC]) {
+//                // Loop here because parse(J5Instruction[]) will break on jumps
+//                // For example if you have a block which loops to itself
+//                if (j5PC.hasJustJumped()) {
+//                    break;
+//                }
+//
+//                j5Parser.parse(instruction);
+//            }
 
             // Move the PBPC if the J5 machine has jumped
             if (j5PC.hasJustJumped()) {

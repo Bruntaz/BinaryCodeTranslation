@@ -50,6 +50,7 @@ public class J5ProgramCounter {
 
     public void pop() {
         pc.pop();
+        setJustJumped(true);
     }
 
     // Copied from picoblaze

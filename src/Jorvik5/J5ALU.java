@@ -97,6 +97,35 @@ public class J5ALU {
         flags.setZero(decremented == J5Stack.MIN_VALUE);
     }
 
+    void TEST() {
+        int top = stack.pop();
+        int next = stack.getTop();
+
+        stack.push(top);
+
+        int result = (top & next);
+
+        // Carry bit true if odd number of 1 bits
+        boolean carry = false;
+        for (int i=0; i<8; i++) {
+            carry ^= ((result >> i) & 1) == 1;
+        }
+
+        flags.setCarry(carry);
+        flags.setZero(result == J5Stack.MIN_VALUE);
+    }
+
+    void COMPARE() {
+        int top = stack.pop();
+        int next = stack.getTop();
+
+        stack.push(top);
+
+        flags.setCarry(top < next);
+        flags.setZero(top == next);
+    }
+
+    /*
     void TGT() {
         int top = stack.pop();
         int next = stack.getTop();
@@ -127,6 +156,7 @@ public class J5ALU {
     void TSZ() {
         flags.setZero(stack.getTop() == J5Stack.MIN_VALUE);
     }
+    */
 
     void AND() {
         int top = stack.pop();
