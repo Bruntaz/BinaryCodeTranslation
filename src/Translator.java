@@ -337,7 +337,35 @@ public class Translator {
                             j5Lexer.lex("STOP"),
                     };
                 } else {
-                    break; // TODO: Implement this
+                    PBFlagArgument a0 = (PBFlagArgument) arg0;
+                    switch (a0.getStringValue()) {
+                        case PBFlagArgument.Z:
+                            return new J5Instruction[] {
+                                    j5Lexer.lex("BRZERO 2"),
+                                    j5Lexer.lex("NOP"),
+                                    j5Lexer.lex("RETURN"),
+                                    j5Lexer.lex("STOP"),
+                            };
+                        case PBFlagArgument.NZ:
+                            return new J5Instruction[] {
+                                    j5Lexer.lex("BRZERO 2"),
+                                    j5Lexer.lex("RETURN"),
+                                    j5Lexer.lex("STOP"),
+                            };
+                        case PBFlagArgument.C:
+                            return new J5Instruction[] {
+                                    j5Lexer.lex("BRCARRY 2"),
+                                    j5Lexer.lex("NOP"),
+                                    j5Lexer.lex("RETURN"),
+                                    j5Lexer.lex("STOP"),
+                            };
+                        case PBFlagArgument.NC:
+                            return new J5Instruction[] {
+                                    j5Lexer.lex("BRCARRY 2"),
+                                    j5Lexer.lex("RETURN"),
+                                    j5Lexer.lex("STOP"),
+                            };
+                    }
                 }
 
             // Scratch Pad Memory

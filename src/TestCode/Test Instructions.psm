@@ -15,4 +15,18 @@ ADD sF, s1
 JUMP NZ, 17'd
 LOAD sE, FF
 
-; 00, 0f, 00, dd, cc
+; 00, 0f, 00, dd, cc, ..., ff, 0f
+
+JUMP main
+
+
+
+
+routine:
+    TEST s0, s1
+    RETURN NZ
+    LOAD sE, FF
+    RETURN
+
+main:
+    CALL routine
