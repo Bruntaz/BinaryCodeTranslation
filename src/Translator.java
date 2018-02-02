@@ -199,6 +199,20 @@ public class Translator {
                             j5Lexer.lex("DROP"),
                     };
                 }
+            case SL0:
+                return new J5Instruction[] {
+                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("SL"),
+                        j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("DROP"),
+                };
+            case SR0:
+                return new J5Instruction[] {
+                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("SR"),
+                        j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("DROP"),
+                };
             case RL:
                 return new J5Instruction[] {
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),

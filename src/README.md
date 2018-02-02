@@ -18,6 +18,8 @@
 * `RETURN C/NC/Z/NZ`
 * `STORE`
 * `FETCH`
+* `SL0`
+* `SR0`
 * `RL`
 * `RR`
 
@@ -33,11 +35,9 @@
 ## Require new instructions
 * `TESTCY`
 * `COMPARECY`
-* `SL0`
 * `SL1`
 * `SLX`
 * `SLA`
-* `SR0`
 * `SR1`
 * `SRX`
 * `SRA`
