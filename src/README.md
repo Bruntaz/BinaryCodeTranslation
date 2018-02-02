@@ -9,7 +9,9 @@
 * `SUB`
 * `SUBCY`
 * `TEST`
+* `TESTCY`
 * `COMPARE`
+* `COMPARECY`
 * `JUMP`
 * `JUMP C/NC/Z/NZ`
 * `CALL`
@@ -33,8 +35,6 @@
 * `HWBUILD`
 
 ## Require new instructions
-* `TESTCY`
-* `COMPARECY`
 * `SL1`
 * `SLX`
 * `SLA`
