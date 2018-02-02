@@ -18,6 +18,8 @@
 * `RETURN C/NC/Z/NZ`
 * `STORE`
 * `FETCH`
+* `RL`
+* `RR`
 
 # Unsupported Translation Instructions
 ## Unimplemented
@@ -35,9 +37,7 @@
 * `SL1`
 * `SLX`
 * `SLA`
-* `RL`
 * `SR0`
 * `SR1`
 * `SRX`
 * `SRA`
-* `RR`

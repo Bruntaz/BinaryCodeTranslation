@@ -15,7 +15,7 @@ ADD sF, s1
 JUMP NZ, 17'd
 LOAD sE, FF
 
-; 00, 0f, 00, dd, cc, ..., ff, 0f
+; 00, 0f, 00, dd, cc, ..., 1e
 
 JUMP main
 
@@ -25,7 +25,7 @@ JUMP main
 routine:
     TEST s0, s1
     RETURN NZ
-    LOAD sE, FF
+    RL sF
     RETURN
 
 main:

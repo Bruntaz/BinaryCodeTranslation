@@ -190,4 +190,46 @@ public class J5ALU {
         flags.setCarry(false);
         flags.setZero(stack.getTop() == J5Stack.MIN_VALUE);
     }
+
+    void SL() {
+        int top = stack.pop();
+        int result = (top << 1) & J5Stack.MAX_VALUE;
+
+        stack.push(result);
+
+        flags.setCarry((top & 0b10000000) != 0);
+        flags.setZero(result == J5Stack.MIN_VALUE);
+    }
+
+    void SR() {
+        int top = stack.pop();
+        int result = (top >> 1) & J5Stack.MAX_VALUE;
+
+        stack.push(result);
+
+        flags.setCarry((top & 0b00000001) != 0);
+        flags.setZero(result == J5Stack.MIN_VALUE);
+    }
+
+    void RL() {
+        int currentTop = stack.pop();
+        int newLeastSignificantBit = currentTop >> 7;
+
+        int result = ((currentTop << 1) + newLeastSignificantBit) & J5Stack.MAX_VALUE;
+        stack.push(result);
+
+        flags.setCarry(newLeastSignificantBit != 0);
+        flags.setZero(result == J5Stack.MIN_VALUE);
+    }
+
+    void RR() {
+        int currentTop = stack.pop();
+        int newMostSignificantBit = (currentTop & 0b00000001) << 7;
+
+        int result = ((currentTop >> 1) + newMostSignificantBit) & J5Stack.MAX_VALUE;
+        stack.push(result);
+
+        flags.setCarry(newMostSignificantBit != 0);
+        flags.setZero(result == J5Stack.MIN_VALUE);
+    }
 }

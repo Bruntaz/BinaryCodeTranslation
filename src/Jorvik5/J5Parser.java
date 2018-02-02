@@ -153,6 +153,18 @@ public class J5Parser {
             case NOT:
                 alu.NOT();
                 break;
+            case SL:
+                alu.SL();
+                break;
+            case SR:
+                alu.SR();
+                break;
+            case RL:
+                alu.RL();
+                break;
+            case RR:
+                alu.RR();
+                break;
 
             // Branching
             case BRANCH:
@@ -216,6 +228,9 @@ public class J5Parser {
             case ISTORE:
                 scratchPad.ISTORE();
                 break;
+
+            default:
+                throw new Error("Instruction " + instruction.instruction + " not supported yet.");
         }
 
         System.out.println(stack);
