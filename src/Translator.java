@@ -247,6 +247,24 @@ public class Translator {
                             j5Lexer.lex("DROP"),
                     };
                 }
+            case TESTCY:
+                if (arg1 instanceof PBRegister) {
+                    return new J5Instruction[] {
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("TESTCY"),
+                            j5Lexer.lex("DROP"),
+                            j5Lexer.lex("DROP"),
+                    };
+                } else {
+                    return new J5Instruction[] {
+                            j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("TESTCY"),
+                            j5Lexer.lex("DROP"),
+                            j5Lexer.lex("DROP"),
+                    };
+                }
 
             case COMPARE:
                 if (arg1 instanceof PBRegister) {
@@ -262,6 +280,24 @@ public class Translator {
                             j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
                             j5Lexer.lex("COMPARE"),
+                            j5Lexer.lex("DROP"),
+                            j5Lexer.lex("DROP"),
+                    };
+                }
+            case COMPARECY:
+                if (arg1 instanceof PBRegister) {
+                    return new J5Instruction[] {
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("COMPARECY"),
+                            j5Lexer.lex("DROP"),
+                            j5Lexer.lex("DROP"),
+                    };
+                } else {
+                    return new J5Instruction[] {
+                            j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("COMPARECY"),
                             j5Lexer.lex("DROP"),
                             j5Lexer.lex("DROP"),
                     };

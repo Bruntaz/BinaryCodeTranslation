@@ -126,8 +126,14 @@ public class J5Parser {
             case TEST:
                 alu.TEST();
                 break;
+            case TESTCY:
+                alu.TESTCY();
+                break;
             case COMPARE:
                 alu.COMPARE();
+                break;
+            case COMPARECY:
+                alu.COMPARECY();
                 break;
 //            case TGT:
 //                alu.TGT();

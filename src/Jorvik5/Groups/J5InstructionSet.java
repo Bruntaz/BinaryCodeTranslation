@@ -29,7 +29,9 @@ public enum J5InstructionSet {
 //    TEQ,		// Test equal
 //    TSZ,		// Test stack zero
     TEST,
+    TESTCY,
     COMPARE,
+    COMPARECY,
 
     // Branching
     BRANCH, 	// Unconditional jump
