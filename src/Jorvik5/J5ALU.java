@@ -222,9 +222,9 @@ public class J5ALU {
         flags.setZero(stack.getTop() == J5Stack.MIN_VALUE);
     }
 
-    void SL() {
+    void SL(int insertBit) {
         int top = stack.pop();
-        int result = (top << 1) & J5Stack.MAX_VALUE;
+        int result = ((top << 1) + insertBit) & J5Stack.MAX_VALUE;
 
         stack.push(result);
 
@@ -232,9 +232,9 @@ public class J5ALU {
         flags.setZero(result == J5Stack.MIN_VALUE);
     }
 
-    void SR() {
+    void SR(int insertBit) {
         int top = stack.pop();
-        int result = (top >> 1) & J5Stack.MAX_VALUE;
+        int result = ((top >> 1) + (insertBit << 7)) & J5Stack.MAX_VALUE;
 
         stack.push(result);
 

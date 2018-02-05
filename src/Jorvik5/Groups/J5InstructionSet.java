@@ -18,8 +18,10 @@ public enum J5InstructionSet {
     SUBCY,      // Subtract top 2 and carry (next - top - carry)
     INC,		// Increment top
     DEC,		// Decrement top
-    SL,         // Shift top left
-    SR,         // Shift top right
+    SL0,         // Shift top left
+    SL1,         // Shift top left
+    SR0,         // Shift top right
+    SR1,         // Shift top right
     RL,         // Barrel rotate top left
     RR,         // Barrel rotate top right
 

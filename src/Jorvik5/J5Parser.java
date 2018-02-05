@@ -159,11 +159,17 @@ public class J5Parser {
             case NOT:
                 alu.NOT();
                 break;
-            case SL:
-                alu.SL();
+            case SL0:
+                alu.SL(0);
                 break;
-            case SR:
-                alu.SR();
+            case SL1:
+                alu.SL(1);
+                break;
+            case SR0:
+                alu.SR(0);
+                break;
+            case SR1:
+                alu.SR(1);
                 break;
             case RL:
                 alu.RL();

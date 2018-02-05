@@ -1,5 +1,6 @@
 import Jorvik5.*;
 import Jorvik5.Groups.J5InstructionSet;
+import Jorvik5.InstructionArguments.J5RelativeAddress;
 import PicoBlazeSimulator.*;
 import PicoBlazeSimulator.Groups.*;
 import PicoBlazeSimulator.InstructionArguments.*;
@@ -202,16 +203,31 @@ public class Translator {
             case SL0:
                 return new J5Instruction[] {
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
-                        j5Lexer.lex("SL"),
+                        j5Lexer.lex("SL0"),
+                        j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("DROP"),
+                };
+            case SL1:
+                return new J5Instruction[] {
+                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("SL1"),
                         j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
                         j5Lexer.lex("DROP"),
                 };
             case SR0:
                 return new J5Instruction[] {
+                    j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                    j5Lexer.lex("SR0"),
+                    j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                    j5Lexer.lex("DROP"),
+                };
+            case SR1:
+                return new J5Instruction[] {
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
-                        j5Lexer.lex("SR"),
+                        j5Lexer.lex("SR1"),
                         j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
                         j5Lexer.lex("DROP"),
+
                 };
             case RL:
                 return new J5Instruction[] {
@@ -570,10 +586,16 @@ public class Translator {
 
                 if (j5PC.hasJustJumped()) {
                     if (instruction.instruction == J5InstructionSet.STOP) {
-                        // NOP implies that the jump is the end of the block
+                        // STOP implies that the jump is the end of the block
                         break;
                     } else {
-                        j5InstructionPointer = j5PC.get() - pbPC;
+                        J5Instruction jumpInstruction = j5Instructions[pbPC][j5InstructionPointer-1];
+                        if (jumpInstruction.instruction == J5InstructionSet.BRCARRY ||
+                            jumpInstruction.instruction == J5InstructionSet.BRZERO) {
+                            j5InstructionPointer += jumpInstruction.arg.getValue() - 1;
+                        } else {
+                            j5InstructionPointer -= jumpInstruction.arg.getValue();
+                        }
                         j5PC.setJustJumped(false);
                         continue;
                     }

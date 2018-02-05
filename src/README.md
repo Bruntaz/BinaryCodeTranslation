@@ -21,7 +21,9 @@
 * `STORE`
 * `FETCH`
 * `SL0`
+* `SL1`
 * `SR0`
+* `SR1`
 * `RL`
 * `RR`
 
@@ -35,9 +37,7 @@
 * `HWBUILD`
 
 ## Require new instructions
-* `SL1`
 * `SLX`
 * `SLA`
-* `SR1`
 * `SRX`
 * `SRA`
