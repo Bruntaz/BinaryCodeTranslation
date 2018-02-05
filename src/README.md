@@ -22,8 +22,12 @@
 * `FETCH`
 * `SL0`
 * `SL1`
+* `SLX`
+* `SLA`
 * `SR0`
 * `SR1`
+* `SRX`
+* `SRA`
 * `RL`
 * `RR`
 
@@ -37,7 +41,3 @@
 * `HWBUILD`
 
 ## Require new instructions
-* `SLX`
-* `SLA`
-* `SRX`
-* `SRA`
