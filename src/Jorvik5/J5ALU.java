@@ -1,5 +1,7 @@
 package Jorvik5;
 
+import Jorvik5.Groups.J5InstructionSet;
+
 public class J5ALU {
     private static J5ALU ourInstance = new J5ALU();
     public static J5ALU getInstance() {
@@ -222,9 +224,26 @@ public class J5ALU {
         flags.setZero(stack.getTop() == J5Stack.MIN_VALUE);
     }
 
-    void SL(int insertBit) {
+    void SL(J5InstructionSet instruction) {
         int top = stack.pop();
-        int result = ((top << 1) + insertBit) & J5Stack.MAX_VALUE;
+
+        int leastSignificantBit;
+        switch (instruction) {
+            case SL0:
+                leastSignificantBit = 0;
+                break;
+            case SL1:
+                leastSignificantBit = 1;
+                break;
+            case SLX:
+                leastSignificantBit = top & 0b00000001;
+                break;
+            default:
+                leastSignificantBit = flags.getCarry() ? 1 : 0;
+                break;
+        }
+
+        int result = ((top << 1) + leastSignificantBit) & J5Stack.MAX_VALUE;
 
         stack.push(result);
 
@@ -232,9 +251,26 @@ public class J5ALU {
         flags.setZero(result == J5Stack.MIN_VALUE);
     }
 
-    void SR(int insertBit) {
+    void SR(J5InstructionSet instruction) {
         int top = stack.pop();
-        int result = ((top >> 1) + (insertBit << 7)) & J5Stack.MAX_VALUE;
+
+        int mostSignificantBit;
+        switch (instruction) {
+            case SR0:
+                mostSignificantBit = 0;
+                break;
+            case SR1:
+                mostSignificantBit = 0b10000000;
+                break;
+            case SRX:
+                mostSignificantBit = top & 0b10000000;
+                break;
+            default:
+                mostSignificantBit = flags.getCarry() ? 0b10000000 : 0;
+                break;
+        }
+
+        int result = ((top >> 1) + mostSignificantBit) & J5Stack.MAX_VALUE;
 
         stack.push(result);
 

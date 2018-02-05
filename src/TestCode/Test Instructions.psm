@@ -30,5 +30,3 @@ routine:
 
 main:
     CALL routine
-    SL1 s1
-    SR1 s1

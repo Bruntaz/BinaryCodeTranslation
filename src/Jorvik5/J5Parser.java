@@ -160,16 +160,28 @@ public class J5Parser {
                 alu.NOT();
                 break;
             case SL0:
-                alu.SL(0);
+                alu.SL(J5InstructionSet.SL0);
                 break;
             case SL1:
-                alu.SL(1);
+                alu.SL(J5InstructionSet.SL1);
+                break;
+            case SLX:
+                alu.SL(J5InstructionSet.SLX);
+                break;
+            case SLA:
+                alu.SL(J5InstructionSet.SLA);
                 break;
             case SR0:
-                alu.SR(0);
+                alu.SR(J5InstructionSet.SR0);
                 break;
             case SR1:
-                alu.SR(1);
+                alu.SR(J5InstructionSet.SR1);
+                break;
+            case SRX:
+                alu.SR(J5InstructionSet.SRX);
+                break;
+            case SRA:
+                alu.SR(J5InstructionSet.SRA);
                 break;
             case RL:
                 alu.RL();

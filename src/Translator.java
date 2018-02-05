@@ -214,6 +214,20 @@ public class Translator {
                         j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
                         j5Lexer.lex("DROP"),
                 };
+            case SLX:
+                return new J5Instruction[] {
+                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("SLX"),
+                        j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("DROP"),
+                };
+            case SLA:
+                return new J5Instruction[] {
+                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("SLA"),
+                        j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("DROP"),
+                };
             case SR0:
                 return new J5Instruction[] {
                     j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
@@ -225,6 +239,22 @@ public class Translator {
                 return new J5Instruction[] {
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
                         j5Lexer.lex("SR1"),
+                        j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("DROP"),
+
+                };
+            case SRX:
+                return new J5Instruction[] {
+                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("SRX"),
+                        j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("DROP"),
+
+                };
+            case SRA:
+                return new J5Instruction[] {
+                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("SRA"),
                         j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
                         j5Lexer.lex("DROP"),
 
