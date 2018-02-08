@@ -43,6 +43,8 @@ public class Translator {
         put(PBRegisterName.SF, 15);
     }};
 
+    private int registerOffset = 32;
+
     private String translateRegisterIntoMemory(PBInstructionArgument register) {
         PBRegisterName registerName = ((PBRegister) register).getRegisterName();
         return Integer.toHexString(registerMemoryLocation.get(registerName));
@@ -484,7 +486,7 @@ public class Translator {
                     return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)), // Register to store
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)), // Register with location
-                            j5Lexer.lex("SSET 10"), // Change location to next line in memory
+                            j5Lexer.lex("SSET " + Integer.toHexString(registerOffset)), // Change location to next line in memory
                             j5Lexer.lex("ADD"),
                             j5Lexer.lex("ISTORE"), // Location at TOS
                             j5Lexer.lex("DROP"),
@@ -493,7 +495,7 @@ public class Translator {
                 } else {
                     return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
-                            j5Lexer.lex("STORE " + Integer.toHexString(arg1.getIntValue() + 16)),
+                            j5Lexer.lex("STORE " + Integer.toHexString(arg1.getIntValue() + registerOffset)),
                             j5Lexer.lex("DROP"),
                     };
                 }
@@ -501,7 +503,8 @@ public class Translator {
                 if (arg1 instanceof PBRegister) {
                     return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)), // Register with location
-                            j5Lexer.lex("SSET 10"), // Change location to next line in memory
+                            j5Lexer.lex("SSET " + Integer.toHexString(registerOffset)), // Change location to next
+                            // line in memory
                             j5Lexer.lex("ADD"),
                             j5Lexer.lex("IFETCH"), // Location at TOS
                             j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)), // Store in register
@@ -510,7 +513,7 @@ public class Translator {
                     };
                 } else {
                     return new J5Instruction[] {
-                            j5Lexer.lex("FETCH " + Integer.toHexString(arg1.getIntValue() + 16)),
+                            j5Lexer.lex("FETCH " + Integer.toHexString(arg1.getIntValue() + registerOffset)),
                             j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
                             j5Lexer.lex("DROP"),
                     };
@@ -584,6 +587,9 @@ public class Translator {
         PBInstruction[] picoBlazeInstructions = pbLexer.lex(file);
 
         J5Instruction[][] j5Instructions = new J5Instruction[picoBlazeInstructions.length][];
+
+        J5ScratchPad j5ScratchPad = J5ScratchPad.getInstance();
+        j5ScratchPad.setMemorySize(j5ScratchPad.getMemorySize() + registerOffset); // Increase scratch pad size
 
         pbParser.RESET();
         int pbPC = this.pbPC.get();

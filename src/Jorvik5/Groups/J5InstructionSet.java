@@ -18,14 +18,14 @@ public enum J5InstructionSet {
     SUBCY,      // Subtract top 2 and carry (next - top - carry)
     INC,		// Increment top
     DEC,		// Decrement top
-    SL0,         // Shift top left inserting 0
-    SL1,         // Shift top left inserting 1
-    SLX,         // Shift top left keeping LSB
-    SLA,         // Shift top left inserting C
-    SR0,         // Shift top right inserting 0
-    SR1,         // Shift top right inserting 1
-    SRX,         // Shift top right keeping MSB
-    SRA,         // Shift top right inserting C
+    SL0,        // Shift top left inserting 0
+    SL1,        // Shift top left inserting 1
+    SLX,        // Shift top left keeping LSB
+    SLA,        // Shift top left inserting C
+    SR0,        // Shift top right inserting 0
+    SR1,        // Shift top right inserting 1
+    SRX,        // Shift top right keeping MSB
+    SRA,        // Shift top right inserting C
     RL,         // Barrel rotate top left
     RR,         // Barrel rotate top right
 
