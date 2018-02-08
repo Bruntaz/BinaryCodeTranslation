@@ -30,3 +30,6 @@ routine:
 
 main:
     CALL routine
+    ;STAR s1, s1
+    STAR s0, s1
+    REGBANK B

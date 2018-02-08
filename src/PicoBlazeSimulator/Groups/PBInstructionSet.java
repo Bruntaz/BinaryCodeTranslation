@@ -34,7 +34,7 @@ public enum PBInstructionSet {
     SRA,        // sX           Shift bits right, spilling overflow into carry and inserting C at MSB
     RR,         // sX           Barrel shift bits right, updating C if an overflow occurs
 
-    // PBRegister Bank Selection
+    // Register Bank Selection
     REGBANK,    // A/B          Set the active bank of registers
 
     // Scratch Pad Memory

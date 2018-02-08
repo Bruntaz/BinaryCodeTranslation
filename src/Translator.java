@@ -212,6 +212,8 @@ public class Translator {
                             j5Lexer.lex("DROP"),
                     };
                 }
+
+            // Shift and rotate
             case SL0:
                 return new J5Instruction[] {
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
@@ -283,6 +285,37 @@ public class Translator {
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
                         j5Lexer.lex("RR"),
                         j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("DROP"),
+                };
+
+            // Register bank selection
+            case REGBANK:
+                // TODO: This toggles register banks instead of setting to the correct one
+                return new J5Instruction[] {
+                        j5Lexer.lex("SSET 0"),
+
+                        j5Lexer.lex("DUP"),
+                        j5Lexer.lex("IFETCH"),
+                        j5Lexer.lex("SWAP"),
+                        j5Lexer.lex("SSET 10"),
+                        j5Lexer.lex("ADD"),
+                        j5Lexer.lex("IFETCH"),
+                        j5Lexer.lex("ROT"),
+                        j5Lexer.lex("ISTORE"),
+                        j5Lexer.lex("DROP"),
+                        j5Lexer.lex("DROP"),
+                        j5Lexer.lex("SWAP"),
+                        j5Lexer.lex("ISTORE"),
+                        j5Lexer.lex("SWAP"),
+                        j5Lexer.lex("DROP"),
+
+                        j5Lexer.lex("INC"),
+                        j5Lexer.lex("SSET F"),
+                        j5Lexer.lex("TEST"),
+                        j5Lexer.lex("DROP"),
+                        j5Lexer.lex("BRZERO 2"),
+                        j5Lexer.lex("BRANCH " + Integer.toHexString(19)),
+
                         j5Lexer.lex("DROP"),
                 };
 
@@ -640,7 +673,7 @@ public class Translator {
                             jumpInstruction.instruction == J5InstructionSet.BRZERO) {
                             j5InstructionPointer += jumpInstruction.arg.getValue() - 1;
                         } else {
-                            j5InstructionPointer -= jumpInstruction.arg.getValue();
+                            j5InstructionPointer -= (jumpInstruction.arg.getValue() + 1);
                         }
                         j5PC.setJustJumped(false);
                         continue;
