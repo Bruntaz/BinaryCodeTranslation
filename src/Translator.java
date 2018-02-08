@@ -212,6 +212,8 @@ public class Translator {
                             j5Lexer.lex("DROP"),
                     };
                 }
+
+            // Shift and rotate
             case SL0:
                 return new J5Instruction[] {
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
@@ -640,7 +642,7 @@ public class Translator {
                             jumpInstruction.instruction == J5InstructionSet.BRZERO) {
                             j5InstructionPointer += jumpInstruction.arg.getValue() - 1;
                         } else {
-                            j5InstructionPointer -= jumpInstruction.arg.getValue();
+                            j5InstructionPointer -= (jumpInstruction.arg.getValue() + 1);
                         }
                         j5PC.setJustJumped(false);
                         continue;
