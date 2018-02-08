@@ -1,6 +1,7 @@
 # Supported Translation Instructions
 * `NOP`
 * `LOAD`
+* `STAR`
 * `AND`
 * `OR`
 * `XOR`
@@ -33,7 +34,6 @@
 
 # Unsupported Translation Instructions
 ## Unimplemented
-* `STAR`
 * `REGBANK`
 * `JUMP@`
 * `CALL@`

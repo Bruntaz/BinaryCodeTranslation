@@ -44,10 +44,15 @@ public class Translator {
     }};
 
     private int registerOffset = 32;
+    private int alternateLocationOffset = 16;
+
+    private String translateRegisterIntoMemory(PBInstructionArgument register, int offset) {
+        PBRegisterName registerName = ((PBRegister) register).getRegisterName();
+        return Integer.toHexString(registerMemoryLocation.get(registerName) + offset);
+    }
 
     private String translateRegisterIntoMemory(PBInstructionArgument register) {
-        PBRegisterName registerName = ((PBRegister) register).getRegisterName();
-        return Integer.toHexString(registerMemoryLocation.get(registerName));
+        return translateRegisterIntoMemory(register, 0);
     }
 
     /*
@@ -71,6 +76,12 @@ public class Translator {
                         j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
                         j5Lexer.lex("DROP"),
                 };
+            case STAR:
+                return new J5Instruction[] {
+                        j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
+                        j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0, alternateLocationOffset)),
+                        j5Lexer.lex("DROP"),
+                };
 
             // Logical
             case AND:
@@ -90,7 +101,6 @@ public class Translator {
                             j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
                             j5Lexer.lex("DROP"),
                     };
-
                 }
             case OR:
                 if (arg1 instanceof PBRegister) {
