@@ -22,6 +22,17 @@ public class J5ShortLiteral implements J5InstructionArgument {
         value = newValue;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof J5ShortLiteral)) {
+            return false;
+        }
+
+        J5ShortLiteral i = (J5ShortLiteral) o;
+
+        return value == i.value;
+    }
+
     public J5ShortLiteral(int value) {
         setValue(value);
     }

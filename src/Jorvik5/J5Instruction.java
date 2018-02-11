@@ -12,6 +12,24 @@ public class J5Instruction {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof J5Instruction)) {
+            return false;
+        }
+
+        J5Instruction i = (J5Instruction) o;
+
+        System.out.println(instruction + " " + i.instruction);
+        System.out.println(arg + " " + i.arg);
+
+        if (arg == null) {
+            return instruction == i.instruction && i.arg == null;
+        } else {
+            return instruction == i.instruction && arg.equals(i.arg);
+        }
+    }
+
+    @Override
     public String toString() {
         if (instruction == null) {
             return null;

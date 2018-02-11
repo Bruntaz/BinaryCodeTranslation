@@ -20,6 +20,17 @@ public class J5ShortRelativeAddress implements J5InstructionArgument {
         value = newValue;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof J5ShortRelativeAddress)) {
+            return false;
+        }
+
+        J5ShortRelativeAddress i = (J5ShortRelativeAddress) o;
+
+        return value == i.value;
+    }
+
     public J5ShortRelativeAddress(int address) {
         value = address;
     }

@@ -20,6 +20,17 @@ public class J5AbsoluteAddress implements J5InstructionArgument {
         value = newValue;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof J5AbsoluteAddress)) {
+            return false;
+        }
+
+        J5AbsoluteAddress i = (J5AbsoluteAddress) o;
+
+        return value == i.value;
+    }
+
     public J5AbsoluteAddress(int address) {
         value = address;
     }
