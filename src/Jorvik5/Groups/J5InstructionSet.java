@@ -62,7 +62,8 @@ public enum J5InstructionSet {
     SWAP,		// Swap top 2 on stack
     ROT,		// Rotate top 3 items in stack (XYZ -> YZX)
     RROT,		// Reverse ROT (XYZ -> ZXY)
-    DUP,		// Duplicate top of stack
+    DUP,		// Duplicate top of stack (X -> XX)
+    UNDER,      // Duplicate second on stack (XY -> XXY)
 
     // Scratch Pad Memory
     FETCH,      // Load value from J5ScratchPad memory to stack

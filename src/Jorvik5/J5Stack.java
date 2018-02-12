@@ -67,6 +67,12 @@ public class J5Stack {
         push(getTop());
     }
 
+    void UNDER() {
+        int top = pop();
+        DUP();
+        push(top);
+    }
+
     @Override
     public String toString() {
         StringBuilder toPrint = new StringBuilder("{\n");

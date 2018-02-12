@@ -238,6 +238,9 @@ public class J5Parser {
             case DUP:
                 stack.DUP();
                 break;
+            case UNDER:
+                stack.UNDER();
+                break;
 
             // Scratch Pad
             case FETCH:

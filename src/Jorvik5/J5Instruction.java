@@ -19,9 +19,6 @@ public class J5Instruction {
 
         J5Instruction i = (J5Instruction) o;
 
-        System.out.println(instruction + " " + i.instruction);
-        System.out.println(arg + " " + i.arg);
-
         if (arg == null) {
             return instruction == i.instruction && i.arg == null;
         } else {
