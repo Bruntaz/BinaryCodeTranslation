@@ -1,6 +1,6 @@
 import Jorvik5.*;
 import Jorvik5.Groups.J5InstructionSet;
-import Jorvik5.InstructionArguments.J5RelativeAddress;
+import Jorvik5.InstructionArguments.J5InstructionArgument;
 import PicoBlazeSimulator.*;
 import PicoBlazeSimulator.Groups.*;
 import PicoBlazeSimulator.InstructionArguments.*;
@@ -11,9 +11,7 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class Translator {
     private PBProgramCounter pbPC = PBProgramCounter.getInstance();
@@ -43,6 +41,29 @@ public class Translator {
         put(PBRegisterName.SF, 15);
     }};
 
+    private HashSet<J5InstructionSet> increaseStackSize = new HashSet<>(Arrays.asList(
+            J5InstructionSet.SSET, J5InstructionSet.FETCH, J5InstructionSet.IFETCH, J5InstructionSet.DUP,
+            J5InstructionSet.OVER, J5InstructionSet.UNDER, J5InstructionSet.TUCK)
+    );
+
+    private HashSet<J5InstructionSet> decreaseStackSize = new HashSet<>(Arrays.asList(
+            J5InstructionSet.AND, J5InstructionSet.OR, J5InstructionSet.XOR, J5InstructionSet.ADD,
+            J5InstructionSet.ADDCY, J5InstructionSet.SUB, J5InstructionSet.SUBCY, J5InstructionSet.DROP,
+            J5InstructionSet.NIP)
+    );
+
+    private HashSet<J5InstructionSet> constantStackSize = new HashSet<>(Arrays.asList(
+            J5InstructionSet.NOT, J5InstructionSet.INC, J5InstructionSet.DEC, J5InstructionSet.TEST,
+            J5InstructionSet.TESTCY, J5InstructionSet.COMPARE, J5InstructionSet.COMPARECY, J5InstructionSet.BRANCH,
+            J5InstructionSet.BRZERO, J5InstructionSet.BRCARRY, J5InstructionSet.SBRANCH, J5InstructionSet.SBRZERO,
+            J5InstructionSet.SBRCARRY, J5InstructionSet.LBRANCH, J5InstructionSet.IBRANCH, J5InstructionSet.CALL,
+            J5InstructionSet.CALLZERO, J5InstructionSet.CALLCARRY, J5InstructionSet.RETURN, J5InstructionSet.SWAP,
+            J5InstructionSet.ROT, J5InstructionSet.RROT, J5InstructionSet.STORE, J5InstructionSet.ISTORE,
+            J5InstructionSet.SL0, J5InstructionSet.SL1, J5InstructionSet.SLX, J5InstructionSet.SLA,
+            J5InstructionSet.SR0, J5InstructionSet.SR1, J5InstructionSet.SRX, J5InstructionSet.SRA, J5InstructionSet.RL,
+            J5InstructionSet.RR, J5InstructionSet.NOP, J5InstructionSet.STOP)
+    );
+
     private int registerOffset = 32;
     private int alternateLocationOffset = 16;
 
@@ -55,10 +76,184 @@ public class Translator {
         return translateRegisterIntoMemory(register, 0);
     }
 
-    /*
-    NOTE: This currently only supports register arguments for the logical operators. It will be necessary to add SSET
-     <value> at some point instead of FETCH <register>
-     */
+    private J5Instruction[] translateBlock(PBInstruction[] pbInstructions, int blockStart) {
+        int nextBlockStart = pbParser.getNextBlockStart(pbInstructions, blockStart);
+
+        J5Instruction[][] naivelyTranslated = new J5Instruction[nextBlockStart - blockStart][];
+        // Iterate through current PicoBlaze block and translate it
+        for (int instructionNumber = blockStart; instructionNumber < nextBlockStart; instructionNumber++) {
+            naivelyTranslated[instructionNumber - blockStart] = translate(pbInstructions[instructionNumber],
+                    instructionNumber);
+        }
+
+        ArrayList<J5Instruction> flattened = new ArrayList<>();
+        for (J5Instruction[] j5Instructions : naivelyTranslated) {
+            flattened.addAll(Arrays.asList(j5Instructions));
+        }
+
+        // TODO: Get this to remove redundant code
+        class Pair implements Comparable<Pair> { // TODO: Clean this shit up
+            int reuseLine;
+            int useLine;
+            int lineDistance;
+            J5InstructionArgument registerLocation;
+
+            public Pair(int fLine, int sLine, J5InstructionArgument rLocation) {
+                reuseLine = fLine;
+                useLine = sLine;
+                lineDistance = fLine - sLine;
+                registerLocation = rLocation;
+            }
+
+            public String toString() {
+                return "Pair(reuseLine: " + reuseLine + ", useLine: " + useLine + ", registerLocation: " +
+                        registerLocation.getValue() + ")";
+            }
+
+            @Override
+            public int compareTo(Pair o) {
+                return lineDistance - o.lineDistance;
+            }
+        }
+
+        List<Pair> pairs = new ArrayList<>();
+
+        // Algorithm step 1: get pairs where variables can be reused
+        for (int i = 0; i < flattened.size(); i++) {
+            J5Instruction fetchInstruction = flattened.get(i);
+
+            if (fetchInstruction.instruction == J5InstructionSet.FETCH) {
+                J5InstructionArgument location = fetchInstruction.arg;
+
+                for (int j = i - 1; j >= 0; j--) {
+                    J5Instruction storeInstruction = flattened.get(j);
+
+                    if (location.equals(storeInstruction.arg)) { // TODO: Doesn't take into account adds etc, does it
+                                                                // need to? The value will have just been fetched...
+                        pairs.add(new Pair(i, j, location));
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Algorithm step 2: candidates for stack scheduling (use/reuse pairs) are ranked in order of ascending distance
+        System.out.println("Pair array: " + Arrays.toString(pairs.toArray()));
+        Collections.sort(pairs);
+        System.out.println("Pair array sorted: " + Arrays.toString(pairs.toArray()));
+
+        System.out.println("     Original: " + Arrays.toString(flattened.toArray()));
+
+        class ReAdd implements Comparable<ReAdd> { // TODO: Clean this shit up too
+            J5Instruction instruction;
+            int originalLine;
+
+            public ReAdd(J5Instruction ins, int line) {
+                instruction = ins;
+                originalLine = line;
+            }
+
+            @Override
+            public int compareTo(ReAdd o) {
+                return originalLine - o.originalLine;
+            }
+        }
+
+        // Check that conditions are met
+        // Conditions for each pair are:
+        // - Register of interest must be able to be copied to the bottom of the stack (DUP, TUCK, UNDER, TUCK_2)
+        // - Stack depth at fetch instruction must be 2 or less (so copied varible can be SWAPped or ROTated into place)
+        List<ReAdd> toReAdd = new ArrayList<>();
+        for (Pair pair : pairs) {
+            int useStackSize = 0;
+            int reuseStackSize = 0;
+
+            for (int i = 0; i < pair.reuseLine; i++) {
+                J5Instruction instruction = flattened.get(i);
+
+                if (increaseStackSize.contains(instruction.instruction)) {
+                    if (i <= pair.useLine) {
+                        useStackSize++;
+                    }
+                    reuseStackSize++;
+                } else if (decreaseStackSize.contains(instruction.instruction)) {
+                    if (i <= pair.useLine) {
+                        useStackSize--;
+                    }
+                    reuseStackSize--;
+                } else if (!constantStackSize.contains(instruction.instruction)) {
+                    throw new Error("Instruction " + instruction.instruction + " leaves stack at unknown size. " +
+                            "Please add it to the relevant set.");
+                }
+            }
+
+            if (reuseStackSize < 3) {
+                // Stack is small enough to do an optimisation
+                // TODO: Do the operation here so on the next loop, the stack size will take into account the extra size
+                switch (useStackSize) {
+                    case 0:
+                        // This should never happen
+                        throw new Error("Stack size 0 in use statement. This should never happen.");
+                    case 1:
+                        // Insert DUP to copy value to bottom
+                        // Peephole optimiser will remove DUP DROP and NOP
+                        toReAdd.add(new ReAdd(flattened.get(pair.useLine), pair.useLine));
+                        flattened.set(pair.useLine, j5Lexer.lex("DUP"));
+                        flattened.set(pair.reuseLine, j5Lexer.lex("NOP"));
+                        break;
+                    case 2:
+                        // Insert TUCK to copy value to bottom
+                        toReAdd.add(new ReAdd(flattened.get(pair.useLine), pair.useLine));
+                        flattened.set(pair.useLine, j5Lexer.lex("TUCK"));
+                        flattened.set(pair.reuseLine, j5Lexer.lex("NOP"));
+                        break;
+                    default:
+                        // Stack too large to copy to bottom (unless another instruction is added)
+                        System.out.println("Stack too large to copy to bottom, aborting.");
+                        break;
+                }
+            }
+        }
+        System.out.println("Stack managed: " + Arrays.toString(flattened.toArray()));
+
+        // Re-add removed FETCH & STORE lines
+        toReAdd.sort(Collections.reverseOrder()); // Reverse order to not require offset
+        for (ReAdd reAdd : toReAdd) {
+            flattened.add(reAdd.originalLine, reAdd.instruction);
+        }
+        System.out.println("     Re-added: " + Arrays.toString(flattened.toArray()));
+
+        // Algorithm step 3: Peephole optimisation
+        boolean optimisationsPerformed = true;
+        int optsPerf = 0;
+        while (optimisationsPerformed) {
+            optimisationsPerformed = false;
+            for (int i = 0; i < flattened.size() - 1; i++) {
+                if (flattened.get(i).instruction == J5InstructionSet.DUP &&
+                        flattened.get(i+1).instruction == J5InstructionSet.DROP) {
+                    flattened.set(i, j5Lexer.lex("NOP"));
+                    flattened.set(i+1, j5Lexer.lex("NOP"));
+                    optimisationsPerformed = true;
+                    optsPerf++;
+
+                } else if (flattened.get(i).instruction == J5InstructionSet.SWAP &&
+                        flattened.get(i+1).instruction == J5InstructionSet.ADD) {
+                    flattened.set(i, j5Lexer.lex("NOP"));
+                    optimisationsPerformed = true;
+                    optsPerf++;
+
+                } // else if TUCK then STORE then ADD becomes SWAP then STORE then ADD
+            }
+        }
+        System.out.println(optsPerf + " optimisations performed");
+        System.out.println("    Optimised: " + Arrays.toString(flattened.toArray()));
+        // Remove NOPs
+
+        J5Instruction[] flattenedArray = new J5Instruction[flattened.size()];
+        flattened.toArray(flattenedArray);
+        return flattenedArray;
+    }
+
     public J5Instruction[] translate(PBInstruction pbInstruction, int pbLineNumber) {
         if (pbInstruction == null || pbInstruction.instruction == PBInstructionSet.NOP) {
             return new J5Instruction[] {new J5Instruction(J5InstructionSet.NOP, null)};
@@ -599,6 +794,7 @@ public class Translator {
         PBInstruction[] picoBlazeInstructions = pbLexer.lex(file);
 
         J5Instruction[][] j5Instructions = new J5Instruction[picoBlazeInstructions.length][];
+        J5Instruction[][] j5BlockInstructions = new J5Instruction[picoBlazeInstructions.length][];
 
         J5ScratchPad j5ScratchPad = J5ScratchPad.getInstance();
         j5ScratchPad.setMemorySize(j5ScratchPad.getMemorySize() + registerOffset); // Increase scratch pad size
@@ -606,8 +802,7 @@ public class Translator {
         pbParser.RESET();
         int pbPC = this.pbPC.get();
         while (pbPC < picoBlazeInstructions.length) {
-            if (j5Instructions[pbPC] == null) { // Currently this just converts everything because the program
-                                                      // counter isn't being changed on jumps in the stack machine.
+            if (j5Instructions[pbPC] == null) {
                 picoBlazeInstructions[pbPC].isBlockStart = true;
                 int nextBlockStart = pbParser.getNextBlockStart(picoBlazeInstructions, pbPC);
 
@@ -621,6 +816,14 @@ public class Translator {
                     System.out.println(Arrays.toString(j5Instructions[i]) + ", " + picoBlazeInstructions[i].instruction);
                 }
                 System.out.println("-------------Currently translated---------------");
+
+                j5BlockInstructions[pbPC] = translateBlock(picoBlazeInstructions, pbPC);
+
+                System.out.println("-------------Block translated---------------");
+                for (int i=0; i<j5BlockInstructions.length; i++) {
+                    System.out.println(Arrays.toString(j5BlockInstructions[i]));
+                }
+                System.out.println("-------------Block translated---------------");
             }
 
             j5PC.set(pbPC, false);
