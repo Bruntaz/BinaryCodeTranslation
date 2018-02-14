@@ -249,8 +249,8 @@ public class PBLexer {
                 return null;
             }
 
-            System.out.println(firstArgument);
-            System.out.println(secondArgument);
+//            System.out.println(firstArgument);
+//            System.out.println(secondArgument);
 
             if ((secondArgument == null && !isValidNumberOfArguments(instruction.instruction, 1)) ||
                 (secondArgument != null && !isValidNumberOfArguments(instruction.instruction, 2))) {
@@ -311,7 +311,7 @@ public class PBLexer {
             InstructionAndSection instructionAndSection = getInstruction(sections, label);
             if (instructionAndSection != null) {
                 PBInstructionSet instructionName = instructionAndSection.instruction;
-                System.out.println(instructionName);
+//                System.out.println(instructionName);
 
                 PBInstructionArgument[] args = getArguments(sections, instructionAndSection);
 
@@ -319,8 +319,8 @@ public class PBLexer {
                     throw new IllegalArgumentException(String.format("Illegal number of arguments on line %d", lineNumber + 1));
                 }
 
-                System.out.println(args[0]);
-                System.out.println(args[1]);
+//                System.out.println(args[0]);
+//                System.out.println(args[1]);
 
                 if (instructionName == PBInstructionSet.CONSTANT) {
                     // Convert all constants to values in lexer so don't include constants in instructions array
@@ -357,7 +357,7 @@ public class PBLexer {
                 }
             }
 
-            System.out.println(labelMap.keySet());
+//            System.out.println(labelMap.keySet());
         }
 
         return instructions;
