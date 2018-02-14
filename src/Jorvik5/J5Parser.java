@@ -238,8 +238,17 @@ public class J5Parser {
             case DUP:
                 stack.DUP();
                 break;
+            case OVER:
+                stack.OVER();
+                break;
             case UNDER:
                 stack.UNDER();
+                break;
+            case TUCK:
+                stack.TUCK();
+                break;
+            case NIP:
+                stack.NIP();
                 break;
 
             // Scratch Pad

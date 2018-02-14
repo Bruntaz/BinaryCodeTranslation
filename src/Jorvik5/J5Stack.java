@@ -67,10 +67,25 @@ public class J5Stack {
         push(getTop());
     }
 
+    void OVER() {
+        UNDER();
+        SWAP();
+    }
+
     void UNDER() {
         int top = pop();
         DUP();
         push(top);
+    }
+
+    void TUCK() {
+        DUP();
+        RROT();
+    }
+
+    void NIP() {
+        SWAP();
+        DROP();
     }
 
     @Override

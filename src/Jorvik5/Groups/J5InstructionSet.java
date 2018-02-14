@@ -58,12 +58,15 @@ public enum J5InstructionSet {
     STOP,		// Halt execution
 
     // J5Stack Management
-    DROP,		// Remove top item
-    SWAP,		// Swap top 2 on stack
+    DROP,		// Remove top item (X -> )
+    SWAP,		// Swap top 2 on stack (XY -> YX)
     ROT,		// Rotate top 3 items in stack (XYZ -> YZX)
     RROT,		// Reverse ROT (XYZ -> ZXY)
     DUP,		// Duplicate top of stack (X -> XX)
+    OVER,       // Copy 2nd stack to top (XY -> XYX)
     UNDER,      // Duplicate second on stack (XY -> XXY)
+    TUCK,       // Copy top to under second (XY -> YXY)
+    NIP,        // Drop second stack item (XY -> Y)
 
     // Scratch Pad Memory
     FETCH,      // Load value from J5ScratchPad memory to stack
