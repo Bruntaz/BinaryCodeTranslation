@@ -11,6 +11,13 @@ public class J5ScratchPad {
     private int memorySize;
     private int[] memory;
     private J5Stack stack = J5Stack.getInstance();
+    private int memoryReads;
+    private int memoryWrites;
+
+    public void setMemoryReads(int newReads) { memoryReads = newReads; }
+    public void setMemoryWrites(int newWrites) { memoryWrites = newWrites; }
+    public int getMemoryReads() { return memoryReads; }
+    public int getMemoryWrites() { return memoryWrites; }
 
     public int getMemorySize() {
         return memorySize;
@@ -41,6 +48,7 @@ public class J5ScratchPad {
 
     void STORE(int location) {
         setMemory(location, stack.getTop());
+        memoryWrites += 1;
     }
 
     void IFETCH() {
@@ -52,10 +60,13 @@ public class J5ScratchPad {
 
     void FETCH(int location) {
         stack.push(getMemory(location));
+        memoryReads += 1;
     }
 
     public void reset() {
         setMemorySize(64);
+        setMemoryReads(0);
+        setMemoryWrites(0);
     }
 
     @Override

@@ -675,6 +675,8 @@ public class Translator {
         outputCodeToFile(j5Instructions);
 
         System.out.println(String.format("\nFinished in %d clock cycles", j5Parser.getClockCycles()));
+        System.out.println(String.format("With %d memory reads and %d writes", j5ScratchPad.getMemoryReads(),
+                j5ScratchPad.getMemoryWrites()));
         System.out.println(J5ScratchPad.getInstance());
     }
 
