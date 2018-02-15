@@ -80,7 +80,7 @@ public class J5Stack {
 
     void TUCK() {
         DUP();
-        RROT();
+        ROT();
     }
 
     void NIP() {

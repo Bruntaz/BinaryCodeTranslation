@@ -56,6 +56,7 @@ public enum J5InstructionSet {
     // Misc
     NOP,		// No operation (could be SKIP)
     STOP,		// Halt execution
+    PASS,       // For translation, indicates missed conditional branch
 
     // J5Stack Management
     DROP,		// Remove top item (X -> )

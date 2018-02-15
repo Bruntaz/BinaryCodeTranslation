@@ -61,7 +61,7 @@ public class Translator {
             J5InstructionSet.ROT, J5InstructionSet.RROT, J5InstructionSet.STORE, J5InstructionSet.ISTORE,
             J5InstructionSet.SL0, J5InstructionSet.SL1, J5InstructionSet.SLX, J5InstructionSet.SLA,
             J5InstructionSet.SR0, J5InstructionSet.SR1, J5InstructionSet.SRX, J5InstructionSet.SRA, J5InstructionSet.RL,
-            J5InstructionSet.RR, J5InstructionSet.NOP, J5InstructionSet.STOP)
+            J5InstructionSet.RR, J5InstructionSet.NOP, J5InstructionSet.STOP, J5InstructionSet.PASS)
     );
 
     private int registerOffset = 32;
@@ -128,8 +128,11 @@ public class Translator {
                 for (int j = i - 1; j >= 0; j--) {
                     J5Instruction storeInstruction = flattened.get(j);
 
-                    if (location.equals(storeInstruction.arg)) { // TODO: Doesn't take into account adds etc, does it
-                                                                // need to? The value will have just been fetched...
+                    if (storeInstruction.instruction == J5InstructionSet.ISTORE) {
+                        break; // If an ISTORE is between the pair, do not optimise
+                    }
+
+                    if (location.equals(storeInstruction.arg)) {
                         pairs.add(new Pair(i, j, location));
                         break;
                     }
@@ -188,6 +191,12 @@ public class Translator {
             }
 
             if (reuseStackSize < 3) {
+                if (reuseStackSize == 1) {
+                    toReAdd.add(new ReAdd(j5Lexer.lex("SWAP"), pair.reuseLine));
+                } else if (reuseStackSize == 2) {
+                    toReAdd.add(new ReAdd(j5Lexer.lex("ROT"), pair.reuseLine)); // TODO: Check this shouldn't be RROT
+                }
+
                 // Stack is small enough to do an optimisation
                 // TODO: Do the operation here so on the next loop, the stack size will take into account the extra size
                 switch (useStackSize) {
@@ -578,7 +587,7 @@ public class Translator {
                                 return new J5Instruction[] {
                                         // Conditional jump backwards
                                         j5Lexer.lex("BRZERO 2"),
-                                        j5Lexer.lex("NOP"),
+                                        j5Lexer.lex("PASS"),
                                         j5Lexer.lex("LBRANCH " + Integer.toHexString((arg1.getIntValue() + 1))),
                                         j5Lexer.lex("STOP"),
                                 };
@@ -600,7 +609,7 @@ public class Translator {
                                 return new J5Instruction[] {
                                         // Conditional jump backwards
                                         j5Lexer.lex("BRCARRY 2"),
-                                        j5Lexer.lex("NOP"),
+                                        j5Lexer.lex("PASS"),
                                         j5Lexer.lex("LBRANCH " + Integer.toHexString((arg1.getIntValue() + 1))),
                                         j5Lexer.lex("STOP"),
                                 };
@@ -661,7 +670,7 @@ public class Translator {
                         case PBFlagArgument.Z:
                             return new J5Instruction[] {
                                     j5Lexer.lex("BRZERO 2"),
-                                    j5Lexer.lex("NOP"),
+                                    j5Lexer.lex("PASS"),
                                     j5Lexer.lex("RETURN"),
                                     j5Lexer.lex("STOP"),
                             };
@@ -674,7 +683,7 @@ public class Translator {
                         case PBFlagArgument.C:
                             return new J5Instruction[] {
                                     j5Lexer.lex("BRCARRY 2"),
-                                    j5Lexer.lex("NOP"),
+                                    j5Lexer.lex("PASS"),
                                     j5Lexer.lex("RETURN"),
                                     j5Lexer.lex("STOP"),
                             };
@@ -801,13 +810,17 @@ public class Translator {
 
         pbParser.RESET();
         int pbPC = this.pbPC.get();
+        int currentBlock = 0;
+        int nextBlock = pbParser.getNextBlockStart(picoBlazeInstructions, pbPC);
         while (pbPC < picoBlazeInstructions.length) {
-            if (j5Instructions[pbPC] == null) {
-                picoBlazeInstructions[pbPC].isBlockStart = true;
-                int nextBlockStart = pbParser.getNextBlockStart(picoBlazeInstructions, pbPC);
+            currentBlock = pbPC;
+            nextBlock = pbParser.getNextBlockStart(picoBlazeInstructions, pbPC);
+
+            if (j5BlockInstructions[currentBlock] == null) {
+                picoBlazeInstructions[currentBlock].isBlockStart = true;
 
                 // Iterate through current PicoBlaze block and translate it
-                for (int instructionNumber = pbPC; instructionNumber < nextBlockStart; instructionNumber++) {
+                for (int instructionNumber = currentBlock; instructionNumber < nextBlock; instructionNumber++) {
                     j5Instructions[instructionNumber] = translate(picoBlazeInstructions[instructionNumber], instructionNumber);
                 }
 
@@ -817,7 +830,7 @@ public class Translator {
                 }
                 System.out.println("-------------Currently translated---------------");
 
-                j5BlockInstructions[pbPC] = translateBlock(picoBlazeInstructions, pbPC);
+                j5BlockInstructions[currentBlock] = translateBlock(picoBlazeInstructions, currentBlock);
 
                 System.out.println("-------------Block translated---------------");
                 for (int i=0; i<j5BlockInstructions.length; i++) {
@@ -826,32 +839,50 @@ public class Translator {
                 System.out.println("-------------Block translated---------------");
             }
 
-            j5PC.set(pbPC, false);
-            j5PC.increment();
+            j5PC.set(currentBlock, false);
             System.out.println("################################################ PBPC = " + pbPC);
             System.out.println("PicoBlaze Instruction: " + picoBlazeInstructions[pbPC]);
 
             int j5InstructionPointer = 0;
-            while (j5InstructionPointer < j5Instructions[pbPC].length) {
-                J5Instruction instruction = j5Instructions[pbPC][j5InstructionPointer];
+            while (j5InstructionPointer < j5BlockInstructions[currentBlock].length) {
+                J5Instruction instruction = j5BlockInstructions[currentBlock][j5InstructionPointer];
 
                 if (j5PC.hasJustJumped()) {
-                    if (instruction.instruction == J5InstructionSet.STOP) {
-                        // STOP implies that the jump is the end of the block
-                        break;
-                    } else {
-                        J5Instruction jumpInstruction = j5Instructions[pbPC][j5InstructionPointer-1];
-                        if (jumpInstruction.instruction == J5InstructionSet.BRCARRY ||
-                            jumpInstruction.instruction == J5InstructionSet.BRZERO) {
-                            j5InstructionPointer += jumpInstruction.arg.getValue() - 1;
-                        } else {
-                            j5InstructionPointer -= (jumpInstruction.arg.getValue() + 1);
-                        }
-                        j5PC.setJustJumped(false);
-                        continue;
+                    J5Instruction jumpInstruction = j5BlockInstructions[currentBlock][j5InstructionPointer-1];
+                    switch (jumpInstruction.instruction) {
+                        case LBRANCH:
+                        case IBRANCH:
+                        case CALL:
+                        case CALLZERO:
+                        case CALLCARRY:
+                            break;
+                        case RETURN:
+                            j5PC.set(pbParser.getNextBlockStart(picoBlazeInstructions, j5PC.get()), true);
+                            break; // Ending unconditional jump
+
+                        default:
+                            int amount;
+                            if (jumpInstruction.instruction == J5InstructionSet.BRCARRY ||
+                                    jumpInstruction.instruction == J5InstructionSet.BRZERO) {
+                                amount = jumpInstruction.arg.getValue() - 1;
+                            } else {
+                                amount = -(jumpInstruction.arg.getValue() + 1);
+                            }
+
+                            if (instruction.instruction == J5InstructionSet.STOP) {
+                                j5PC.set(nextBlock + amount, true); // Conditional ending jump
+                                break;
+
+                            } else {
+                                j5InstructionPointer += amount; // Conditional continuing jump
+                                j5PC.setJustJumped(false);
+                                continue;
+                            }
                     }
-                } else if (instruction.instruction == J5InstructionSet.NOP) {
-                    // NOP implies that there has been an intentionally missed jump
+                    break;
+
+                } else if (instruction.instruction == J5InstructionSet.PASS) {
+                    // PASS implies that there has been an intentionally missed jump
                     break;
                 }
 
@@ -864,10 +895,11 @@ public class Translator {
             if (j5PC.hasJustJumped()) {
                 this.pbPC.set(j5PC.get());
             } else {
-                this.pbPC.increment();
+                this.pbPC.set(nextBlock);
             }
 
             pbPC = this.pbPC.get();
+            System.out.println(J5ScratchPad.getInstance());
         }
 
 //        for (int i=0; i<j5Instructions.length; i++) {
