@@ -147,14 +147,14 @@ public class Translator {
         int optsPerf = 0;
         while (optimisationsPerformed) {
             optimisationsPerformed = singlePassPeepholeOptimiseJ5(instructions);
-            if (optimisationsPerformed) {
-                optsPerf++;
-            }
+            optimisationsPerformed |= removeRedundantStores(instructions);
 
             List<J5Instruction> nopsRemoved = new ArrayList<>();
             for (J5Instruction instruction : instructions) {
                 if (instruction.instruction != J5InstructionSet.NOP) {
                     nopsRemoved.add(instruction);
+                } else {
+                    optimisationsPerformed |= true;
                 }
             }
 
@@ -163,6 +163,34 @@ public class Translator {
 
         System.out.println(optsPerf + " optimisations performed");
         return instructions;
+    }
+
+    private boolean removeRedundantStores(List<J5Instruction> j5Instructions) {
+        boolean optimisationsPerformed = false;
+        for (int i = j5Instructions.size() - 1; i > 0; i--) {
+            J5Instruction storeInstruction = j5Instructions.get(i);
+
+            if (storeInstruction.instruction == J5InstructionSet.STORE) {
+                J5InstructionArgument location = storeInstruction.arg;
+
+                for (int j = i - 1; j >= 0; j--) {
+                    J5Instruction redundantStore = j5Instructions.get(j);
+
+                    if (redundantStore.equals(storeInstruction)) {
+                        // Remove STORE instruction since value hasn't been modified since last use
+                        j5Instructions.set(j, j5Lexer.lex("NOP"));
+                        optimisationsPerformed = true;
+
+                    } else if (redundantStore.instruction == J5InstructionSet.FETCH &&
+                            redundantStore.arg.equals(location)) {
+                        // Location has been fetched since previous STORE so previous STOREs aren't redundant
+                        break;
+                    }
+                }
+            }
+        }
+
+        return optimisationsPerformed;
     }
 
     private J5Instruction[] translateBlock(PBInstruction[] pbInstructions, int blockStart) {
@@ -948,7 +976,7 @@ public class Translator {
 //        }
 //        System.out.println(j5Instructions.length);
 
-        outputCodeToFile(j5Instructions);
+        outputCodeToFile(j5BlockInstructions);
 
         System.out.println(String.format("\nFinished in %d clock cycles", j5Parser.getClockCycles()));
         System.out.println(String.format("With %d memory reads and %d writes", j5ScratchPad.getMemoryReads(),
