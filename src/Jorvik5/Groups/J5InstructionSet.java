@@ -67,6 +67,7 @@ public enum J5InstructionSet {
     OVER,       // Copy 2nd stack to top (XY -> XYX)
     UNDER,      // Duplicate second on stack (XY -> XXY)
     TUCK,       // Copy top to under second (XY -> YXY)
+    TUCK2,      // Copy top to under third (XYZ -> ZXYZ)
     NIP,        // Drop second stack item (XY -> Y)
 
     // Scratch Pad Memory

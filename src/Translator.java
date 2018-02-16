@@ -43,7 +43,7 @@ public class Translator {
 
     private HashSet<J5InstructionSet> increaseStackSize = new HashSet<>(Arrays.asList(
             J5InstructionSet.SSET, J5InstructionSet.FETCH, J5InstructionSet.IFETCH, J5InstructionSet.DUP,
-            J5InstructionSet.OVER, J5InstructionSet.UNDER, J5InstructionSet.TUCK)
+            J5InstructionSet.OVER, J5InstructionSet.UNDER, J5InstructionSet.TUCK, J5InstructionSet.TUCK2)
     );
 
     private HashSet<J5InstructionSet> decreaseStackSize = new HashSet<>(Arrays.asList(
@@ -216,6 +216,12 @@ public class Translator {
                         flattened.set(pair.useLine, j5Lexer.lex("TUCK"));
                         flattened.set(pair.reuseLine, j5Lexer.lex("NOP"));
                         break;
+                    case 3:
+                        // Insert TUCK2 to copy value to bottom
+                        toReAdd.add(new ReAdd(flattened.get(pair.useLine), pair.useLine));
+                        flattened.set(pair.useLine, j5Lexer.lex("TUCK2"));
+                        flattened.set(pair.reuseLine, j5Lexer.lex("NOP"));
+                        break;
                     default:
                         // Stack too large to copy to bottom (unless another instruction is added)
                         System.out.println("Stack too large to copy to bottom, aborting.");
@@ -248,6 +254,20 @@ public class Translator {
                 } else if (flattened.get(i).instruction == J5InstructionSet.SWAP &&
                         flattened.get(i+1).instruction == J5InstructionSet.ADD) {
                     flattened.set(i, j5Lexer.lex("NOP"));
+                    optimisationsPerformed = true;
+                    optsPerf++;
+
+                } else if (flattened.get(i).instruction == J5InstructionSet.TUCK &&
+                        flattened.get(i+1).instruction == J5InstructionSet.DROP) {
+                    flattened.set(i, j5Lexer.lex("SWAP"));
+                    flattened.set(i+1, j5Lexer.lex("NOP"));
+                    optimisationsPerformed = true;
+                    optsPerf++;
+
+                } else if (flattened.get(i).instruction == J5InstructionSet.TUCK2 &&
+                        flattened.get(i+1).instruction == J5InstructionSet.DROP) {
+                    flattened.set(i, j5Lexer.lex("ROT"));
+                    flattened.set(i+1, j5Lexer.lex("NOP"));
                     optimisationsPerformed = true;
                     optsPerf++;
 

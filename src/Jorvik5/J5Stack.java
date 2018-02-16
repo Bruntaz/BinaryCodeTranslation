@@ -83,6 +83,13 @@ public class J5Stack {
         ROT();
     }
 
+    void TUCK2() {
+        DUP();
+        int top = pop();
+        ROT();
+        push(top);
+    }
+
     void NIP() {
         SWAP();
         DROP();

@@ -248,6 +248,9 @@ public class J5Parser {
             case TUCK:
                 stack.TUCK();
                 break;
+            case TUCK2:
+                stack.TUCK2();
+                break;
             case NIP:
                 stack.NIP();
                 break;
