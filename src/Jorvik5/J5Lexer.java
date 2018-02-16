@@ -21,7 +21,7 @@ public class J5Lexer {
             J5InstructionSet.SSET, J5InstructionSet.BRANCH, J5InstructionSet.SBRANCH, J5InstructionSet.BRZERO,
             J5InstructionSet.SBRZERO, J5InstructionSet.BRCARRY, J5InstructionSet.SBRCARRY, J5InstructionSet.LBRANCH,
             J5InstructionSet.CALL, J5InstructionSet.CALLZERO, J5InstructionSet.CALLCARRY, J5InstructionSet.FETCH,
-            J5InstructionSet.STORE)
+            J5InstructionSet.STORE, J5InstructionSet.STOREDROP)
     );
 
     /*
@@ -66,6 +66,7 @@ public class J5Lexer {
                 return new J5AbsoluteAddress(intArg - 1);
             case FETCH:
             case STORE:
+            case STOREDROP:
                 return new J5AbsoluteAddress(intArg);
         }
 

@@ -49,7 +49,7 @@ public class Translator {
     private HashSet<J5InstructionSet> decreaseStackSize = new HashSet<>(Arrays.asList(
             J5InstructionSet.AND, J5InstructionSet.OR, J5InstructionSet.XOR, J5InstructionSet.ADD,
             J5InstructionSet.ADDCY, J5InstructionSet.SUB, J5InstructionSet.SUBCY, J5InstructionSet.DROP,
-            J5InstructionSet.NIP)
+            J5InstructionSet.NIP, J5InstructionSet.STOREDROP)
     );
 
     private HashSet<J5InstructionSet> constantStackSize = new HashSet<>(Arrays.asList(
@@ -267,6 +267,13 @@ public class Translator {
                 } else if (flattened.get(i).instruction == J5InstructionSet.TUCK2 &&
                         flattened.get(i+1).instruction == J5InstructionSet.DROP) {
                     flattened.set(i, j5Lexer.lex("ROT"));
+                    flattened.set(i+1, j5Lexer.lex("NOP"));
+                    optimisationsPerformed = true;
+                    optsPerf++;
+
+                } else if (flattened.get(i).instruction == J5InstructionSet.STORE &&
+                        flattened.get(i+1).instruction == J5InstructionSet.DROP) {
+                    flattened.get(i).instruction = J5InstructionSet.STOREDROP;
                     flattened.set(i+1, j5Lexer.lex("NOP"));
                     optimisationsPerformed = true;
                     optsPerf++;
@@ -771,7 +778,7 @@ public class Translator {
         return file;
     }
 
-    private void outputCodeToFile(J5Instruction[][] j5Instructions) {
+    private void outputCodeToFile(J5Instruction[][] j5Instructions, String filename) {
         StringBuilder outputString = new StringBuilder();
 
         for (J5Instruction[] instructionGroup : j5Instructions) {
@@ -780,7 +787,7 @@ public class Translator {
             }
 
             for (J5Instruction instruction : instructionGroup) {
-                if (instruction == null) {
+                if (instruction == null || instruction.instruction == J5InstructionSet.NOP) {
                     continue;
                 }
                 outputString.append(instruction.toString());
@@ -789,7 +796,7 @@ public class Translator {
         }
 
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter("src/TestCode/Output.j5a"));
+            BufferedWriter writer = new BufferedWriter(new FileWriter("src/TestCode/" + filename + ".j5a"));
             writer.write(outputString.toString());
             writer.close();
 
@@ -927,7 +934,8 @@ public class Translator {
 //        }
 //        System.out.println(j5Instructions.length);
 
-        outputCodeToFile(j5Instructions);
+        outputCodeToFile(j5Instructions, "Output");
+        outputCodeToFile(j5BlockInstructions, "Optimised Output");
 
         System.out.println(String.format("\nFinished in %d clock cycles", j5Parser.getClockCycles()));
         System.out.println(String.format("With %d memory reads and %d writes", j5ScratchPad.getMemoryReads(),

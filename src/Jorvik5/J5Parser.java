@@ -268,6 +268,10 @@ public class J5Parser {
             case ISTORE:
                 scratchPad.ISTORE();
                 break;
+            case STOREDROP:
+                scratchPad.STORE(instruction.arg.getValue());
+                stack.DROP();
+                break;
 
             default:
                 throw new Error("Instruction " + instruction.instruction + " not supported yet.");

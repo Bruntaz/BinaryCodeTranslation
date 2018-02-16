@@ -1,0 +1,118 @@
+initialiseMemory:
+    SSET 2
+    STORE 0
+    SSET 5
+    STORE 1
+    SWAP
+    SSET 1
+    STORE 2
+    ROT
+    SSET 3
+    STOREDROP 3
+    SSET 4
+    STOREDROP 4
+    STOREDROP 20
+    STOREDROP 21
+    STOREDROP 22
+    FETCH 3
+    STOREDROP 23
+    FETCH 4
+    STOREDROP 24
+    LBRANCH 32
+    STOP
+
+loadRegisters:
+    FETCH 2
+    DUP
+    SSET 20
+    ADD
+    IFETCH
+    STOREDROP 0
+    DROP
+    SSET 1
+    ADD
+    STORE 2
+    SSET 20
+    ADD
+    IFETCH
+    STOREDROP 1
+    DROP
+    RETURN
+    STOP
+
+swapRegisters:
+    FETCH 0
+    FETCH 1
+    COMPARE
+    DROP
+    DROP
+    CALLCARRY 1c
+    STOP
+    RETURN
+    STOP
+
+    shouldSwap:
+        FETCH 3
+        SSET 1
+        ADD
+        STOREDROP 3
+        FETCH 0
+        FETCH 2
+        SSET 20
+        ADD
+        ISTORE
+        DROP
+        DROP
+        FETCH 2
+        SSET 1
+        SUB
+        STORE 2
+        FETCH 1
+        SWAP
+        SSET 20
+        ADD
+        ISTORE
+        DROP
+        DROP
+        FETCH 2
+        SSET 1
+        ADD
+        STOREDROP 2
+        RETURN
+        STOP
+
+loopThrough:
+    SSET 0
+    STOREDROP 2
+    SSET 0
+    STOREDROP 3
+
+    loop:
+        CALL 11
+        STOP
+        CALL 17
+        STOP
+        SSET 4
+        FETCH 2
+        COMPARE
+        DROP
+        DROP
+        BRCARRY 2
+        PASS
+        LBRANCH 28
+        STOP
+
+    SSET ff
+    FETCH 3
+    TEST
+    DROP
+    DROP
+    BRZERO 2
+    LBRANCH 24
+    STOP
+    RETURN
+    STOP
+
+main:
+    CALL 24
+    STOP

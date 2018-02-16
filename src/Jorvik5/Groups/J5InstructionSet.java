@@ -75,4 +75,5 @@ public enum J5InstructionSet {
     IFETCH,     // Indirect fetch (location from TOS)
     STORE,      // Write top of stack to memory
     ISTORE,     // Indirect store (location from TOS)
+    STOREDROP,  // STORE followed by DROP
 }
