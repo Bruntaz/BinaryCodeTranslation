@@ -126,6 +126,14 @@ public class Translator {
                 j5Instructions.set(i+1, j5Lexer.lex("NOP"));
                 optimisationsPerformed = true;
 
+            } else if ((j5Instructions.get(i).instruction == J5InstructionSet.ROT &&
+                    j5Instructions.get(i+1).instruction == J5InstructionSet.RROT) ||
+                    (j5Instructions.get(i).instruction == J5InstructionSet.RROT &&
+                    j5Instructions.get(i+1).instruction == J5InstructionSet.ROT)) {
+                j5Instructions.set(i, j5Lexer.lex("NOP"));
+                j5Instructions.set(i+1, j5Lexer.lex("NOP"));
+                optimisationsPerformed = true;
+
             } // else if TUCK then STORE then ADD becomes SWAP then STORE then ADD
         }
 
@@ -368,6 +376,13 @@ public class Translator {
                             j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
                             j5Lexer.lex("DROP"),
                     };
+                } else if (arg1.getIntValue() == 1) {
+                    return new J5Instruction[]{
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("INC"),
+                            j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("DROP"),
+                    };
                 } else {
                     return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
@@ -401,6 +416,13 @@ public class Translator {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
                             j5Lexer.lex("SUB"),
+                            j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("DROP"),
+                    };
+                } else if (arg1.getIntValue() == 1) {
+                    return new J5Instruction[]{
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("DEC"),
                             j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
                             j5Lexer.lex("DROP"),
                     };
@@ -800,6 +822,8 @@ public class Translator {
         PBInstruction[] instructions = pbLexer.lex(file);
 
         pbParser.parse(instructions);
+        System.out.println(String.format("With %d memory reads and %d writes", PBScratchPad.getInstance().getMemoryReads(),
+                PBScratchPad.getInstance().getMemoryWrites()));
         System.out.println(PBScratchPad.getInstance());
     }
 
@@ -809,6 +833,8 @@ public class Translator {
         J5Instruction[] instructions = j5Lexer.lex(file);
 
         j5Parser.parse(instructions);
+        System.out.println(String.format("With %d memory reads and %d writes", J5ScratchPad.getInstance().getMemoryReads(),
+                J5ScratchPad.getInstance().getMemoryWrites()));
         System.out.println(J5ScratchPad.getInstance());
     }
 

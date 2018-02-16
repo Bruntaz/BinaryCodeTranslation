@@ -11,6 +11,14 @@ public class PBScratchPad {
 
     private int memorySize;
     private int[] memory;
+    private int memoryReads;
+    private int memoryWrites;
+
+    public void setMemoryReads(int newReads) { memoryReads = newReads; }
+    public void setMemoryWrites(int newWrites) { memoryWrites = newWrites; }
+    public int getMemoryReads() { return memoryReads; }
+    public int getMemoryWrites() { return memoryWrites; }
+
 
     public int getMemorySize() {
         return memorySize;
@@ -43,6 +51,8 @@ public class PBScratchPad {
 
     public void reset() {
         setMemorySize(64);
+        setMemoryReads(0);
+        setMemoryWrites(0);
     }
 
     @Override
