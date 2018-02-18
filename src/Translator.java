@@ -245,7 +245,7 @@ public class Translator {
             int reuseStackSize = 0;
 
             // Find stack depth at use and reuse line for this pair
-            for (int i = 0; i < pair.reuseLine; i++) {
+            for (int i = 0; i <= pair.reuseLine; i++) {
                 J5Instruction instruction = flattened.get(i);
 
                 if (increaseStackSize.contains(instruction.instruction)) {
@@ -265,10 +265,10 @@ public class Translator {
             }
 
             // If stack sizes are small enough insert optimisations
-            if (reuseStackSize < 3) {
-                if (reuseStackSize == 1) {
+            if (reuseStackSize <= 3) {
+                if (reuseStackSize == 2) {
                     toReAdd.add(new ReAdd(j5Lexer.lex("SWAP"), pair.reuseLine));
-                } else if (reuseStackSize == 2) {
+                } else if (reuseStackSize == 3) {
                     toReAdd.add(new ReAdd(j5Lexer.lex("RROT"), pair.reuseLine));
                 }
 
