@@ -156,7 +156,7 @@ public class Translator {
         List<J5Instruction> instructions = j5Instructions;
 
         boolean optimisationsPerformed = true;
-        int optsPerf = 0;
+
         while (optimisationsPerformed) {
             optimisationsPerformed = singlePassPeepholeOptimiseJ5(instructions);
             optimisationsPerformed |= removeRedundantStores(instructions);
@@ -173,7 +173,6 @@ public class Translator {
             instructions = nopsRemoved;
         }
 
-        System.out.println(optsPerf + " optimisations performed");
         return instructions;
     }
 
@@ -205,121 +204,135 @@ public class Translator {
         return optimisationsPerformed;
     }
 
+    private boolean optimiseKoopmanPair(List<J5Instruction> j5Instructions, Pair pair) {
+        boolean optimisationsPerformed = false;
+        int useStackSize = 0;
+        int reuseStackSize = 0;
+
+        // Find stack depth at use and reuse line for this pair
+        for (int i = 0; i <= pair.reuseLine; i++) {
+            J5Instruction instruction = j5Instructions.get(i);
+
+            if (increaseStackSize.contains(instruction.instruction)) {
+                if (i <= pair.useLine) {
+                    useStackSize++;
+                }
+                reuseStackSize++;
+            } else if (decreaseStackSize.contains(instruction.instruction)) {
+                if (i <= pair.useLine) {
+                    useStackSize--;
+                }
+                reuseStackSize--;
+            } else if (!constantStackSize.contains(instruction.instruction)) {
+                throw new Error("Instruction " + instruction.instruction + " leaves stack at unknown size. " +
+                        "Please add it to the relevant set.");
+            }
+        }
+
+        // If stack sizes are small enough insert optimisations
+        if (reuseStackSize <= 3 && useStackSize <= 3) {
+            J5Instruction reuseInstruction;
+            switch (reuseStackSize) {
+                case 1:
+                    reuseInstruction = new J5Instruction(J5InstructionSet.NOP, null);
+                    break;
+                case 2:
+                    reuseInstruction = new J5Instruction(J5InstructionSet.SWAP, null);
+                    break;
+                case 3:
+                    reuseInstruction = new J5Instruction(J5InstructionSet.RROT, null);
+                    break;
+                default:
+                    throw new Error("This means the reuse stack size is < 1, which should be impossible.");
+            }
+
+            J5Instruction useInstruction = j5Instructions.get(pair.useLine);
+            switch (useStackSize) {
+                case 0:
+                    throw new Error("Stack size 0 in use statement. This should never happen because the reuse " +
+                            "FETCH increases stack size.");
+                case 1:
+                    // Insert DUP to copy value to bottom
+                    j5Instructions.set(pair.reuseLine, reuseInstruction);
+                    j5Instructions.set(pair.useLine, j5Lexer.lex("DUP"));
+                    j5Instructions.add(pair.useLine, useInstruction);
+                    optimisationsPerformed = true;
+                    break;
+                case 2:
+                    // Insert TUCK to copy value to bottom
+                    j5Instructions.set(pair.reuseLine, reuseInstruction);
+                    j5Instructions.set(pair.useLine, j5Lexer.lex("TUCK"));
+                    j5Instructions.add(pair.useLine, useInstruction);
+                    optimisationsPerformed = true;
+                    break;
+                case 3:
+                    // Insert TUCK2 to copy value to bottom
+                    j5Instructions.set(pair.reuseLine, reuseInstruction);
+                    j5Instructions.set(pair.useLine, j5Lexer.lex("TUCK2"));
+                    j5Instructions.add(pair.useLine, useInstruction);
+                    optimisationsPerformed = true;
+                    break;
+            }
+        }
+
+        return optimisationsPerformed;
+    }
+
     private J5Instruction[] translateBlock(PBInstruction[] pbInstructions, int blockStart) {
         List<J5Instruction> flattened = getFlattenedInstructionBlock(pbInstructions, blockStart);
-        List<Pair> pairs = new ArrayList<>();
 
         // Algorithm step 1: Get pairs where variables can be reused
         // This goes through the program to find FETCH commands and then finds the last use of the variable (STORE or
         // FETCH). It doesn't support searching for the last time the variable was used on the stack (currently)
         // because the naive translation will always load the variable in directly before anyway.
-        for (int i = 0; i < flattened.size(); i++) {
-            J5Instruction fetchInstruction = flattened.get(i);
+        boolean optimisationsPerformed = true;
+//        int iterations = 0;
+        System.out.println("  Initial: " + Arrays.toString(flattened.toArray()));
+        while (optimisationsPerformed) {
+            optimisationsPerformed = false;
 
-            if (fetchInstruction.instruction == J5InstructionSet.FETCH) {
-                J5InstructionArgument location = fetchInstruction.arg;
+            List<Pair> pairs = new ArrayList<>();
+            for (int i = 0; i < flattened.size(); i++) {
+                J5Instruction fetchInstruction = flattened.get(i);
 
-                for (int j = i - 1; j >= 0; j--) {
-                    J5Instruction storeInstruction = flattened.get(j);
+                if (fetchInstruction.instruction == J5InstructionSet.FETCH) {
+                    J5InstructionArgument location = fetchInstruction.arg;
 
-                    if (storeInstruction.instruction == J5InstructionSet.ISTORE) {
-                        break; // If an ISTORE is between the pair, do not optimise
-                    }
+                    for (int j = i - 1; j >= 0; j--) {
+                        J5Instruction storeInstruction = flattened.get(j);
 
-                    if (location.equals(storeInstruction.arg)) {
-                        pairs.add(new Pair(j, i, location));
-                        break;
+                        if (storeInstruction.instruction == J5InstructionSet.ISTORE) {
+                            break; // If an ISTORE is between the pair, do not optimise
+                        }
+
+                        if (location.equals(storeInstruction.arg)) {
+                            pairs.add(new Pair(j, i, location));
+                            break;
+                        }
                     }
                 }
             }
-        }
 
-        // Algorithm step 2: Candidates for stack scheduling (use/reuse pairs) are ranked in order of ascending distance
-//        System.out.println("Pair array: " + Arrays.toString(pairs.toArray()));
-        Collections.sort(pairs);
-//        System.out.println("Pair array sorted: " + Arrays.toString(pairs.toArray()));
+            // Algorithm step 2: Candidates for stack scheduling (use/reuse pairs) are ranked in order of ascending distance
+//            System.out.println("Pair array: " + Arrays.toString(pairs.toArray()));
+            Collections.sort(pairs);
+//            System.out.println("Pair array sorted: " + Arrays.toString(pairs.toArray()));
 
-        System.out.println("     Original: " + Arrays.toString(flattened.toArray()));
-
-        // Check that conditions are met
-        // Conditions for each pair are:
-        // - Register of interest must be able to be copied to the bottom of the stack (DUP, TUCK, UNDER, TUCK2)
-        // - Stack depth at fetch instruction must be 2 or less (so copied varible can be SWAPped or ROTated into place)
-        List<ReAdd> toReAdd = new ArrayList<>();
-        for (Pair pair : pairs) {
-            int useStackSize = 0;
-            int reuseStackSize = 0;
-
-            // Find stack depth at use and reuse line for this pair
-            for (int i = 0; i < pair.reuseLine; i++) {
-                J5Instruction instruction = flattened.get(i);
-
-                if (increaseStackSize.contains(instruction.instruction)) {
-                    if (i <= pair.useLine) {
-                        useStackSize++;
-                    }
-                    reuseStackSize++;
-                } else if (decreaseStackSize.contains(instruction.instruction)) {
-                    if (i <= pair.useLine) {
-                        useStackSize--;
-                    }
-                    reuseStackSize--;
-                } else if (!constantStackSize.contains(instruction.instruction)) {
-                    throw new Error("Instruction " + instruction.instruction + " leaves stack at unknown size. " +
-                            "Please add it to the relevant set.");
+            for (Pair pair : pairs) {
+                optimisationsPerformed = optimiseKoopmanPair(flattened, pair);
+                if (optimisationsPerformed) {
+                    // If any optimisations have been performed, recalculate all pairs to update line numbers
+                    break;
                 }
             }
 
-            // If stack sizes are small enough insert optimisations
-            if (reuseStackSize < 3) {
-                if (reuseStackSize == 1) {
-                    toReAdd.add(new ReAdd(j5Lexer.lex("SWAP"), pair.reuseLine));
-                } else if (reuseStackSize == 2) {
-                    toReAdd.add(new ReAdd(j5Lexer.lex("RROT"), pair.reuseLine));
-                }
-
-                switch (useStackSize) {
-                    case 0:
-                        throw new Error("Stack size 0 in use statement. This should never happen because the reuse " +
-                                        "FETCH increases stack size.");
-                    case 1:
-                        // Insert DUP to copy value to bottom
-                        toReAdd.add(new ReAdd(flattened.get(pair.useLine), pair.useLine));
-                        flattened.set(pair.useLine, j5Lexer.lex("DUP"));
-                        flattened.set(pair.reuseLine, j5Lexer.lex("NOP"));
-                        break;
-                    case 2:
-                        // Insert TUCK to copy value to bottom
-                        toReAdd.add(new ReAdd(flattened.get(pair.useLine), pair.useLine));
-                        flattened.set(pair.useLine, j5Lexer.lex("TUCK"));
-                        flattened.set(pair.reuseLine, j5Lexer.lex("NOP"));
-                        break;
-                    case 3:
-                        // Insert TUCK2 to copy value to bottom
-                        toReAdd.add(new ReAdd(flattened.get(pair.useLine), pair.useLine));
-                        flattened.set(pair.useLine, j5Lexer.lex("TUCK2"));
-                        flattened.set(pair.reuseLine, j5Lexer.lex("NOP"));
-                        break;
-                    default:
-                        // Stack too large to copy to bottom (unless another instruction is added)
-                        System.out.println("Stack too large to copy to bottom, aborting.");
-                        break;
-                }
-            }
+//            System.out.println("Optimisations performed for " + iterations++ + " loops.");
+//            System.out.println("Current state: " + Arrays.toString(flattened.toArray()));
         }
-//        System.out.println("Stack managed: " + Arrays.toString(flattened.toArray()));
-
-        // Re-add removed FETCH & STORE lines
-        toReAdd.sort(Collections.reverseOrder()); // Reverse order to not require offset
-        for (ReAdd reAdd : toReAdd) {
-            flattened.add(reAdd.originalLine, reAdd.instruction);
-        }
-//        System.out.println("     Re-added: " + Arrays.toString(flattened.toArray()));
-
 
         // Algorithm step 3: Peephole optimisation
         flattened = peepholeOptimiseJ5(flattened);
-        System.out.println("    Optimised: " + Arrays.toString(flattened.toArray()));
+        System.out.println("Optimised: " + Arrays.toString(flattened.toArray()));
 
         J5Instruction[] flattenedArray = new J5Instruction[flattened.size()];
         flattened.toArray(flattenedArray);
