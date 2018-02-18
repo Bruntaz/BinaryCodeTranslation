@@ -76,7 +76,7 @@ public class Translator {
         return translateRegisterIntoMemory(register, 0);
     }
 
-    private J5Instruction[] translateBlock(PBInstruction[] pbInstructions, int blockStart) {
+    private List<J5Instruction> getFlattenedInstructionBlock(PBInstruction[] pbInstructions, int blockStart) {
         int nextBlockStart = pbParser.getNextBlockStart(pbInstructions, blockStart);
 
         J5Instruction[][] naivelyTranslated = new J5Instruction[nextBlockStart - blockStart][];
@@ -91,34 +91,128 @@ public class Translator {
             flattened.addAll(Arrays.asList(j5Instructions));
         }
 
-        // TODO: Get this to remove redundant code
-        class Pair implements Comparable<Pair> { // TODO: Clean this shit up
-            int reuseLine;
-            int useLine;
-            int lineDistance;
-            J5InstructionArgument registerLocation;
+        return flattened;
+    }
 
-            public Pair(int fLine, int sLine, J5InstructionArgument rLocation) {
-                reuseLine = fLine;
-                useLine = sLine;
-                lineDistance = fLine - sLine;
-                registerLocation = rLocation;
+    private boolean singlePassPeepholeOptimiseJ5(List<J5Instruction> j5Instructions) {
+        boolean optimisationsPerformed = false;
+        for (int i = 0; i < j5Instructions.size() - 1; i++) {
+            if (j5Instructions.get(i).instruction == J5InstructionSet.DUP &&
+                    j5Instructions.get(i+1).instruction == J5InstructionSet.DROP) {
+                j5Instructions.set(i, j5Lexer.lex("NOP"));
+                j5Instructions.set(i+1, j5Lexer.lex("NOP"));
+                optimisationsPerformed = true;
+
+            } else if (j5Instructions.get(i).instruction == J5InstructionSet.SWAP &&
+                    j5Instructions.get(i+1).instruction == J5InstructionSet.ADD) {
+                j5Instructions.set(i, j5Lexer.lex("NOP"));
+                optimisationsPerformed = true;
+
+            } else if (j5Instructions.get(i).instruction == J5InstructionSet.TUCK &&
+                    j5Instructions.get(i+1).instruction == J5InstructionSet.DROP) {
+                j5Instructions.set(i, j5Lexer.lex("SWAP"));
+                j5Instructions.set(i+1, j5Lexer.lex("NOP"));
+                optimisationsPerformed = true;
+
+            } else if (j5Instructions.get(i).instruction == J5InstructionSet.TUCK2 &&
+                    j5Instructions.get(i+1).instruction == J5InstructionSet.DROP) {
+                j5Instructions.set(i, j5Lexer.lex("ROT"));
+                j5Instructions.set(i+1, j5Lexer.lex("NOP"));
+                optimisationsPerformed = true;
+
+            } else if (j5Instructions.get(i).instruction == J5InstructionSet.SWAP &&
+                    j5Instructions.get(i+1).instruction == J5InstructionSet.SWAP) {
+                j5Instructions.set(i, j5Lexer.lex("NOP"));
+                j5Instructions.set(i+1, j5Lexer.lex("NOP"));
+                optimisationsPerformed = true;
+
+            } else if ((j5Instructions.get(i).instruction == J5InstructionSet.ROT &&
+                    j5Instructions.get(i+1).instruction == J5InstructionSet.RROT) ||
+                    (j5Instructions.get(i).instruction == J5InstructionSet.RROT &&
+                    j5Instructions.get(i+1).instruction == J5InstructionSet.ROT)) {
+                j5Instructions.set(i, j5Lexer.lex("NOP"));
+                j5Instructions.set(i+1, j5Lexer.lex("NOP"));
+                optimisationsPerformed = true;
+
+            } else if (j5Instructions.get(i).instruction == J5InstructionSet.SSET &&
+                    j5Instructions.get(i+1).instruction == J5InstructionSet.DROP) {
+                j5Instructions.set(i, j5Lexer.lex("NOP"));
+                j5Instructions.set(i+1, j5Lexer.lex("NOP"));
+                optimisationsPerformed = true;
+
+            }  else if (j5Instructions.get(i).instruction == J5InstructionSet.STORE &&
+                    j5Instructions.get(i+1).instruction == J5InstructionSet.DROP) {
+                j5Instructions.get(i).instruction = J5InstructionSet.STOREDROP;
+                j5Instructions.set(i+1, j5Lexer.lex("NOP"));
+                optimisationsPerformed = true;
+
+            } // else if TUCK then STORE then ADD becomes SWAP then STORE then ADD
+        }
+
+        return optimisationsPerformed;
+    }
+
+    private List<J5Instruction> peepholeOptimiseJ5(List<J5Instruction> j5Instructions) {
+        List<J5Instruction> instructions = j5Instructions;
+
+        boolean optimisationsPerformed = true;
+        int optsPerf = 0;
+        while (optimisationsPerformed) {
+            optimisationsPerformed = singlePassPeepholeOptimiseJ5(instructions);
+            optimisationsPerformed |= removeRedundantStores(instructions);
+
+            List<J5Instruction> nopsRemoved = new ArrayList<>();
+            for (J5Instruction instruction : instructions) {
+                if (instruction.instruction != J5InstructionSet.NOP) {
+                    nopsRemoved.add(instruction);
+                } else {
+                    optimisationsPerformed |= true;
+                }
             }
 
-            public String toString() {
-                return "Pair(reuseLine: " + reuseLine + ", useLine: " + useLine + ", registerLocation: " +
-                        registerLocation.getValue() + ")";
-            }
+            instructions = nopsRemoved;
+        }
 
-            @Override
-            public int compareTo(Pair o) {
-                return lineDistance - o.lineDistance;
+        System.out.println(optsPerf + " optimisations performed");
+        return instructions;
+    }
+
+    private boolean removeRedundantStores(List<J5Instruction> j5Instructions) {
+        boolean optimisationsPerformed = false;
+        for (int i = j5Instructions.size() - 1; i > 0; i--) {
+            J5Instruction storeInstruction = j5Instructions.get(i);
+
+            if (storeInstruction.instruction == J5InstructionSet.STORE) {
+                J5InstructionArgument location = storeInstruction.arg;
+
+                for (int j = i - 1; j >= 0; j--) {
+                    J5Instruction redundantStore = j5Instructions.get(j);
+
+                    if (redundantStore.equals(storeInstruction)) {
+                        // Remove STORE instruction since value hasn't been modified since last use
+                        j5Instructions.set(j, j5Lexer.lex("NOP"));
+                        optimisationsPerformed = true;
+
+                    } else if (redundantStore.instruction == J5InstructionSet.FETCH &&
+                            redundantStore.arg.equals(location)) {
+                        // Location has been fetched since previous STORE so previous STOREs aren't redundant
+                        break;
+                    }
+                }
             }
         }
 
+        return optimisationsPerformed;
+    }
+
+    private J5Instruction[] translateBlock(PBInstruction[] pbInstructions, int blockStart) {
+        List<J5Instruction> flattened = getFlattenedInstructionBlock(pbInstructions, blockStart);
         List<Pair> pairs = new ArrayList<>();
 
-        // Algorithm step 1: get pairs where variables can be reused
+        // Algorithm step 1: Get pairs where variables can be reused
+        // This goes through the program to find FETCH commands and then finds the last use of the variable (STORE or
+        // FETCH). It doesn't support searching for the last time the variable was used on the stack (currently)
+        // because the naive translation will always load the variable in directly before anyway.
         for (int i = 0; i < flattened.size(); i++) {
             J5Instruction fetchInstruction = flattened.get(i);
 
@@ -133,44 +227,30 @@ public class Translator {
                     }
 
                     if (location.equals(storeInstruction.arg)) {
-                        pairs.add(new Pair(i, j, location));
+                        pairs.add(new Pair(j, i, location));
                         break;
                     }
                 }
             }
         }
 
-        // Algorithm step 2: candidates for stack scheduling (use/reuse pairs) are ranked in order of ascending distance
-        System.out.println("Pair array: " + Arrays.toString(pairs.toArray()));
+        // Algorithm step 2: Candidates for stack scheduling (use/reuse pairs) are ranked in order of ascending distance
+//        System.out.println("Pair array: " + Arrays.toString(pairs.toArray()));
         Collections.sort(pairs);
-        System.out.println("Pair array sorted: " + Arrays.toString(pairs.toArray()));
+//        System.out.println("Pair array sorted: " + Arrays.toString(pairs.toArray()));
 
         System.out.println("     Original: " + Arrays.toString(flattened.toArray()));
 
-        class ReAdd implements Comparable<ReAdd> { // TODO: Clean this shit up too
-            J5Instruction instruction;
-            int originalLine;
-
-            public ReAdd(J5Instruction ins, int line) {
-                instruction = ins;
-                originalLine = line;
-            }
-
-            @Override
-            public int compareTo(ReAdd o) {
-                return originalLine - o.originalLine;
-            }
-        }
-
         // Check that conditions are met
         // Conditions for each pair are:
-        // - Register of interest must be able to be copied to the bottom of the stack (DUP, TUCK, UNDER, TUCK_2)
+        // - Register of interest must be able to be copied to the bottom of the stack (DUP, TUCK, UNDER, TUCK2)
         // - Stack depth at fetch instruction must be 2 or less (so copied varible can be SWAPped or ROTated into place)
         List<ReAdd> toReAdd = new ArrayList<>();
         for (Pair pair : pairs) {
             int useStackSize = 0;
             int reuseStackSize = 0;
 
+            // Find stack depth at use and reuse line for this pair
             for (int i = 0; i < pair.reuseLine; i++) {
                 J5Instruction instruction = flattened.get(i);
 
@@ -190,22 +270,20 @@ public class Translator {
                 }
             }
 
+            // If stack sizes are small enough insert optimisations
             if (reuseStackSize < 3) {
                 if (reuseStackSize == 1) {
                     toReAdd.add(new ReAdd(j5Lexer.lex("SWAP"), pair.reuseLine));
                 } else if (reuseStackSize == 2) {
-                    toReAdd.add(new ReAdd(j5Lexer.lex("ROT"), pair.reuseLine)); // TODO: Check this shouldn't be RROT
+                    toReAdd.add(new ReAdd(j5Lexer.lex("RROT"), pair.reuseLine));
                 }
 
-                // Stack is small enough to do an optimisation
-                // TODO: Do the operation here so on the next loop, the stack size will take into account the extra size
                 switch (useStackSize) {
                     case 0:
-                        // This should never happen
-                        throw new Error("Stack size 0 in use statement. This should never happen.");
+                        throw new Error("Stack size 0 in use statement. This should never happen because the reuse " +
+                                        "FETCH increases stack size.");
                     case 1:
                         // Insert DUP to copy value to bottom
-                        // Peephole optimiser will remove DUP DROP and NOP
                         toReAdd.add(new ReAdd(flattened.get(pair.useLine), pair.useLine));
                         flattened.set(pair.useLine, j5Lexer.lex("DUP"));
                         flattened.set(pair.reuseLine, j5Lexer.lex("NOP"));
@@ -229,61 +307,19 @@ public class Translator {
                 }
             }
         }
-        System.out.println("Stack managed: " + Arrays.toString(flattened.toArray()));
+//        System.out.println("Stack managed: " + Arrays.toString(flattened.toArray()));
 
         // Re-add removed FETCH & STORE lines
         toReAdd.sort(Collections.reverseOrder()); // Reverse order to not require offset
         for (ReAdd reAdd : toReAdd) {
             flattened.add(reAdd.originalLine, reAdd.instruction);
         }
-        System.out.println("     Re-added: " + Arrays.toString(flattened.toArray()));
+//        System.out.println("     Re-added: " + Arrays.toString(flattened.toArray()));
+
 
         // Algorithm step 3: Peephole optimisation
-        boolean optimisationsPerformed = true;
-        int optsPerf = 0;
-        while (optimisationsPerformed) {
-            optimisationsPerformed = false;
-            for (int i = 0; i < flattened.size() - 1; i++) {
-                if (flattened.get(i).instruction == J5InstructionSet.DUP &&
-                        flattened.get(i+1).instruction == J5InstructionSet.DROP) {
-                    flattened.set(i, j5Lexer.lex("NOP"));
-                    flattened.set(i+1, j5Lexer.lex("NOP"));
-                    optimisationsPerformed = true;
-                    optsPerf++;
-
-                } else if (flattened.get(i).instruction == J5InstructionSet.SWAP &&
-                        flattened.get(i+1).instruction == J5InstructionSet.ADD) {
-                    flattened.set(i, j5Lexer.lex("NOP"));
-                    optimisationsPerformed = true;
-                    optsPerf++;
-
-                } else if (flattened.get(i).instruction == J5InstructionSet.TUCK &&
-                        flattened.get(i+1).instruction == J5InstructionSet.DROP) {
-                    flattened.set(i, j5Lexer.lex("SWAP"));
-                    flattened.set(i+1, j5Lexer.lex("NOP"));
-                    optimisationsPerformed = true;
-                    optsPerf++;
-
-                } else if (flattened.get(i).instruction == J5InstructionSet.TUCK2 &&
-                        flattened.get(i+1).instruction == J5InstructionSet.DROP) {
-                    flattened.set(i, j5Lexer.lex("ROT"));
-                    flattened.set(i+1, j5Lexer.lex("NOP"));
-                    optimisationsPerformed = true;
-                    optsPerf++;
-
-                } else if (flattened.get(i).instruction == J5InstructionSet.STORE &&
-                        flattened.get(i+1).instruction == J5InstructionSet.DROP) {
-                    flattened.get(i).instruction = J5InstructionSet.STOREDROP;
-                    flattened.set(i+1, j5Lexer.lex("NOP"));
-                    optimisationsPerformed = true;
-                    optsPerf++;
-
-                } // else if TUCK then STORE then ADD becomes SWAP then STORE then ADD
-            }
-        }
-        System.out.println(optsPerf + " optimisations performed");
+        flattened = peepholeOptimiseJ5(flattened);
         System.out.println("    Optimised: " + Arrays.toString(flattened.toArray()));
-        // Remove NOPs
 
         J5Instruction[] flattenedArray = new J5Instruction[flattened.size()];
         flattened.toArray(flattenedArray);
@@ -380,6 +416,13 @@ public class Translator {
                             j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
                             j5Lexer.lex("DROP"),
                     };
+                } else if (arg1.getIntValue() == 1) {
+                    return new J5Instruction[]{
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("INC"),
+                            j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("DROP"),
+                    };
                 } else {
                     return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
@@ -413,6 +456,13 @@ public class Translator {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
                             j5Lexer.lex("SUB"),
+                            j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("DROP"),
+                    };
+                } else if (arg1.getIntValue() == 1) {
+                    return new J5Instruction[]{
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("DEC"),
                             j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
                             j5Lexer.lex("DROP"),
                     };
@@ -812,6 +862,8 @@ public class Translator {
         PBInstruction[] instructions = pbLexer.lex(file);
 
         pbParser.parse(instructions);
+        System.out.println(String.format("With %d memory reads and %d writes", PBScratchPad.getInstance().getMemoryReads(),
+                PBScratchPad.getInstance().getMemoryWrites()));
         System.out.println(PBScratchPad.getInstance());
     }
 
@@ -821,6 +873,8 @@ public class Translator {
         J5Instruction[] instructions = j5Lexer.lex(file);
 
         j5Parser.parse(instructions);
+        System.out.println(String.format("With %d memory reads and %d writes", J5ScratchPad.getInstance().getMemoryReads(),
+                J5ScratchPad.getInstance().getMemoryWrites()));
         System.out.println(J5ScratchPad.getInstance());
     }
 
@@ -933,7 +987,7 @@ public class Translator {
 //            System.out.println(Arrays.toString(j5Instructions[i]) + ", " + picoBlazeInstructions[i].instruction);
 //        }
 //        System.out.println(j5Instructions.length);
-
+        
         outputCodeToFile(j5Instructions, "Output");
         outputCodeToFile(j5BlockInstructions, "Optimised Output");
 
