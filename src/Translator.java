@@ -181,15 +181,23 @@ public class Translator {
         for (int i = j5Instructions.size() - 1; i > 0; i--) {
             J5Instruction storeInstruction = j5Instructions.get(i);
 
-            if (storeInstruction.instruction == J5InstructionSet.STORE) {
+            if (storeInstruction.instruction == J5InstructionSet.STORE ||
+                storeInstruction.instruction == J5InstructionSet.STOREDROP) {
                 J5InstructionArgument location = storeInstruction.arg;
 
                 for (int j = i - 1; j >= 0; j--) {
                     J5Instruction redundantStore = j5Instructions.get(j);
 
-                    if (redundantStore.equals(storeInstruction)) {
+                    if (redundantStore.instruction == J5InstructionSet.STORE &&
+                        redundantStore.arg.equals(location)) {
                         // Remove STORE instruction since value hasn't been modified since last use
                         j5Instructions.set(j, j5Lexer.lex("NOP"));
+                        optimisationsPerformed = true;
+
+                    } else if (redundantStore.instruction == J5InstructionSet.STOREDROP &&
+                        redundantStore.arg.equals(location)) {
+                        // Replace STOREDROP instruction since value hasn't been modified since last use
+                        j5Instructions.set(j, j5Lexer.lex("DROP"));
                         optimisationsPerformed = true;
 
                     } else if (redundantStore.instruction == J5InstructionSet.FETCH &&
@@ -197,6 +205,17 @@ public class Translator {
                         // Location has been fetched since previous STORE so previous STOREs aren't redundant
                         break;
                     }
+
+//                    if (redundantStore.equals(storeInstruction)) {
+//                        // Remove STORE instruction since value hasn't been modified since last use
+//                        j5Instructions.set(j, j5Lexer.lex("NOP"));
+//                        optimisationsPerformed = true;
+//
+//                    } else if (redundantStore.instruction == J5InstructionSet.FETCH &&
+//                            redundantStore.arg.equals(location)) {
+//                        // Location has been fetched since previous STORE so previous STOREs aren't redundant
+//                        break;
+//                    }
                 }
             }
         }
