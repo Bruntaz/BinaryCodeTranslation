@@ -1,0 +1,44 @@
+; Registers s0 and s1 will be used to compare the values
+; Register s2 will be used to store the address
+; Register s3 will be used to track swaps
+
+initialiseMemory:
+    JUMP main
+
+shouldSwap:
+    ADD s3, 1
+    STORE s0, s2        ; Store s0 in s1's position
+    SUB s2, 1
+    STORE s1, s2        ; Store s1 in s0's position
+    ADD s2, 1
+    RETURN
+
+loopThrough:
+    LOAD s2, 0
+    LOAD s3, 0
+
+    loop:
+        FETCH s0, s2
+        ADD s2, 1
+        FETCH s1, s2
+        COMPARE s1, s0
+        CALL C, shouldSwap
+        COMPARE s2, 4       ; Has s2 reached the last memory location?
+        JUMP C, loop
+
+    TEST s3, FF             ; Have there been any swaps?
+    JUMP NZ, loopThrough
+    RETURN
+
+main:
+    LOAD s0, 2
+    LOAD s1, 5
+    LOAD s2, 1
+    LOAD s3, 3
+    LOAD s4, 4
+    STORE s0, 0
+    STORE s1, 1
+    STORE s2, 2
+    STORE s3, 3
+    STORE s4, 4
+    CALL loopThrough
