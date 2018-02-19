@@ -1044,26 +1044,33 @@ public class Translator {
         Path filePath = FileSystems.getDefault().getPath("src", "TestCode", args[0]);
 
         Translator translator = new Translator();
-        if (args[1].equals("PB")) {
-            translator.runPicoBlazeFileNatively(filePath);
+        switch (args[1]) {
+            case "PB":
+                translator.runPicoBlazeFileNatively(filePath);
+                break;
 
-        } else if (args[1].equals("J5")) {
-            translator.runJ5FileNatively(filePath);
+            case "J5":
+                translator.runJ5FileNatively(filePath);
+                break;
 
-        } else {
-            switch (args[2]) {
-                case "1":
-                    translator.runPicoBlazeFileOnJ5(filePath, OptimisationLevel.level1);
-                    break;
-                case "2":
-                    translator.runPicoBlazeFileOnJ5(filePath, OptimisationLevel.level2);
-                    break;
-                case "3":
-                    translator.runPicoBlazeFileOnJ5(filePath, OptimisationLevel.level3);
-                    break;
-                default:
-                    throw new Error("Invalid optimisation level");
-            }
+            default:
+                switch (args[2]) {
+                    case "0":
+                        translator.runPicoBlazeFileOnJ5(filePath, OptimisationLevel.level0);
+                        break;
+                    case "1":
+                        translator.runPicoBlazeFileOnJ5(filePath, OptimisationLevel.level1);
+                        break;
+                    case "2":
+                        translator.runPicoBlazeFileOnJ5(filePath, OptimisationLevel.level2);
+                        break;
+                    case "3":
+                        translator.runPicoBlazeFileOnJ5(filePath, OptimisationLevel.level3);
+                        break;
+                    default:
+                        throw new Error("Invalid optimisation level");
+                }
+                break;
         }
     }
 }
