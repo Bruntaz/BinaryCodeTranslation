@@ -355,11 +355,19 @@ public class Translator {
         switch (instruction) {
             // PBRegister loading
             case LOAD:
-                return new J5Instruction[] {
-                        j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
-                        j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
-                        j5Lexer.lex("DROP"),
-                };
+                if (arg1 instanceof PBRegister) {
+                    return new J5Instruction[] {
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
+                            j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("DROP"),
+                    };
+                } else {
+                    return new J5Instruction[] {
+                            j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
+                            j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("DROP"),
+                    };
+                }
             case STAR:
                 return new J5Instruction[] {
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
