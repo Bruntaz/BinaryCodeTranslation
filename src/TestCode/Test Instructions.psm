@@ -30,3 +30,14 @@ routine:
 
 main:
     CALL routine
+
+LOAD s0, 0
+LOAD s1, 1
+LOAD s2, 2
+LOAD s3, 3
+LOAD s4, 4
+LOAD s5, 5
+ADD s0, s1
+ADD s2, s3
+ADD s3, s4
+ADD s4, s5
