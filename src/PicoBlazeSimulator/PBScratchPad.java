@@ -52,7 +52,7 @@ public class PBScratchPad {
     }
 
     public void reset() {
-        setMemorySize(64);
+        setMemorySize(128);
         setMemoryReads(0);
         setMemoryWrites(0);
     }
@@ -77,7 +77,7 @@ public class PBScratchPad {
     }
 
     private PBScratchPad() {
-        this.memorySize = 64;
+        this.memorySize = 128;
         this.memory = new int[memorySize];
     }
 }

@@ -1,0 +1,242 @@
+; Registers s0 and s1 will be used to compare the values
+; Register s2 will be used to store the address
+; Register s3 will be used to track swaps
+
+initialiseMemory:
+    LOAD s0, 59
+    STORE s0, 0'd
+    LOAD s0, 51
+    STORE s0, 1'd
+    LOAD s0, 54
+    STORE s0, 2'd
+    LOAD s0, 36
+    STORE s0, 3'd
+    LOAD s0, 34
+    STORE s0, 4'd
+    LOAD s0, 29
+    STORE s0, 5'd
+    LOAD s0, 60
+    STORE s0, 6'd
+    LOAD s0, 5
+    STORE s0, 7'd
+    LOAD s0, 33
+    STORE s0, 8'd
+    LOAD s0, 1e
+    STORE s0, 9'd
+    LOAD s0, 3f
+    STORE s0, 10'd
+    LOAD s0, 61
+    STORE s0, 11'd
+    LOAD s0, 41
+    STORE s0, 12'd
+    LOAD s0, 4e
+    STORE s0, 13'd
+    LOAD s0, 1c
+    STORE s0, 14'd
+    LOAD s0, 53
+    STORE s0, 15'd
+    LOAD s0, b
+    STORE s0, 16'd
+    LOAD s0, 27
+    STORE s0, 17'd
+    LOAD s0, 3d
+    STORE s0, 18'd
+    LOAD s0, 24
+    STORE s0, 19'd
+    LOAD s0, 26
+    STORE s0, 20'd
+    LOAD s0, 55
+    STORE s0, 21'd
+    LOAD s0, 4b
+    STORE s0, 22'd
+    LOAD s0, 23
+    STORE s0, 23'd
+    LOAD s0, 2c
+    STORE s0, 24'd
+    LOAD s0, 4c
+    STORE s0, 25'd
+    LOAD s0, d
+    STORE s0, 26'd
+    LOAD s0, 4d
+    STORE s0, 27'd
+    LOAD s0, 37
+    STORE s0, 28'd
+    LOAD s0, 48
+    STORE s0, 29'd
+    LOAD s0, 2b
+    STORE s0, 30'd
+    LOAD s0, 42
+    STORE s0, 31'd
+    LOAD s0, 31
+    STORE s0, 32'd
+    LOAD s0, 1
+    STORE s0, 33'd
+    LOAD s0, 63
+    STORE s0, 34'd
+    LOAD s0, 28
+    STORE s0, 35'd
+    LOAD s0, 14
+    STORE s0, 36'd
+    LOAD s0, 9
+    STORE s0, 37'd
+    LOAD s0, 1b
+    STORE s0, 38'd
+    LOAD s0, 44
+    STORE s0, 39'd
+    LOAD s0, 22
+    STORE s0, 40'd
+    LOAD s0, 11
+    STORE s0, 41'd
+    LOAD s0, 13
+    STORE s0, 42'd
+    LOAD s0, 57
+    STORE s0, 43'd
+    LOAD s0, e
+    STORE s0, 44'd
+    LOAD s0, 5b
+    STORE s0, 45'd
+    LOAD s0, 10
+    STORE s0, 46'd
+    LOAD s0, 2e
+    STORE s0, 47'd
+    LOAD s0, 4
+    STORE s0, 48'd
+    LOAD s0, 4a
+    STORE s0, 49'd
+    LOAD s0, 3
+    STORE s0, 50'd
+    LOAD s0, 50
+    STORE s0, 51'd
+    LOAD s0, 5a
+    STORE s0, 52'd
+    LOAD s0, 1a
+    STORE s0, 53'd
+    LOAD s0, 32
+    STORE s0, 54'd
+    LOAD s0, 15
+    STORE s0, 55'd
+    LOAD s0, 2
+    STORE s0, 56'd
+    LOAD s0, f
+    STORE s0, 57'd
+    LOAD s0, 4f
+    STORE s0, 58'd
+    LOAD s0, 5c
+    STORE s0, 59'd
+    LOAD s0, 7
+    STORE s0, 60'd
+    LOAD s0, 40
+    STORE s0, 61'd
+    LOAD s0, 0
+    STORE s0, 62'd
+    LOAD s0, 17
+    STORE s0, 63'd
+    LOAD s0, 8
+    STORE s0, 64'd
+    LOAD s0, 12
+    STORE s0, 65'd
+    LOAD s0, 2d
+    STORE s0, 66'd
+    LOAD s0, 35
+    STORE s0, 67'd
+    LOAD s0, 3c
+    STORE s0, 68'd
+    LOAD s0, 38
+    STORE s0, 69'd
+    LOAD s0, 58
+    STORE s0, 70'd
+    LOAD s0, 3a
+    STORE s0, 71'd
+    LOAD s0, 21
+    STORE s0, 72'd
+    LOAD s0, 5d
+    STORE s0, 73'd
+    LOAD s0, 5e
+    STORE s0, 74'd
+    LOAD s0, 18
+    STORE s0, 75'd
+    LOAD s0, 43
+    STORE s0, 76'd
+    LOAD s0, 6
+    STORE s0, 77'd
+    LOAD s0, 39
+    STORE s0, 78'd
+    LOAD s0, 46
+    STORE s0, 79'd
+    LOAD s0, 3b
+    STORE s0, 80'd
+    LOAD s0, 3e
+    STORE s0, 81'd
+    LOAD s0, 5f
+    STORE s0, 82'd
+    LOAD s0, 30
+    STORE s0, 83'd
+    LOAD s0, 19
+    STORE s0, 84'd
+    LOAD s0, 16
+    STORE s0, 85'd
+    LOAD s0, 2f
+    STORE s0, 86'd
+    LOAD s0, c
+    STORE s0, 87'd
+    LOAD s0, 47
+    STORE s0, 88'd
+    LOAD s0, 52
+    STORE s0, 89'd
+    LOAD s0, 56
+    STORE s0, 90'd
+    LOAD s0, 1d
+    STORE s0, 91'd
+    LOAD s0, 20
+    STORE s0, 92'd
+    LOAD s0, 2a
+    STORE s0, 93'd
+    LOAD s0, 62
+    STORE s0, 94'd
+    LOAD s0, 1f
+    STORE s0, 95'd
+    LOAD s0, 45
+    STORE s0, 96'd
+    LOAD s0, 25
+    STORE s0, 97'd
+    LOAD s0, 49
+    STORE s0, 98'd
+    LOAD s0, a
+    STORE s0, 99'd
+    JUMP main
+
+loadRegisters:
+    FETCH s0, s2
+    ADD s2, 1
+    FETCH s1, s2
+    RETURN
+
+swapRegisters:
+    COMPARE s1, s0
+    CALL C, shouldSwap
+    RETURN
+
+    shouldSwap:
+        ADD s3, 1
+        STORE s0, s2        ; Store s0 in s1's position
+        SUB s2, 1
+        STORE s1, s2        ; Store s1 in s0's position
+        ADD s2, 1
+        RETURN
+
+loopThrough:
+    LOAD s2, 0
+    LOAD s3, 0
+
+    loop:
+        CALL loadRegisters
+        CALL swapRegisters
+        COMPARE s2, 99'd       ; Has s2 reached the last memory location?
+        JUMP C, loop
+
+    TEST s3, FF             ; Have there been any swaps?
+    JUMP NZ, loopThrough
+    RETURN
+
+main:
+    CALL loopThrough

@@ -923,7 +923,7 @@ public class Translator {
         J5Instruction[][] j5BlockInstructions = new J5Instruction[picoBlazeInstructions.length][];
 
         J5ScratchPad j5ScratchPad = J5ScratchPad.getInstance();
-        j5ScratchPad.setMemorySize(j5ScratchPad.getMemorySize() + registerOffset); // Increase scratch pad size
+        j5ScratchPad.setMemorySize(PBScratchPad.getInstance().getMemorySize() + registerOffset); // Increase scratch pad size
 
         pbParser.RESET();
         int pbPC = this.pbPC.get();

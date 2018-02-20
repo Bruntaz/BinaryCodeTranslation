@@ -64,7 +64,7 @@ public class J5ScratchPad {
     }
 
     public void reset() {
-        setMemorySize(64);
+        setMemorySize(128);
         setMemoryReads(0);
         setMemoryWrites(0);
     }
@@ -89,7 +89,7 @@ public class J5ScratchPad {
     }
 
     private J5ScratchPad() {
-        this.memorySize = 64;
+        this.memorySize = 128;
         this.memory = new int[memorySize];
     }
 }
