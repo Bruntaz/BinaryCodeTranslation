@@ -43,14 +43,16 @@ public class PBScratchPad {
 
     void STORE(PBInstructionArgument arg0, PBInstructionArgument arg1) {
         setMemory(arg1.getIntValue(), arg0.getIntValue());
+        memoryWrites += 1;
     }
 
     void FETCH(PBInstructionArgument arg0, PBInstructionArgument arg1) {
         arg0.setValue(getMemory(arg1.getIntValue()));
+        memoryReads += 1;
     }
 
     public void reset() {
-        setMemorySize(64);
+        setMemorySize(128);
         setMemoryReads(0);
         setMemoryWrites(0);
     }
@@ -75,7 +77,7 @@ public class PBScratchPad {
     }
 
     private PBScratchPad() {
-        this.memorySize = 64;
+        this.memorySize = 128;
         this.memory = new int[memorySize];
     }
 }

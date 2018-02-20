@@ -1,0 +1,369 @@
+; ScratchPad 0-4 will be used as outputs
+; ScratchPad 7f will be used to track swaps
+
+initialiseMemory:
+    SSET 59
+    STORE 0
+    DROP
+    SSET 51
+    STORE 1
+    DROP
+    SSET 54
+    STORE 2
+    DROP
+    SSET 36
+    STORE 3
+    DROP
+    SSET 34
+    STORE 4
+    DROP
+    SSET 29
+    STORE 5
+    DROP
+    SSET 60
+    STORE 6
+    DROP
+    SSET 5
+    STORE 7
+    DROP
+    SSET 33
+    STORE 8
+    DROP
+    SSET 1e
+    STORE 9
+    DROP
+    SSET 3f
+    STORE a
+    DROP
+    SSET 61
+    STORE b
+    DROP
+    SSET 41
+    STORE c
+    DROP
+    SSET 4e
+    STORE d
+    DROP
+    SSET 1c
+    STORE e
+    DROP
+    SSET 53
+    STORE f
+    DROP
+    SSET b
+    STORE 10
+    DROP
+    SSET 27
+    STORE 11
+    DROP
+    SSET 3d
+    STORE 12
+    DROP
+    SSET 24
+    STORE 13
+    DROP
+    SSET 26
+    STORE 14
+    DROP
+    SSET 55
+    STORE 15
+    DROP
+    SSET 4b
+    STORE 16
+    DROP
+    SSET 23
+    STORE 17
+    DROP
+    SSET 2c
+    STORE 18
+    DROP
+    SSET 4c
+    STORE 19
+    DROP
+    SSET d
+    STORE 1a
+    DROP
+    SSET 4d
+    STORE 1b
+    DROP
+    SSET 37
+    STORE 1c
+    DROP
+    SSET 48
+    STORE 1d
+    DROP
+    SSET 2b
+    STORE 1e
+    DROP
+    SSET 42
+    STORE 1f
+    DROP
+    SSET 31
+    STORE 20
+    DROP
+    SSET 1
+    STORE 21
+    DROP
+    SSET 63
+    STORE 22
+    DROP
+    SSET 28
+    STORE 23
+    DROP
+    SSET 14
+    STORE 24
+    DROP
+    SSET 9
+    STORE 25
+    DROP
+    SSET 1b
+    STORE 26
+    DROP
+    SSET 44
+    STORE 27
+    DROP
+    SSET 22
+    STORE 28
+    DROP
+    SSET 11
+    STORE 29
+    DROP
+    SSET 13
+    STORE 2a
+    DROP
+    SSET 57
+    STORE 2b
+    DROP
+    SSET e
+    STORE 2c
+    DROP
+    SSET 5b
+    STORE 2d
+    DROP
+    SSET 10
+    STORE 2e
+    DROP
+    SSET 2e
+    STORE 2f
+    DROP
+    SSET 4
+    STORE 30
+    DROP
+    SSET 4a
+    STORE 31
+    DROP
+    SSET 3
+    STORE 32
+    DROP
+    SSET 50
+    STORE 33
+    DROP
+    SSET 5a
+    STORE 34
+    DROP
+    SSET 1a
+    STORE 35
+    DROP
+    SSET 32
+    STORE 36
+    DROP
+    SSET 15
+    STORE 37
+    DROP
+    SSET 2
+    STORE 38
+    DROP
+    SSET f
+    STORE 39
+    DROP
+    SSET 4f
+    STORE 3a
+    DROP
+    SSET 5c
+    STORE 3b
+    DROP
+    SSET 7
+    STORE 3c
+    DROP
+    SSET 40
+    STORE 3d
+    DROP
+    SSET 0
+    STORE 3e
+    DROP
+    SSET 17
+    STORE 3f
+    DROP
+    SSET 8
+    STORE 40
+    DROP
+    SSET 12
+    STORE 41
+    DROP
+    SSET 2d
+    STORE 42
+    DROP
+    SSET 35
+    STORE 43
+    DROP
+    SSET 3c
+    STORE 44
+    DROP
+    SSET 38
+    STORE 45
+    DROP
+    SSET 58
+    STORE 46
+    DROP
+    SSET 3a
+    STORE 47
+    DROP
+    SSET 21
+    STORE 48
+    DROP
+    SSET 5d
+    STORE 49
+    DROP
+    SSET 5e
+    STORE 4a
+    DROP
+    SSET 18
+    STORE 4b
+    DROP
+    SSET 43
+    STORE 4c
+    DROP
+    SSET 6
+    STORE 4d
+    DROP
+    SSET 39
+    STORE 4e
+    DROP
+    SSET 46
+    STORE 4f
+    DROP
+    SSET 3b
+    STORE 50
+    DROP
+    SSET 3e
+    STORE 51
+    DROP
+    SSET 5f
+    STORE 52
+    DROP
+    SSET 30
+    STORE 53
+    DROP
+    SSET 19
+    STORE 54
+    DROP
+    SSET 16
+    STORE 55
+    DROP
+    SSET 2f
+    STORE 56
+    DROP
+    SSET c
+    STORE 57
+    DROP
+    SSET 47
+    STORE 58
+    DROP
+    SSET 52
+    STORE 59
+    DROP
+    SSET 56
+    STORE 5a
+    DROP
+    SSET 1d
+    STORE 5b
+    DROP
+    SSET 20
+    STORE 5c
+    DROP
+    SSET 2a
+    STORE 5d
+    DROP
+    SSET 62
+    STORE 5e
+    DROP
+    SSET 1f
+    STORE 5f
+    DROP
+    SSET 45
+    STORE 60
+    DROP
+    SSET 25
+    STORE 61
+    DROP
+    SSET 49
+    STORE 62
+    DROP
+    SSET a
+    STORE 63
+    DROP
+    LBRANCH main
+
+loadToStack:
+    IFETCH
+    SWAP
+    INC
+    IFETCH
+    RROT                ; Put address pointer to bottom of stack
+    RETURN
+
+swapValues:
+    SWAP
+    COMPARE             ; If second < first, swap
+    BRCARRY 2           ; Jump to shouldSwap call if second < first
+    LBRANCH resetStack  ; If not, jump to resetStack
+    CALL shouldSwap     ; When returned from, intentionally fall through to resetStack
+
+    resetStack:
+        DROP            ; Remove values from stack
+        DROP
+        RETURN          ; Leave swapValues (not just resetStack)
+
+    setSwaps:           ; Set SP 10 to 1 to indicate swaps have occurred
+        SSET 1
+        STORE 7f
+        DROP
+        RETURN
+
+    shouldSwap:         ; Swap the values in inspected memory locations
+        CALL setSwaps
+        RROT
+        DEC             ; Set pointer to first location
+        ISTORE          ; Store second in first location
+        RROT
+        SWAP
+        INC             ; Set pointer to second location
+        ISTORE          ; Store first in second location
+        ROT             ; Put pointer back to BOS
+        RETURN
+
+loopThrough:
+    SSET 0              ; Both used for address and resetting swaps
+    STORE 7f
+
+    loop:
+        CALL loadToStack
+        CALL swapValues
+        SSET 63         ; Test if reached the end of the array
+        COMPARE
+        DROP
+        BRZERO 2
+        LBRANCH loop
+
+    FETCH 7f            ; Have there been any swaps?
+    SSET 0
+    COMPARE
+    DROP
+    DROP
+    DROP
+    BRZERO 2            ; If not, the numbers are sorted
+    LBRANCH loopThrough
+    RETURN
+
+main:
+    CALL loopThrough

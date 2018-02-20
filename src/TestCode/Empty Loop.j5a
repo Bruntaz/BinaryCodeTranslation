@@ -1,0 +1,14 @@
+initialiseMemory:
+    SSET FF
+    SSET 0
+    LBRANCH main
+
+loop:
+    INC
+    COMPARE
+    BRZERO 2
+    LBRANCH loop
+    RETURN
+
+main:
+    CALL loop

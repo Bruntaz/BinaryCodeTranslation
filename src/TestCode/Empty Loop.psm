@@ -1,0 +1,13 @@
+initialiseMemory:
+    LOAD s0, 0
+    LOAD s1, FF
+    JUMP main
+
+loop:
+    ADD s0, 1
+    COMPARE s0, s1
+    JUMP NZ, loop
+    RETURN
+
+main:
+    CALL loop

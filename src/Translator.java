@@ -297,7 +297,7 @@ public class Translator {
         return optimisationsPerformed;
     }
 
-    private void koopmanOptimise(List<J5Instruction> j5Instructions) {
+    private void koopmanOptimise(List<J5Instruction> j5Instructions, OptimisationLevel optimisationLevel) {
         // Algorithm step 1: Get pairs where variables can be reused
         // This goes through the program to find FETCH commands and then finds the last use of the variable (STORE or
         // FETCH). It doesn't support searching for the last time the variable was used on the stack (currently)
@@ -319,7 +319,16 @@ public class Translator {
                         J5Instruction storeInstruction = j5Instructions.get(j);
 
                         if (storeInstruction.instruction == J5InstructionSet.ISTORE) {
-                            break; // If an ISTORE is between the pair, do not optimise
+                            if (optimisationLevel == OptimisationLevel.level4) {
+                                if (!(j > 1 && j5Instructions.get(j-1).instruction == J5InstructionSet.ADD &&
+                                        j5Instructions.get(j-2).equals(
+                                                j5Lexer.lex("SSET 20")
+                                        ))) {
+                                    break; // If an ISTORE is between the pair, do not optimise
+                                }
+                            } else {
+                                break;
+                            }
                         }
 
                         if (location.equals(storeInstruction.arg)) {
@@ -352,12 +361,14 @@ public class Translator {
     private J5Instruction[] translateBlock(PBInstruction[] pbInstructions, int blockStart, OptimisationLevel optimisationLevel) {
         List<J5Instruction> flattened = getFlattenedInstructionBlock(pbInstructions, blockStart);
 
-        if (optimisationLevel == OptimisationLevel.level2 || optimisationLevel == OptimisationLevel.level3) {
+        if (optimisationLevel == OptimisationLevel.level2 || optimisationLevel == OptimisationLevel.level3 ||
+                optimisationLevel == OptimisationLevel.level4) {
             // Algorithm steps 1 & 2: Get pairs and schedule
-            koopmanOptimise(flattened);
+            koopmanOptimise(flattened, optimisationLevel);
         }
 
-        if (optimisationLevel == OptimisationLevel.level1 || optimisationLevel == OptimisationLevel.level3) {
+        if (optimisationLevel == OptimisationLevel.level1 || optimisationLevel == OptimisationLevel.level3 ||
+                optimisationLevel == OptimisationLevel.level4) {
             // Algorithm step 3: Peephole optimisation
             flattened = peepholeOptimiseJ5(flattened);
             System.out.println("Optimised: " + Arrays.toString(flattened.toArray()));
@@ -380,11 +391,19 @@ public class Translator {
         switch (instruction) {
             // PBRegister loading
             case LOAD:
-                return new J5Instruction[] {
-                        j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
-                        j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
-                        j5Lexer.lex("DROP"),
-                };
+                if (arg1 instanceof PBRegister) {
+                    return new J5Instruction[] {
+                            j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
+                            j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("DROP"),
+                    };
+                } else {
+                    return new J5Instruction[] {
+                            j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
+                            j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                            j5Lexer.lex("DROP"),
+                    };
+                }
             case STAR:
                 return new J5Instruction[] {
                         j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)),
@@ -929,7 +948,7 @@ public class Translator {
         J5Instruction[][] j5BlockInstructions = new J5Instruction[picoBlazeInstructions.length][];
 
         J5ScratchPad j5ScratchPad = J5ScratchPad.getInstance();
-        j5ScratchPad.setMemorySize(j5ScratchPad.getMemorySize() + registerOffset); // Increase scratch pad size
+        j5ScratchPad.setMemorySize(PBScratchPad.getInstance().getMemorySize() + registerOffset); // Increase scratch pad size
 
         pbParser.RESET();
         int pbPC = this.pbPC.get();
@@ -1066,6 +1085,9 @@ public class Translator {
                         break;
                     case "3":
                         translator.runPicoBlazeFileOnJ5(filePath, OptimisationLevel.level3);
+                        break;
+                    case "4":
+                        translator.runPicoBlazeFileOnJ5(filePath, OptimisationLevel.level4);
                         break;
                     default:
                         throw new Error("Invalid optimisation level");

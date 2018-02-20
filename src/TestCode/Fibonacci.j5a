@@ -1,0 +1,68 @@
+initialiseMemory:
+    SSET 14     ;                   Target number
+    STORE 4
+    DROP
+
+    SSET 11     ;                   Write location
+    STORE 5
+    DROP
+
+    SSET 0
+    STORE 0
+    STORE 1
+
+    STORE 2
+    SSET 1
+    STORE 3     ; (0, 1)            Upper and lower bits of next fib number
+    SSET 0      ; (0, 1, 20)        Fibonacci counter
+    LBRANCH main
+
+fibonacci:
+    INC         ; (0, 1, 20)        Increment fibonacci counter
+    ROT         ; (20, 0, 1)
+
+    FETCH 1     ; (20, 0, 1, 0)     Fetch lower bits of previous fib number
+
+    FETCH 5     ;                   Store lower bits in memory
+    ISTORE
+    DEC         ;                   Move memory pointer back one
+    STORE 5
+    DROP
+
+    ADD         ; (20, 0, 1)        Add previous fib number to next
+
+    FETCH 0     ; (20, 0, 1, 0)     Fetch upper bits of previous fib number
+    RROT        ; (20, 1, 0, 0)
+    UNDER       ; (20, 1, 0, 0, 0)  Copy bits so carry can be preserved
+    ADDCY       ; (20, 1, 0, 0)     Add carry previous fib number to next
+    ROT         ; (20, 0, 1, 0)
+
+    FETCH 5     ;                   Store upper bits in memory
+    ISTORE
+    SSET 3      ;                   Move memory pointer forward 3
+    ADD
+    STORE 5
+    DROP
+    DROP
+
+    FETCH 3     ;                   Set previous fib number to current
+    STORE 1
+    DROP
+    FETCH 2
+    STORE 0
+    DROP
+    STORE 3     ;                   Set current fib number to next
+    SWAP
+    STORE 2
+    SWAP
+
+    RROT        ; (0, 1, 20)        Test if written target number of fibonacci numbers
+    FETCH 4     ; (0, 1, 20, 20)
+    COMPARE
+    DROP        ; (0, 1, 20)
+    BRZERO 2    ;                   If target == current
+    LBRANCH fibonacci
+    RETURN
+
+main:
+    CALL fibonacci
