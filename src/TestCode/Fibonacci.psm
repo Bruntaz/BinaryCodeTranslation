@@ -1,0 +1,41 @@
+; s0 & s1 will be used to store the previous value, s2 & s3 for current and s4 & s5 for next (16 bit numbers)
+; s6 will be used to store which fibonacci number is being found
+; s7 will be used to store the current fibonacci number that has been generated
+
+initialiseMemory:
+    LOAD s0, 0
+    LOAD s1, 0
+
+    LOAD s2, 0
+    LOAD s3, 1
+
+    LOAD s4, s2
+    LOAD s5, s3
+
+    LOAD s6, 20'd
+    LOAD s7, 0
+    LOAD s8, 0              ; s8 = 2 * s7
+    JUMP main
+
+fibonacci:
+    STORE s0, s8
+    ADD s8, 1
+    STORE s1, s8
+    ADD s7, 1
+    ADD s8, 1
+
+    ADD s5, s1
+    ADDCY s4, s0
+
+    LOAD s0, s2
+    LOAD s1, s3
+
+    LOAD s2, s4
+    LOAD s3, s5
+
+    COMPARE s7, s6         ; If s3 < s4, loop
+    JUMP C, fibonacci
+    RETURN
+
+main:
+    CALL fibonacci

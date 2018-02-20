@@ -43,10 +43,12 @@ public class PBScratchPad {
 
     void STORE(PBInstructionArgument arg0, PBInstructionArgument arg1) {
         setMemory(arg1.getIntValue(), arg0.getIntValue());
+        memoryWrites += 1;
     }
 
     void FETCH(PBInstructionArgument arg0, PBInstructionArgument arg1) {
         arg0.setValue(getMemory(arg1.getIntValue()));
+        memoryReads += 1;
     }
 
     public void reset() {
