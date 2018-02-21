@@ -1090,11 +1090,10 @@ public class Translator {
                 if (compareValue.equals(value)) {
                     keyIterator.remove();
 
-                    if (doNotInclude.contains(key.instruction1) || doNotInclude.contains(key.instruction2)) {
-                        continue;
+                    if (!(doNotInclude.contains(key.instruction1) || doNotInclude.contains(key.instruction2))) {
+                        sortedMap.put(key, value);
                     }
 
-                    sortedMap.put(key, value);
                     break;
                 }
             }
