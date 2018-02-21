@@ -1114,6 +1114,9 @@ public class Translator {
     private LinkedHashMap<J5InstructionPair, Integer> sortHashMapByValues(
             HashMap<J5InstructionPair, Integer> passedMap) {
 
+        HashSet<J5InstructionSet> doNotInclude = new HashSet<>(Arrays.asList(J5InstructionSet.STOP,
+                J5InstructionSet.PASS, J5InstructionSet.NOP));
+
         List<J5InstructionPair> mapKeys = new ArrayList<>(passedMap.keySet());
         List<Integer> mapValues = new ArrayList<>(passedMap.values());
 
@@ -1127,10 +1130,16 @@ public class Translator {
 
             while (keyIterator.hasNext()) {
                 J5InstructionPair key = keyIterator.next();
+
                 Integer compareValue = passedMap.get(key);
 
                 if (compareValue.equals(value)) {
                     keyIterator.remove();
+
+                    if (doNotInclude.contains(key.instruction1) || doNotInclude.contains(key.instruction2)) {
+                        continue;
+                    }
+
                     sortedMap.put(key, value);
                     break;
                 }
