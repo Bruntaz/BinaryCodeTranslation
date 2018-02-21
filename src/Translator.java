@@ -41,6 +41,9 @@ public class Translator {
         put(PBRegisterName.SF, 15);
     }};
 
+    private HashMap<J5InstructionPair, Integer> staticPairFrequency = new HashMap<>();
+    private HashMap<J5InstructionPair, Integer> dynamicPairFrequency = new HashMap<>();
+
     private HashSet<J5InstructionSet> increaseStackSize = new HashSet<>(Arrays.asList(
             J5InstructionSet.SSET, J5InstructionSet.FETCH, J5InstructionSet.IFETCH, J5InstructionSet.DUP,
             J5InstructionSet.OVER, J5InstructionSet.UNDER, J5InstructionSet.TUCK, J5InstructionSet.TUCK2)
@@ -76,6 +79,14 @@ public class Translator {
         return translateRegisterIntoMemory(register, 0);
     }
 
+    private List<J5Instruction> flattenJ5Instructions(J5Instruction[][] j5Instructions) {
+        List<J5Instruction> flattened = new ArrayList<>();
+        for (J5Instruction[] instructions : j5Instructions) {
+            flattened.addAll(Arrays.asList(instructions));
+        }
+        return flattened;
+    }
+
     private List<J5Instruction> getFlattenedInstructionBlock(PBInstruction[] pbInstructions, int blockStart) {
         int nextBlockStart = pbParser.getNextBlockStart(pbInstructions, blockStart);
 
@@ -86,12 +97,7 @@ public class Translator {
                     instructionNumber);
         }
 
-        ArrayList<J5Instruction> flattened = new ArrayList<>();
-        for (J5Instruction[] j5Instructions : naivelyTranslated) {
-            flattened.addAll(Arrays.asList(j5Instructions));
-        }
-
-        return flattened;
+        return flattenJ5Instructions(naivelyTranslated);
     }
 
     private boolean singlePassPeepholeOptimiseJ5(List<J5Instruction> j5Instructions) {
@@ -961,6 +967,8 @@ public class Translator {
             System.out.println("################################################ PBPC = " + pbPC);
             System.out.println("PicoBlaze Instruction: " + picoBlazeInstructions[pbPC]);
 
+            countInstructionPairs(j5BlockInstructions[currentBlock], dynamicPairFrequency);
+
             int j5InstructionPointer = 0;
             while (j5InstructionPointer < j5BlockInstructions[currentBlock].length) {
                 J5Instruction instruction = j5BlockInstructions[currentBlock][j5InstructionPointer];
@@ -1020,17 +1028,69 @@ public class Translator {
             System.out.println(J5ScratchPad.getInstance());
         }
 
-//        for (int i=0; i<j5Instructions.length; i++) {
-//            System.out.println(Arrays.toString(j5Instructions[i]) + ", " + picoBlazeInstructions[i].instruction);
-//        }
-//        System.out.println(j5Instructions.length);
-
         outputCodeToFile(j5BlockInstructions);
+
+        for (J5Instruction[] instructions : j5BlockInstructions) {
+            if (instructions == null) {
+                continue;
+            }
+
+            countInstructionPairs(instructions, staticPairFrequency);
+        }
+
+        System.out.println("\n\nFrequency of static pairs:");
+        for (J5InstructionPair pair : sortHashMapByValues(staticPairFrequency).keySet()) {
+            System.out.println(pair.toString() + " = " + staticPairFrequency.get(pair));
+        }
+
+        System.out.println("\n\nFrequency of dynamic pairs:");
+        for (J5InstructionPair pair : sortHashMapByValues(dynamicPairFrequency).keySet()) {
+            System.out.println(pair.toString() + " = " + dynamicPairFrequency.get(pair));
+        }
 
         System.out.println(String.format("\nFinished in %d clock cycles", j5Parser.getClockCycles()));
         System.out.println(String.format("With %d memory reads and %d writes", j5ScratchPad.getMemoryReads(),
                 j5ScratchPad.getMemoryWrites()));
         System.out.println(J5ScratchPad.getInstance());
+    }
+
+    private void countInstructionPairs(J5Instruction[] j5Instructions, HashMap<J5InstructionPair, Integer> map) {
+        for (int i = 0; i < j5Instructions.length - 1; i++) {
+            J5InstructionPair pair = new J5InstructionPair(j5Instructions[i].instruction, j5Instructions[i+1].instruction);
+            if (map.containsKey(pair)) {
+                map.put(pair, map.get(pair) + 1);
+            } else {
+                map.put(pair, 1);
+            }
+        }
+    }
+
+    private LinkedHashMap<J5InstructionPair, Integer> sortHashMapByValues(
+            HashMap<J5InstructionPair, Integer> passedMap) {
+
+        List<J5InstructionPair> mapKeys = new ArrayList<>(passedMap.keySet());
+        List<Integer> mapValues = new ArrayList<>(passedMap.values());
+
+        mapValues.sort(Collections.reverseOrder());
+        mapKeys.sort(Collections.reverseOrder());
+
+        LinkedHashMap<J5InstructionPair, Integer> sortedMap = new LinkedHashMap<>();
+
+        for (Integer value : mapValues) {
+            Iterator<J5InstructionPair> keyIterator = mapKeys.iterator();
+
+            while (keyIterator.hasNext()) {
+                J5InstructionPair key = keyIterator.next();
+                Integer compareValue = passedMap.get(key);
+
+                if (compareValue.equals(value)) {
+                    keyIterator.remove();
+                    sortedMap.put(key, value);
+                    break;
+                }
+            }
+        }
+        return sortedMap;
     }
 
     public static void main(String[] args) {

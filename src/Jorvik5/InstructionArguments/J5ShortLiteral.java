@@ -33,6 +33,11 @@ public class J5ShortLiteral implements J5InstructionArgument {
         return value == i.value;
     }
 
+    @Override
+    public int hashCode() {
+        return "J5RelativeAddress".hashCode() ^ value;
+    }
+
     public J5ShortLiteral(int value) {
         setValue(value);
     }
