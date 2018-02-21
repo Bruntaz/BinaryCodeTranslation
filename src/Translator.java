@@ -55,6 +55,10 @@ public class Translator {
             J5InstructionSet.NIP, J5InstructionSet.STOREDROP)
     );
 
+    private HashSet<J5InstructionSet> doubleDecreaseStackSize = new HashSet<>(Collections.singletonList(
+            J5InstructionSet.DDROP)
+    );
+
     private HashSet<J5InstructionSet> constantStackSize = new HashSet<>(Arrays.asList(
             J5InstructionSet.NOT, J5InstructionSet.INC, J5InstructionSet.DEC, J5InstructionSet.TEST,
             J5InstructionSet.TESTCY, J5InstructionSet.COMPARE, J5InstructionSet.COMPARECY, J5InstructionSet.BRANCH,
@@ -146,9 +150,21 @@ public class Translator {
                 j5Instructions.set(i+1, j5Lexer.lex("NOP"));
                 optimisationsPerformed = true;
 
+            } else if (j5Instructions.get(i).instruction == J5InstructionSet.SSET &&
+                    j5Instructions.get(i+1).instruction == J5InstructionSet.ADD) {
+                j5Instructions.set(i, new J5Instruction(J5InstructionSet.ADDI, j5Instructions.get(i).arg));
+                j5Instructions.set(i+1, j5Lexer.lex("NOP"));
+                optimisationsPerformed = true;
+
             }  else if (j5Instructions.get(i).instruction == J5InstructionSet.STORE &&
                     j5Instructions.get(i+1).instruction == J5InstructionSet.DROP) {
                 j5Instructions.get(i).instruction = J5InstructionSet.STOREDROP;
+                j5Instructions.set(i+1, j5Lexer.lex("NOP"));
+                optimisationsPerformed = true;
+
+            }  else if (j5Instructions.get(i).instruction == J5InstructionSet.DROP &&
+                    j5Instructions.get(i+1).instruction == J5InstructionSet.DROP) {
+                j5Instructions.get(i).instruction = J5InstructionSet.DDROP;
                 j5Instructions.set(i+1, j5Lexer.lex("NOP"));
                 optimisationsPerformed = true;
 
@@ -248,6 +264,11 @@ public class Translator {
                     useStackSize--;
                 }
                 reuseStackSize--;
+            } else if (doubleDecreaseStackSize.contains(instruction.instruction)) {
+                if (i <= pair.useLine) {
+                    useStackSize -= 2;
+                }
+                reuseStackSize -= 2;
             } else if (!constantStackSize.contains(instruction.instruction)) {
                 throw new Error("Instruction " + instruction.instruction + " leaves stack at unknown size. " +
                         "Please add it to the relevant set.");

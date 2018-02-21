@@ -14,6 +14,7 @@ public enum J5InstructionSet {
     // Arithmetic
     ADD,		// Add top 2
     ADDCY,      // Add top 2 and carry
+    ADDI,       // Add argument to top
     SUB,		// Subtract top 2 (next - top)
     SUBCY,      // Subtract top 2 and carry (next - top - carry)
     INC,		// Increment top
@@ -60,6 +61,7 @@ public enum J5InstructionSet {
 
     // J5Stack Management
     DROP,		// Remove top item (X -> )
+    DDROP,      // Remove top 2 items (XY -> )
     SWAP,		// Swap top 2 on stack (XY -> YX)
     ROT,		// Rotate top 3 items in stack (XYZ -> YZX)
     RROT,		// Reverse ROT (XYZ -> ZXY)

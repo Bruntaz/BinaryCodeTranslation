@@ -38,6 +38,11 @@ public class J5Stack {
         pop();
     }
 
+    void DDROP() {
+        DROP();
+        DROP();
+    }
+
     void SWAP() {
         int top = pop();
         int next = pop();

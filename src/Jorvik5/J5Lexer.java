@@ -21,7 +21,7 @@ public class J5Lexer {
             J5InstructionSet.SSET, J5InstructionSet.BRANCH, J5InstructionSet.SBRANCH, J5InstructionSet.BRZERO,
             J5InstructionSet.SBRZERO, J5InstructionSet.BRCARRY, J5InstructionSet.SBRCARRY, J5InstructionSet.LBRANCH,
             J5InstructionSet.CALL, J5InstructionSet.CALLZERO, J5InstructionSet.CALLCARRY, J5InstructionSet.FETCH,
-            J5InstructionSet.STORE, J5InstructionSet.STOREDROP)
+            J5InstructionSet.STORE, J5InstructionSet.STOREDROP, J5InstructionSet.ADDI)
     );
 
     /*
@@ -50,6 +50,7 @@ public class J5Lexer {
 
         switch (instruction) {
             case SSET:
+            case ADDI:
                 return new J5ShortLiteral(intArg);
             case BRANCH:
             case BRZERO:

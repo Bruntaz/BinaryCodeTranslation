@@ -1,6 +1,7 @@
 package Jorvik5;
 
 import Jorvik5.Groups.J5InstructionSet;
+import Jorvik5.InstructionArguments.J5InstructionArgument;
 
 public class J5ALU {
     private static J5ALU ourInstance = new J5ALU();
@@ -37,6 +38,12 @@ public class J5ALU {
         }
 
         stack.push(addition);
+    }
+
+    void ADDI(J5InstructionArgument number) {
+        stack.push(number.getValue());
+        stack.SWAP();
+        ADD(false);
     }
 
     void SUB(boolean includeCarry) {

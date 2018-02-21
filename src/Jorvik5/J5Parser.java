@@ -111,6 +111,9 @@ public class J5Parser {
             case ADDCY:
                 alu.ADD(true);
                 break;
+            case ADDI:
+                alu.ADDI(instruction.arg);
+                break;
             case SUB:
                 alu.SUB(false);
                 break;
@@ -226,6 +229,9 @@ public class J5Parser {
             // J5Stack Management
             case DROP:
                 stack.DROP();
+                break;
+            case DDROP:
+                stack.DDROP();
                 break;
             case SWAP:
                 stack.SWAP();
