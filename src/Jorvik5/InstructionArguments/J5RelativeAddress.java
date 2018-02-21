@@ -31,6 +31,11 @@ public class J5RelativeAddress implements J5InstructionArgument {
         return value == i.value;
     }
 
+    @Override
+    public int hashCode() {
+        return "J5RelativeAddress".hashCode() ^ value;
+    }
+
     public J5RelativeAddress(int address) {
         value = address;
     }

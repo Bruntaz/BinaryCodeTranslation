@@ -27,6 +27,11 @@ public class J5Instruction {
     }
 
     @Override
+    public int hashCode() {
+        return instruction.hashCode();
+    }
+
+    @Override
     public String toString() {
         if (instruction == null) {
             return null;

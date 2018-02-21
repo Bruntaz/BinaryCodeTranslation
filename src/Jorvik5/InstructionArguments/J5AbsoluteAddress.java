@@ -31,6 +31,11 @@ public class J5AbsoluteAddress implements J5InstructionArgument {
         return value == i.value;
     }
 
+    @Override
+    public int hashCode() {
+        return "J5AbsoluteAddress".hashCode() ^ value;
+    }
+
     public J5AbsoluteAddress(int address) {
         value = address;
     }
