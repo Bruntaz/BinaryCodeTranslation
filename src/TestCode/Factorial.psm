@@ -1,27 +1,41 @@
 ; s0 = number to factorial
-; s1 = answer
-; s2 = number currently being multiplied by
-; s3 = loop counter
+; s1, s2, s3 = answer
+; s4, s5, s6 = number currently being multiplied by
+; s7 = loop counter
 
 initialiseMemory:
-    LOAD s0, 7
-    LOAD s1, s0
-    LOAD s2, s0
+    LOAD s0, 10'd
+
+    LOAD s1, 0      ; Load initial number into answer
+    LOAD s2, 0
+    LOAD s3, s0
+
     JUMP main
 
 multiply:
-    SUB s0, 1
-    LOAD s2, s1
-    LOAD s1, 0
-    LOAD s3, s0
+    SUB s0, 1       ; Decrement number to factorial
 
-    ;COMPARE s3, 0
+    LOAD s4, s1     ; Load number to multiply by
+    LOAD s5, s2
+    LOAD s6, s3
+
+    LOAD s1, 0      ; Reset answer to 0
+    LOAD s2, 0
+    LOAD s3, 0
+
+    LOAD s7, s0     ; Set loop counter
+
+    ;COMPARE s7, 0
     ;RETURN Z
 
     whileLoop:
-        SUB s3, 1
-        ADD s1, s2
-        COMPARE s3, 0
+        SUB s7, 1           ; Decrement loop counter
+
+        ADD s3, s6          ; Add number to multiply by to answer
+        ADDCY s2, s5
+        ADDCY s1, s4
+
+        COMPARE s7, 0       ; Test if loop counter has reached zero
         JUMP NZ, whileLoop
 
     RETURN
