@@ -1,0 +1,37 @@
+; s0 = number to factorial
+; s1 = answer
+; s2 = number currently being multiplied by
+; s3 = loop counter
+
+initialiseMemory:
+    LOAD s0, 7
+    LOAD s1, s0
+    LOAD s2, s0
+    JUMP main
+
+multiply:
+    SUB s0, 1
+    LOAD s2, s1
+    LOAD s1, 0
+    LOAD s3, s0
+
+    ;COMPARE s3, 0
+    ;RETURN Z
+
+    whileLoop:
+        SUB s3, 1
+        ADD s1, s2
+        COMPARE s3, 0
+        JUMP NZ, whileLoop
+
+    RETURN
+
+factorial:
+    COMPARE s0, 1
+    RETURN Z
+
+    CALL multiply
+    JUMP factorial
+
+main:
+    CALL factorial
