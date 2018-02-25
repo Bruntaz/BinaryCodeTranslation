@@ -1,0 +1,49 @@
+initialiseMemory:
+    SSET 6      ; (n)
+
+    DUP         ; (a, n)
+
+    LBRANCH main
+
+multiply:
+    UNDER       ; (n, l, m)
+    SSET 0      ; (n, l, m, a)
+
+    whileLoop:
+        OVER    ; (n, l, m, a, m)
+        ADD     ; (n, l, m, a)
+
+        RROT    ; (n, m, a, l)
+        DEC     ; (n, m, a, l)
+        SSET 0  ; (n, m, a, l, 0)
+        COMPARE
+
+        DROP    ; (n, m, a, l)
+        ROT     ; (n, l, m, a)
+
+        BRZERO 2
+        LBRANCH whileLoop
+
+    RETURN
+
+factorial:
+    DEC             ; (a, n)
+    SSET 1          ; (a, n, 2)
+    COMPARE
+    DROP            ; (a, n)
+
+    BRZERO 2
+    LBRANCH cont
+    RETURN
+
+    cont:
+    SWAP            ; (n, a)
+    CALL multiply   ; (n, l, m, a)
+    ROT             ; (n, a, l, m)
+    DROP            ; (n, a, l)
+    DROP            ; (n, a)
+    SWAP            ; (a, n)
+    LBRANCH factorial
+
+main:
+    CALL factorial
