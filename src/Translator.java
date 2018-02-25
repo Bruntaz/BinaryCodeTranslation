@@ -146,6 +146,12 @@ public class Translator {
                 j5Instructions.set(i+1, j5Lexer.lex("NOP"));
                 optimisationsPerformed = true;
 
+            } else if (j5Instructions.get(i).instruction == J5InstructionSet.SWAP &&
+                    j5Instructions.get(i+1).instruction == J5InstructionSet.DROP) {
+                j5Instructions.set(i, j5Lexer.lex("NIP"));
+                j5Instructions.set(i+1, j5Lexer.lex("NOP"));
+                optimisationsPerformed = true;
+
             } // else if TUCK then STORE then ADD becomes SWAP then STORE then ADD
         }
 

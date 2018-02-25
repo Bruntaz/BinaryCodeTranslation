@@ -19,3 +19,6 @@ A list of the modifications to the standard architecture I have made is as follo
 * Add carry flag and make its state consistent with that in PicoBlaze
 * Add ADDCY, SUBCY, BRCARRY, SBRCARRY, CALLCARRY, CALLZERO
 * Use the same semantics for testing & comparison as in PicoBlaze
+* Add SL0, SL1, SLX, SLA, SR0, SR1, SRX, SRA, RL, RR commands (consistent with PB)
+* Add PASS. This is a specific instruction to aid with translation and does nothing
+* Add OVER, UNDER, TUCK, TUCK2, NIP 
