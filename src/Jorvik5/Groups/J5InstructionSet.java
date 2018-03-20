@@ -58,7 +58,7 @@ public enum J5InstructionSet {
     STOP,		// Halt execution
     PASS,       // For translation, indicates missed conditional branch
 
-    // J5Stack Management
+    // Stack Management
     DROP,		// Remove top item (X -> )
     SWAP,		// Swap top 2 on stack (XY -> YX)
     ROT,		// Rotate top 3 items in stack (XYZ -> YZX)
