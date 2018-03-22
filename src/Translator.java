@@ -165,6 +165,8 @@ public class Translator {
 
         while (optimisationsPerformed) {
             optimisationsPerformed = singlePassPeepholeOptimiseJ5(instructions);
+
+            // I don't think this needs to be in the loop. I think it can probably be before it.
             optimisationsPerformed |= removeRedundantStores(instructions);
 
             List<J5Instruction> nopsRemoved = new ArrayList<>();
@@ -939,11 +941,9 @@ public class Translator {
 
         pbParser.RESET();
         int pbPC = this.pbPC.get();
-        int currentBlock = 0;
-        int nextBlock = pbParser.getNextBlockStart(picoBlazeInstructions, pbPC);
         while (pbPC < picoBlazeInstructions.length) {
-            currentBlock = pbPC;
-            nextBlock = pbParser.getNextBlockStart(picoBlazeInstructions, pbPC);
+            int currentBlock = pbPC;
+            int nextBlock = pbParser.getNextBlockStart(picoBlazeInstructions, pbPC);
 
             if (j5BlockInstructions[currentBlock] == null) {
                 picoBlazeInstructions[currentBlock].isBlockStart = true;
