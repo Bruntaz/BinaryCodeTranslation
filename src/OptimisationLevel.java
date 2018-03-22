@@ -4,4 +4,5 @@ public enum OptimisationLevel {
     level2,
     level3,
     level4,
+    level5,
 }

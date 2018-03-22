@@ -166,9 +166,6 @@ public class Translator {
         while (optimisationsPerformed) {
             optimisationsPerformed = singlePassPeepholeOptimiseJ5(instructions);
 
-            // I don't think this needs to be in the loop. I think it can probably be before it.
-            optimisationsPerformed |= removeRedundantStores(instructions);
-
             List<J5Instruction> nopsRemoved = new ArrayList<>();
             for (J5Instruction instruction : instructions) {
                 if (instruction.instruction != J5InstructionSet.NOP) {
@@ -200,8 +197,10 @@ public class Translator {
                         j5Instructions.set(j, j5Lexer.lex("NOP"));
                         optimisationsPerformed = true;
 
-                    } else if (redundantStore.instruction == J5InstructionSet.FETCH &&
-                            redundantStore.arg.equals(location)) {
+                    } else if ((redundantStore.instruction == J5InstructionSet.FETCH &&
+                            redundantStore.arg.equals(location)) ||
+                            (redundantStore.instruction == J5InstructionSet.IFETCH &&
+                            storeInstruction.arg.getValue() >= registerOffset)) {
                         // Location has been fetched since previous STORE so previous STOREs aren't redundant
                         break;
                     }
@@ -308,7 +307,7 @@ public class Translator {
                         J5Instruction storeInstruction = j5Instructions.get(j);
 
                         if (storeInstruction.instruction == J5InstructionSet.ISTORE) {
-                            if (optimisationLevel == OptimisationLevel.level4) {
+                            if (optimisationLevel == OptimisationLevel.level5) {
                                 if (!(j > 1 && j5Instructions.get(j-1).instruction == J5InstructionSet.ADD &&
                                         j5Instructions.get(j-2).equals(
                                                 j5Lexer.lex("SSET 20")
@@ -350,14 +349,28 @@ public class Translator {
     private J5Instruction[] translateBlock(PBInstruction[] pbInstructions, int blockStart, OptimisationLevel optimisationLevel) {
         List<J5Instruction> flattened = getFlattenedInstructionBlock(pbInstructions, blockStart);
 
+        /*
+        * Level 0 = No optimisation
+        * Level 1 = Just peephole
+        * Level 2 = Koopman with no peephole
+        * Level 3 = Koopman with peephole
+        * Level 4 = Koopman with peephole and redundant stores removed
+        * Level 5 = All optimisations
+        */
+
         if (optimisationLevel == OptimisationLevel.level2 || optimisationLevel == OptimisationLevel.level3 ||
-                optimisationLevel == OptimisationLevel.level4) {
+                optimisationLevel == OptimisationLevel.level4 || optimisationLevel == OptimisationLevel.level5) {
             // Algorithm steps 1 & 2: Get pairs and schedule
             koopmanOptimise(flattened, optimisationLevel);
         }
 
+        if (optimisationLevel == OptimisationLevel.level4 || optimisationLevel == OptimisationLevel.level5) {
+            // Algorithm step 2.5: Remove redundant stores
+            removeRedundantStores(flattened);
+        }
+
         if (optimisationLevel == OptimisationLevel.level1 || optimisationLevel == OptimisationLevel.level3 ||
-                optimisationLevel == OptimisationLevel.level4) {
+                optimisationLevel == OptimisationLevel.level4 || optimisationLevel == OptimisationLevel.level5) {
             // Algorithm step 3: Peephole optimisation
             flattened = peepholeOptimiseJ5(flattened);
             System.out.println("Optimised: " + Arrays.toString(flattened.toArray()));
@@ -1136,6 +1149,9 @@ public class Translator {
                         break;
                     case "4":
                         translator.runPicoBlazeFileOnJ5(filePath, OptimisationLevel.level4);
+                        break;
+                    case "5":
+                        translator.runPicoBlazeFileOnJ5(filePath, OptimisationLevel.level5);
                         break;
                     default:
                         throw new Error("Invalid optimisation level");
