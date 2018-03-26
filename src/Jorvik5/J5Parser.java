@@ -90,7 +90,7 @@ public class J5Parser {
     }
 
     public void parse(J5Instruction instruction) {
-        System.out.println(instruction);
+//        System.out.println(instruction);
 
         if (instruction.instruction == J5InstructionSet.NOP || instruction.instruction == J5InstructionSet.STOP ||
             instruction.instruction == J5InstructionSet.PASS) {
@@ -273,7 +273,7 @@ public class J5Parser {
                 throw new Error("Instruction " + instruction.instruction + " not supported yet.");
         }
 
-        System.out.println(stack);
+//        System.out.println(stack);
         clockCycles += 1;
     }
 

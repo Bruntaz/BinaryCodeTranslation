@@ -966,25 +966,25 @@ public class Translator {
                     j5Instructions[instructionNumber] = translate(picoBlazeInstructions[instructionNumber], instructionNumber);
                 }
 
-                System.out.println("-------------Currently translated---------------");
-                for (int i=0; i<j5Instructions.length; i++) {
-                    System.out.println(Arrays.toString(j5Instructions[i]) + ", " + picoBlazeInstructions[i].instruction);
-                }
-                System.out.println("-------------Currently translated---------------");
+//                System.out.println("-------------Currently translated---------------");
+//                for (int i=0; i<j5Instructions.length; i++) {
+//                    System.out.println(Arrays.toString(j5Instructions[i]) + ", " + picoBlazeInstructions[i].instruction);
+//                }
+//                System.out.println("-------------Currently translated---------------");
 
                 j5BlockInstructions[currentBlock] = translateBlock(picoBlazeInstructions, currentBlock,
                         optimisationLevel);
 
-                System.out.println("-------------Block translated---------------");
-                for (int i=0; i<j5BlockInstructions.length; i++) {
-                    System.out.println(Arrays.toString(j5BlockInstructions[i]));
-                }
-                System.out.println("-------------Block translated---------------");
+//                System.out.println("-------------Block translated---------------");
+//                for (int i=0; i<j5BlockInstructions.length; i++) {
+//                    System.out.println(Arrays.toString(j5BlockInstructions[i]));
+//                }
+//                System.out.println("-------------Block translated---------------");
             }
 
             j5PC.set(currentBlock, false);
-            System.out.println("################################################ PBPC = " + pbPC);
-            System.out.println("PicoBlaze Instruction: " + picoBlazeInstructions[pbPC]);
+//            System.out.println("################################################ PBPC = " + pbPC);
+//            System.out.println("PicoBlaze Instruction: " + picoBlazeInstructions[pbPC]);
 
             countInstructionPairs(j5BlockInstructions[currentBlock], dynamicPairFrequency);
 
@@ -1044,7 +1044,7 @@ public class Translator {
             }
 
             pbPC = this.pbPC.get();
-            System.out.println(J5ScratchPad.getInstance());
+//            System.out.println(J5ScratchPad.getInstance());
         }
 
         outputCodeToFile(j5BlockInstructions);

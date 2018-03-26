@@ -76,16 +76,24 @@ public class PBParser {
         } else {
             switch (arg0.getStringValue()) {
                 case PBFlagArgument.C:
-                    programCounter.push(registers.C ? arg1.getIntValue() : programCounter.get());
+                    if (registers.C) {
+                        programCounter.push(arg1.getIntValue());
+                    }
                     break;
                 case PBFlagArgument.NC:
-                    programCounter.push(registers.C ? programCounter.get() : arg1.getIntValue());
+                    if (!registers.C) {
+                        programCounter.push(arg1.getIntValue());
+                    }
                     break;
                 case PBFlagArgument.Z:
-                    programCounter.push(registers.Z ? arg1.getIntValue() : programCounter.get());
+                    if (registers.Z) {
+                        programCounter.push(arg1.getIntValue());
+                    }
                     break;
                 case PBFlagArgument.NZ:
-                    programCounter.push(registers.Z ? programCounter.get() : arg1.getIntValue());
+                    if (!registers.Z) {
+                        programCounter.push(arg1.getIntValue());
+                    }
                     break;
             }
         }
@@ -150,7 +158,7 @@ public class PBParser {
     }
 
     public void parse(PBInstruction instruction) {
-        System.out.println(instruction);
+//        System.out.println(instruction);
 
         if (instruction.instruction == PBInstructionSet.NOP) {
             return;
@@ -286,7 +294,7 @@ public class PBParser {
             programCounter.increment();
             parse(instruction);
 
-            System.out.println(registers);
+//            System.out.println(registers);
         }
 
         System.out.println(String.format("Finished in %d clock cycles", clockCycles));
