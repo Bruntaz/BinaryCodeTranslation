@@ -22,12 +22,12 @@ public class Translator {
     private J5Lexer j5Lexer = J5Lexer.getInstance();
     private J5Parser j5Parser = J5Parser.getInstance();
 
-    private int memorySize = 128;
+    private int memorySize = PBScratchPad.getInstance().getMemorySize();
     private int registerOffset = 32;
     private int alternateLocationOffset = 16;
 
     private HashMap<PBRegisterName, Integer> registerMemoryLocation = new HashMap<PBRegisterName, Integer>() {{
-        put(PBRegisterName.S0, memorySize+0);
+        put(PBRegisterName.S0, memorySize);
         put(PBRegisterName.S1, memorySize+1);
         put(PBRegisterName.S2, memorySize+2);
         put(PBRegisterName.S3, memorySize+3);
@@ -201,7 +201,7 @@ public class Translator {
                     } else if ((redundantStore.instruction == J5InstructionSet.FETCH &&
                             redundantStore.arg.equals(location)) ||
                             (redundantStore.instruction == J5InstructionSet.IFETCH &&
-                            storeInstruction.arg.getValue() < memorySize)) { //registerOffset)) {
+                            storeInstruction.arg.getValue() < memorySize)) {
                         // Location has been fetched since previous STORE so previous STOREs aren't redundant
                         break;
                     }
@@ -307,18 +307,7 @@ public class Translator {
                     for (int j = i - 1; j >= 0; j--) {
                         J5Instruction storeInstruction = j5Instructions.get(j);
 
-                        if (storeInstruction.instruction == J5InstructionSet.ISTORE) {
-                            if (optimisationLevel == OptimisationLevel.level5) {
-                                if (!(j > 1 && j5Instructions.get(j-1).instruction == J5InstructionSet.ADD &&
-                                        j5Instructions.get(j-2).equals(
-                                                j5Lexer.lex("SSET 20")
-                                        ))) {
-                                    break; // If an ISTORE is between the pair, do not optimise
-                                }
-                            } else {
-                                break;
-                            }
-                        }
+                        // Registers can't be accessed indirectly so it isn't necessary to break on ISTORE
 
                         if (location.equals(storeInstruction.arg)) {
                             pairs.add(new Pair(j, i, location));
@@ -843,8 +832,6 @@ public class Translator {
                     return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)), // Register to store
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)), // Register with location
-//                            j5Lexer.lex("SSET " + Integer.toHexString(registerOffset)), // Change location to next line in memory
-//                            j5Lexer.lex("ADD"),
                             j5Lexer.lex("ISTORE"), // Location at TOS
                             j5Lexer.lex("DROP"),
                             j5Lexer.lex("DROP"),
@@ -852,7 +839,7 @@ public class Translator {
                 } else {
                     return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
-                            j5Lexer.lex("STORE " + Integer.toHexString(arg1.getIntValue())),// + registerOffset)),
+                            j5Lexer.lex("STORE " + Integer.toHexString(arg1.getIntValue())),
                             j5Lexer.lex("DROP"),
                     };
                 }
@@ -860,9 +847,6 @@ public class Translator {
                 if (arg1 instanceof PBRegister) {
                     return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)), // Register with location
-//                            j5Lexer.lex("SSET " + Integer.toHexString(registerOffset)), // Change location to next
-//                            // line in memory
-//                            j5Lexer.lex("ADD"),
                             j5Lexer.lex("IFETCH"), // Location at TOS
                             j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)), // Store in register
                             j5Lexer.lex("DROP"),
@@ -870,7 +854,7 @@ public class Translator {
                     };
                 } else {
                     return new J5Instruction[] {
-                            j5Lexer.lex("FETCH " + Integer.toHexString(arg1.getIntValue())),// + registerOffset)),
+                            j5Lexer.lex("FETCH " + Integer.toHexString(arg1.getIntValue())),
                             j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
                             j5Lexer.lex("DROP"),
                     };
