@@ -22,23 +22,27 @@ public class Translator {
     private J5Lexer j5Lexer = J5Lexer.getInstance();
     private J5Parser j5Parser = J5Parser.getInstance();
 
+    private int memorySize = 128;
+    private int registerOffset = 32;
+    private int alternateLocationOffset = 16;
+
     private HashMap<PBRegisterName, Integer> registerMemoryLocation = new HashMap<PBRegisterName, Integer>() {{
-        put(PBRegisterName.S0, 0);
-        put(PBRegisterName.S1, 1);
-        put(PBRegisterName.S2, 2);
-        put(PBRegisterName.S3, 3);
-        put(PBRegisterName.S4, 4);
-        put(PBRegisterName.S5, 5);
-        put(PBRegisterName.S6, 6);
-        put(PBRegisterName.S7, 7);
-        put(PBRegisterName.S8, 8);
-        put(PBRegisterName.S9, 9);
-        put(PBRegisterName.SA, 10);
-        put(PBRegisterName.SB, 11);
-        put(PBRegisterName.SC, 12);
-        put(PBRegisterName.SD, 13);
-        put(PBRegisterName.SE, 14);
-        put(PBRegisterName.SF, 15);
+        put(PBRegisterName.S0, memorySize+0);
+        put(PBRegisterName.S1, memorySize+1);
+        put(PBRegisterName.S2, memorySize+2);
+        put(PBRegisterName.S3, memorySize+3);
+        put(PBRegisterName.S4, memorySize+4);
+        put(PBRegisterName.S5, memorySize+5);
+        put(PBRegisterName.S6, memorySize+6);
+        put(PBRegisterName.S7, memorySize+7);
+        put(PBRegisterName.S8, memorySize+8);
+        put(PBRegisterName.S9, memorySize+9);
+        put(PBRegisterName.SA, memorySize+10);
+        put(PBRegisterName.SB, memorySize+11);
+        put(PBRegisterName.SC, memorySize+12);
+        put(PBRegisterName.SD, memorySize+13);
+        put(PBRegisterName.SE, memorySize+14);
+        put(PBRegisterName.SF, memorySize+15);
     }};
 
     private HashMap<J5InstructionPair, Integer> staticPairFrequency = new HashMap<>();
@@ -66,9 +70,6 @@ public class Translator {
             J5InstructionSet.SR0, J5InstructionSet.SR1, J5InstructionSet.SRX, J5InstructionSet.SRA, J5InstructionSet.RL,
             J5InstructionSet.RR, J5InstructionSet.NOP, J5InstructionSet.STOP, J5InstructionSet.PASS)
     );
-
-    private int registerOffset = 32;
-    private int alternateLocationOffset = 16;
 
     private String translateRegisterIntoMemory(PBInstructionArgument register, int offset) {
         PBRegisterName registerName = ((PBRegister) register).getRegisterName();
@@ -200,7 +201,7 @@ public class Translator {
                     } else if ((redundantStore.instruction == J5InstructionSet.FETCH &&
                             redundantStore.arg.equals(location)) ||
                             (redundantStore.instruction == J5InstructionSet.IFETCH &&
-                            storeInstruction.arg.getValue() >= registerOffset)) {
+                            storeInstruction.arg.getValue() < memorySize)) { //registerOffset)) {
                         // Location has been fetched since previous STORE so previous STOREs aren't redundant
                         break;
                     }
@@ -842,8 +843,8 @@ public class Translator {
                     return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)), // Register to store
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)), // Register with location
-                            j5Lexer.lex("SSET " + Integer.toHexString(registerOffset)), // Change location to next line in memory
-                            j5Lexer.lex("ADD"),
+//                            j5Lexer.lex("SSET " + Integer.toHexString(registerOffset)), // Change location to next line in memory
+//                            j5Lexer.lex("ADD"),
                             j5Lexer.lex("ISTORE"), // Location at TOS
                             j5Lexer.lex("DROP"),
                             j5Lexer.lex("DROP"),
@@ -851,7 +852,7 @@ public class Translator {
                 } else {
                     return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
-                            j5Lexer.lex("STORE " + Integer.toHexString(arg1.getIntValue() + registerOffset)),
+                            j5Lexer.lex("STORE " + Integer.toHexString(arg1.getIntValue())),// + registerOffset)),
                             j5Lexer.lex("DROP"),
                     };
                 }
@@ -859,9 +860,9 @@ public class Translator {
                 if (arg1 instanceof PBRegister) {
                     return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)), // Register with location
-                            j5Lexer.lex("SSET " + Integer.toHexString(registerOffset)), // Change location to next
-                            // line in memory
-                            j5Lexer.lex("ADD"),
+//                            j5Lexer.lex("SSET " + Integer.toHexString(registerOffset)), // Change location to next
+//                            // line in memory
+//                            j5Lexer.lex("ADD"),
                             j5Lexer.lex("IFETCH"), // Location at TOS
                             j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)), // Store in register
                             j5Lexer.lex("DROP"),
@@ -869,7 +870,7 @@ public class Translator {
                     };
                 } else {
                     return new J5Instruction[] {
-                            j5Lexer.lex("FETCH " + Integer.toHexString(arg1.getIntValue() + registerOffset)),
+                            j5Lexer.lex("FETCH " + Integer.toHexString(arg1.getIntValue())),// + registerOffset)),
                             j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
                             j5Lexer.lex("DROP"),
                     };
