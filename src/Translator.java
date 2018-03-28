@@ -227,15 +227,13 @@ public class Translator {
                         j5Instructions.set(j, j5Lexer.lex("DROP"));
                         optimisationsPerformed = true;
 
-                    } else if (redundantStore.instruction == J5InstructionSet.FETCH &&
-                            redundantStore.arg.equals(location)) {
                     } else if ((redundantStore.instruction == J5InstructionSet.FETCH &&
                             redundantStore.arg.equals(location)) ||
                             (redundantStore.instruction == J5InstructionSet.IFETCH &&
                             storeInstruction.arg.getValue() < memorySize)) {
                         // Location has been fetched since previous STORE so previous STOREs aren't redundant
                         break;
-                    }// TODO: Go in and fix this
+                    }
                 }
             }
         }
