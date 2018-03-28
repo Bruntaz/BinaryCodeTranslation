@@ -1,0 +1,52 @@
+initialiseMemory:
+    SSET fe     ; (n)
+    DUP         ; (n, x)
+    DUP         ; (n, x, x)
+    SR0         ; (n, x, loopIterations)
+    LBRANCH main
+
+divide:
+    OVER        ; (loopIterations, n, x, R)
+    OVER        ; (loopIterations, n, x, R, by)
+    SSET 0      ; (loopIterations, n, x, R, by, Q)
+    ROT         ; (loopIterations, n, x, Q, R, by)
+    SWAP        ; (loopIterations, n, x, Q, by, R)
+
+    COMPARE
+    BRCARRY 2
+    LBRANCH whileLoop
+    RETURN
+
+    whileLoop:
+        RROT    ; (loopIterations, n, x, by, R, Q)
+        INC     ; (loopIterations, n, x, by, R, Q)
+        ROT     ; (loopIterations, n, x, Q, by, R)
+        OVER    ; (loopIterations, n, x, Q, by, R, by)
+        SUB     ; (loopIterations, n, x, Q, by, R)
+        COMPARE
+        BRCARRY 2
+        LBRANCH whileLoop
+
+    RETURN
+
+squareRoot:
+    ROT         ; (loopIterations, n, x)
+
+    CALL divide ; (loopIterations, n, x, Q, by, R)
+
+    DROP        ; (loopIterations, n, x, Q, by)
+    DROP        ; (loopIterations, n, x, Q)
+    ADD         ; (loopIterations, n, x)
+    SR0         ; (loopIterations, n, x)
+
+    RROT        ; (n, x, loopIterations)
+    DEC         ; Decrement number of iterations
+    SSET 0      ; (n, x, loopIterations, 0)
+    COMPARE
+    DROP        ; (n, x, loopIterations)
+    BRZERO 2
+    LBRANCH squareRoot
+    RETURN
+
+main:
+    CALL squareRoot

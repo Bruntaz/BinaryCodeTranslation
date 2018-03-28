@@ -2,6 +2,56 @@
 ; ScratchPad 7f will be used to track swaps
 
 initialiseMemory:
+    LBRANCH main
+
+shouldSwap:         ; Swap the values in inspected memory locations
+    SSET 1          ; Set SP 10 to 1 to indicate swaps have occurred
+    STORE 7f
+    DROP
+    RROT
+    DEC             ; Set pointer to first location
+    ISTORE          ; Store second in first location
+    RROT
+    SWAP
+    INC             ; Set pointer to second location
+    ISTORE          ; Store first in second location
+    ROT             ; Put pointer back to BOS
+    RETURN
+
+loopThrough:
+    SSET 0              ; Both used for address and resetting swaps
+    STORE 7f
+
+    loop:
+        IFETCH          ; Load values to stack
+        SWAP
+        INC
+        IFETCH
+        RROT            ; Put address pointer to bottom of stack
+
+        SWAP
+        COMPARE         ; If second < first, swap
+        CALLCARRY shouldSwap
+        DROP
+        DROP
+
+        SSET 63         ; Test if reached the end of the array
+        COMPARE
+        DROP
+        BRZERO 2
+        LBRANCH loop
+
+    FETCH 7f            ; Have there been any swaps?
+    SSET 0
+    COMPARE
+    DROP
+    DROP
+    DROP
+    BRZERO 2            ; If not, the numbers are sorted
+    LBRANCH loopThrough
+    RETURN
+
+main:
     SSET 59
     STORE 0
     DROP
@@ -302,60 +352,4 @@ initialiseMemory:
     SSET a
     STORE 63
     DROP
-    LBRANCH main
-
-loadToStack:
-    IFETCH
-    SWAP
-    INC
-    IFETCH
-    RROT                ; Put address pointer to bottom of stack
-    RETURN
-
-swapValues:
-    SWAP
-    COMPARE             ; If second < first, swap
-    CALLCARRY shouldSwap
-    DROP
-    DROP
-    RETURN
-
-    shouldSwap:         ; Swap the values in inspected memory locations
-        SSET 1          ; Set SP 10 to 1 to indicate swaps have occurred
-        STORE 7f
-        DROP
-        RROT
-        DEC             ; Set pointer to first location
-        ISTORE          ; Store second in first location
-        RROT
-        SWAP
-        INC             ; Set pointer to second location
-        ISTORE          ; Store first in second location
-        ROT             ; Put pointer back to BOS
-        RETURN
-
-loopThrough:
-    SSET 0              ; Both used for address and resetting swaps
-    STORE 7f
-
-    loop:
-        CALL loadToStack
-        CALL swapValues
-        SSET 63         ; Test if reached the end of the array
-        COMPARE
-        DROP
-        BRZERO 2
-        LBRANCH loop
-
-    FETCH 7f            ; Have there been any swaps?
-    SSET 0
-    COMPARE
-    DROP
-    DROP
-    DROP
-    BRZERO 2            ; If not, the numbers are sorted
-    LBRANCH loopThrough
-    RETURN
-
-main:
     CALL loopThrough

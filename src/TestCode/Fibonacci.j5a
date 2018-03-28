@@ -1,5 +1,5 @@
 initialiseMemory:
-    SSET 14     ;                   Target number
+    SSET 15     ;                   Target number
     STORE 4
     DROP
 

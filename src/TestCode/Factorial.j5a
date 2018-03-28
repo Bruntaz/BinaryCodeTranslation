@@ -1,0 +1,82 @@
+initialiseMemory:
+    SSET a      ; (n)
+
+    SSET 0      ; (n, a1)
+    STORE 0     ; (n, a1)
+    DROP        ; (n)
+
+    SSET 0      ; (n, a2)
+    STORE 1     ; (n, a2)
+    DROP        ; (n)
+
+    DUP         ; (n, a3)
+
+    LBRANCH main
+
+multiply:
+    UNDER       ; (n, l, m3)            ; a becomes m
+    SSET 0      ; (n, l, m3, a3)        ; a reset to 0
+
+    STORE 2     ; (n, l, m3, a3, m2)    ; Reset a1
+    STORE 3     ; (n, l, m3, a3, m1)    ; Reset a2
+
+    whileLoop:
+        OVER    ; (n, l, m3, a3, m3)
+        ADD     ; (n, l, m3, a3)
+
+        FETCH 1 ; (n, l, m3, a3, m2)
+        FETCH 3 ; (n, l, m3, a3, m2, a2)
+        ADDCY   ; (n, l, m3, a3, a2)
+        STORE 3 ; (n, l, m3, a3, a2)
+        DROP    ; (n, l, m3, a3
+
+        FETCH 0 ; (n, l, m3, a3, m1)
+        FETCH 2 ; (n, l, m3, a3, m1, a1)
+        ADDCY   ; (n, l, m3, a3, a1)
+        STORE 2 ; (n, l, m3, a3, a1)
+        DROP    ; (n, l, m3, a3)
+
+        RROT    ; (n, m3, a3, l)
+        DEC     ; (n, m3, a3, l)
+        SSET 0  ; (n, m3, a3, l, 0)
+        COMPARE
+
+        DROP    ; (n, m3, a3, l)
+        ROT     ; (n, l, m3, a3)
+
+        BRZERO 2
+        LBRANCH whileLoop
+
+    FETCH 2
+    STORE 0
+    DROP
+
+    FETCH 3
+    STORE 1
+    DROP
+
+    RETURN
+
+factorial:
+    DEC             ; (a3, n)
+    SSET 1          ; (a3, n, 2)
+    COMPARE
+    DROP            ; (a3, n)
+
+    BRZERO 2
+    LBRANCH cont
+    RETURN
+
+    cont:
+    SWAP            ; (n, a3)
+    CALL multiply   ; (n, l, m3, a3)
+    ROT             ; (n, a3, l, m3)
+    DROP            ; (n, a3, l)
+    DROP            ; (n, a3)
+    SWAP            ; (a3, n)
+    LBRANCH factorial
+
+main:
+    CALL factorial
+    SWAP            ; (n, a3)
+    STORE 2

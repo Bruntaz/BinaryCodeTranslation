@@ -1,0 +1,43 @@
+; s0 will be used for the number to square root
+; s1 will be used for the storage of the square root
+; s2 will be used for the number of iterations to still do
+; s3 for division result
+; s4 for division by
+; s5 for remainder
+
+initialiseMemory:
+    LOAD s0, fe             ; n = 254 (255 will overflow so loop infinitely)
+    LOAD s1, s0             ; x = n
+    LOAD s2, s0
+    SR0 s2                  ; n / 2
+    JUMP main
+
+divide:
+    LOAD s4, s1             ; by = x
+    LOAD s3, 0              ; Q = 0
+    LOAD s5, s0             ; R = n
+
+    COMPARE s5, s4          ; R >= by
+    RETURN C
+
+    whileLoop:
+        ADD s3, 1           ; Q += 1
+        SUB s5, s4          ; R -= by
+        COMPARE s5, s4
+        JUMP NC, whileLoop  ; R >= by
+
+    RETURN
+
+squareRoot:
+    CALL divide
+
+    ADD s1, s3              ; x = x + divide(n, x)
+    SR0 s1                  ; x = x/2
+
+    SUB s2, 1               ; Decrement number of loops
+    COMPARE s2, 0
+    JUMP NZ, squareRoot
+    RETURN
+
+main:
+    CALL squareRoot

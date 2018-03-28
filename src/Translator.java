@@ -22,23 +22,27 @@ public class Translator {
     private J5Lexer j5Lexer = J5Lexer.getInstance();
     private J5Parser j5Parser = J5Parser.getInstance();
 
+    private int memorySize = PBScratchPad.getInstance().getMemorySize();
+    private int registerOffset = 32;
+    private int alternateLocationOffset = 16;
+
     private HashMap<PBRegisterName, Integer> registerMemoryLocation = new HashMap<PBRegisterName, Integer>() {{
-        put(PBRegisterName.S0, 0);
-        put(PBRegisterName.S1, 1);
-        put(PBRegisterName.S2, 2);
-        put(PBRegisterName.S3, 3);
-        put(PBRegisterName.S4, 4);
-        put(PBRegisterName.S5, 5);
-        put(PBRegisterName.S6, 6);
-        put(PBRegisterName.S7, 7);
-        put(PBRegisterName.S8, 8);
-        put(PBRegisterName.S9, 9);
-        put(PBRegisterName.SA, 10);
-        put(PBRegisterName.SB, 11);
-        put(PBRegisterName.SC, 12);
-        put(PBRegisterName.SD, 13);
-        put(PBRegisterName.SE, 14);
-        put(PBRegisterName.SF, 15);
+        put(PBRegisterName.S0, memorySize);
+        put(PBRegisterName.S1, memorySize+1);
+        put(PBRegisterName.S2, memorySize+2);
+        put(PBRegisterName.S3, memorySize+3);
+        put(PBRegisterName.S4, memorySize+4);
+        put(PBRegisterName.S5, memorySize+5);
+        put(PBRegisterName.S6, memorySize+6);
+        put(PBRegisterName.S7, memorySize+7);
+        put(PBRegisterName.S8, memorySize+8);
+        put(PBRegisterName.S9, memorySize+9);
+        put(PBRegisterName.SA, memorySize+10);
+        put(PBRegisterName.SB, memorySize+11);
+        put(PBRegisterName.SC, memorySize+12);
+        put(PBRegisterName.SD, memorySize+13);
+        put(PBRegisterName.SE, memorySize+14);
+        put(PBRegisterName.SF, memorySize+15);
     }};
 
     private HashMap<J5InstructionPair, Integer> staticPairFrequency = new HashMap<>();
@@ -70,9 +74,6 @@ public class Translator {
             J5InstructionSet.SR0, J5InstructionSet.SR1, J5InstructionSet.SRX, J5InstructionSet.SRA, J5InstructionSet.RL,
             J5InstructionSet.RR, J5InstructionSet.NOP, J5InstructionSet.STOP, J5InstructionSet.PASS)
     );
-
-    private int registerOffset = 32;
-    private int alternateLocationOffset = 16;
 
     private String translateRegisterIntoMemory(PBInstructionArgument register, int offset) {
         PBRegisterName registerName = ((PBRegister) register).getRegisterName();
@@ -168,6 +169,12 @@ public class Translator {
                 j5Instructions.set(i+1, j5Lexer.lex("NOP"));
                 optimisationsPerformed = true;
 
+            } else if (j5Instructions.get(i).instruction == J5InstructionSet.SWAP &&
+                    j5Instructions.get(i+1).instruction == J5InstructionSet.DROP) {
+                j5Instructions.set(i, j5Lexer.lex("NIP"));
+                j5Instructions.set(i+1, j5Lexer.lex("NOP"));
+                optimisationsPerformed = true;
+
             } // else if TUCK then STORE then ADD becomes SWAP then STORE then ADD
         }
 
@@ -181,7 +188,6 @@ public class Translator {
 
         while (optimisationsPerformed) {
             optimisationsPerformed = singlePassPeepholeOptimiseJ5(instructions);
-            optimisationsPerformed |= removeRedundantStores(instructions);
 
             List<J5Instruction> nopsRemoved = new ArrayList<>();
             for (J5Instruction instruction : instructions) {
@@ -210,8 +216,7 @@ public class Translator {
                 for (int j = i - 1; j >= 0; j--) {
                     J5Instruction redundantStore = j5Instructions.get(j);
 
-                    if (redundantStore.instruction == J5InstructionSet.STORE &&
-                        redundantStore.arg.equals(location)) {
+                    if (redundantStore.equals(storeInstruction)) {
                         // Remove STORE instruction since value hasn't been modified since last use
                         j5Instructions.set(j, j5Lexer.lex("NOP"));
                         optimisationsPerformed = true;
@@ -224,20 +229,13 @@ public class Translator {
 
                     } else if (redundantStore.instruction == J5InstructionSet.FETCH &&
                             redundantStore.arg.equals(location)) {
+                    } else if ((redundantStore.instruction == J5InstructionSet.FETCH &&
+                            redundantStore.arg.equals(location)) ||
+                            (redundantStore.instruction == J5InstructionSet.IFETCH &&
+                            storeInstruction.arg.getValue() < memorySize)) {
                         // Location has been fetched since previous STORE so previous STOREs aren't redundant
                         break;
-                    }
-
-//                    if (redundantStore.equals(storeInstruction)) {
-//                        // Remove STORE instruction since value hasn't been modified since last use
-//                        j5Instructions.set(j, j5Lexer.lex("NOP"));
-//                        optimisationsPerformed = true;
-//
-//                    } else if (redundantStore.instruction == J5InstructionSet.FETCH &&
-//                            redundantStore.arg.equals(location)) {
-//                        // Location has been fetched since previous STORE so previous STOREs aren't redundant
-//                        break;
-//                    }
+                    }// TODO: Go in and fix this
                 }
             }
         }
@@ -345,18 +343,7 @@ public class Translator {
                     for (int j = i - 1; j >= 0; j--) {
                         J5Instruction storeInstruction = j5Instructions.get(j);
 
-                        if (storeInstruction.instruction == J5InstructionSet.ISTORE) {
-                            if (optimisationLevel == OptimisationLevel.level4) {
-                                if (!(j > 1 && j5Instructions.get(j-1).instruction == J5InstructionSet.ADD &&
-                                        j5Instructions.get(j-2).equals(
-                                                j5Lexer.lex("SSET 20")
-                                        ))) {
-                                    break; // If an ISTORE is between the pair, do not optimise
-                                }
-                            } else {
-                                break;
-                            }
-                        }
+                        // Registers can't be accessed indirectly so it isn't necessary to break on ISTORE
 
                         if (location.equals(storeInstruction.arg)) {
                             pairs.add(new Pair(j, i, location));
@@ -388,14 +375,28 @@ public class Translator {
     private J5Instruction[] translateBlock(PBInstruction[] pbInstructions, int blockStart, OptimisationLevel optimisationLevel) {
         List<J5Instruction> flattened = getFlattenedInstructionBlock(pbInstructions, blockStart);
 
+        /*
+        * Level 0 = No optimisation
+        * Level 1 = Just peephole
+        * Level 2 = Koopman with no peephole
+        * Level 3 = Koopman with peephole
+        * Level 4 = Koopman with peephole and redundant stores removed
+        * Level 5 = All optimisations
+        */
+
         if (optimisationLevel == OptimisationLevel.level2 || optimisationLevel == OptimisationLevel.level3 ||
-                optimisationLevel == OptimisationLevel.level4) {
+                optimisationLevel == OptimisationLevel.level4 || optimisationLevel == OptimisationLevel.level5) {
             // Algorithm steps 1 & 2: Get pairs and schedule
             koopmanOptimise(flattened, optimisationLevel);
         }
 
+        if (optimisationLevel == OptimisationLevel.level4 || optimisationLevel == OptimisationLevel.level5) {
+            // Algorithm step 2.5: Remove redundant stores
+            removeRedundantStores(flattened);
+        }
+
         if (optimisationLevel == OptimisationLevel.level1 || optimisationLevel == OptimisationLevel.level3 ||
-                optimisationLevel == OptimisationLevel.level4) {
+                optimisationLevel == OptimisationLevel.level4 || optimisationLevel == OptimisationLevel.level5) {
             // Algorithm step 3: Peephole optimisation
             flattened = peepholeOptimiseJ5(flattened);
             System.out.println("Optimised: " + Arrays.toString(flattened.toArray()));
@@ -867,8 +868,6 @@ public class Translator {
                     return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)), // Register to store
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)), // Register with location
-                            j5Lexer.lex("SSET " + Integer.toHexString(registerOffset)), // Change location to next line in memory
-                            j5Lexer.lex("ADD"),
                             j5Lexer.lex("ISTORE"), // Location at TOS
                             j5Lexer.lex("DROP"),
                             j5Lexer.lex("DROP"),
@@ -876,7 +875,7 @@ public class Translator {
                 } else {
                     return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg0)),
-                            j5Lexer.lex("STORE " + Integer.toHexString(arg1.getIntValue() + registerOffset)),
+                            j5Lexer.lex("STORE " + Integer.toHexString(arg1.getIntValue())),
                             j5Lexer.lex("DROP"),
                     };
                 }
@@ -884,9 +883,6 @@ public class Translator {
                 if (arg1 instanceof PBRegister) {
                     return new J5Instruction[] {
                             j5Lexer.lex("FETCH " + translateRegisterIntoMemory(arg1)), // Register with location
-                            j5Lexer.lex("SSET " + Integer.toHexString(registerOffset)), // Change location to next
-                            // line in memory
-                            j5Lexer.lex("ADD"),
                             j5Lexer.lex("IFETCH"), // Location at TOS
                             j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)), // Store in register
                             j5Lexer.lex("DROP"),
@@ -894,7 +890,7 @@ public class Translator {
                     };
                 } else {
                     return new J5Instruction[] {
-                            j5Lexer.lex("FETCH " + Integer.toHexString(arg1.getIntValue() + registerOffset)),
+                            j5Lexer.lex("FETCH " + Integer.toHexString(arg1.getIntValue())),
                             j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
                             j5Lexer.lex("DROP"),
                     };
@@ -979,11 +975,9 @@ public class Translator {
 
         pbParser.RESET();
         int pbPC = this.pbPC.get();
-        int currentBlock = 0;
-        int nextBlock = pbParser.getNextBlockStart(picoBlazeInstructions, pbPC);
         while (pbPC < picoBlazeInstructions.length) {
-            currentBlock = pbPC;
-            nextBlock = pbParser.getNextBlockStart(picoBlazeInstructions, pbPC);
+            int currentBlock = pbPC;
+            int nextBlock = pbParser.getNextBlockStart(picoBlazeInstructions, pbPC);
 
             if (j5BlockInstructions[currentBlock] == null) {
                 picoBlazeInstructions[currentBlock].isBlockStart = true;
@@ -993,25 +987,25 @@ public class Translator {
                     j5Instructions[instructionNumber] = translate(picoBlazeInstructions[instructionNumber], instructionNumber);
                 }
 
-                System.out.println("-------------Currently translated---------------");
-                for (int i=0; i<j5Instructions.length; i++) {
-                    System.out.println(Arrays.toString(j5Instructions[i]) + ", " + picoBlazeInstructions[i].instruction);
-                }
-                System.out.println("-------------Currently translated---------------");
+//                System.out.println("-------------Currently translated---------------");
+//                for (int i=0; i<j5Instructions.length; i++) {
+//                    System.out.println(Arrays.toString(j5Instructions[i]) + ", " + picoBlazeInstructions[i].instruction);
+//                }
+//                System.out.println("-------------Currently translated---------------");
 
                 j5BlockInstructions[currentBlock] = translateBlock(picoBlazeInstructions, currentBlock,
                         optimisationLevel);
 
-                System.out.println("-------------Block translated---------------");
-                for (int i=0; i<j5BlockInstructions.length; i++) {
-                    System.out.println(Arrays.toString(j5BlockInstructions[i]));
-                }
-                System.out.println("-------------Block translated---------------");
+//                System.out.println("-------------Block translated---------------");
+//                for (int i=0; i<j5BlockInstructions.length; i++) {
+//                    System.out.println(Arrays.toString(j5BlockInstructions[i]));
+//                }
+//                System.out.println("-------------Block translated---------------");
             }
 
             j5PC.set(currentBlock, false);
-            System.out.println("################################################ PBPC = " + pbPC);
-            System.out.println("PicoBlaze Instruction: " + picoBlazeInstructions[pbPC]);
+//            System.out.println("################################################ PBPC = " + pbPC);
+//            System.out.println("PicoBlaze Instruction: " + picoBlazeInstructions[pbPC]);
 
             countInstructionPairs(j5BlockInstructions[currentBlock], dynamicPairFrequency);
 
@@ -1071,7 +1065,7 @@ public class Translator {
             }
 
             pbPC = this.pbPC.get();
-            System.out.println(J5ScratchPad.getInstance());
+//            System.out.println(J5ScratchPad.getInstance());
         }
 
         outputCodeToFile(j5BlockInstructions);
@@ -1176,6 +1170,9 @@ public class Translator {
                         break;
                     case "4":
                         translator.runPicoBlazeFileOnJ5(filePath, OptimisationLevel.level4);
+                        break;
+                    case "5":
+                        translator.runPicoBlazeFileOnJ5(filePath, OptimisationLevel.level5);
                         break;
                     default:
                         throw new Error("Invalid optimisation level");
