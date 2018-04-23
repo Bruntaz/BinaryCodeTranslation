@@ -13,23 +13,6 @@ shouldSwap:
     ADD s2, 1
     RETURN
 
-loopThrough:
-    LOAD s2, 0
-    LOAD s3, 0
-
-    loop:
-        FETCH s0, s2
-        ADD s2, 1
-        FETCH s1, s2
-        COMPARE s1, s0
-        CALL C, shouldSwap
-        COMPARE s2, 99'd    ; Has s2 reached the last memory location?
-        JUMP C, loop
-
-    TEST s3, FF             ; Have there been any swaps?
-    JUMP NZ, loopThrough
-    RETURN
-
 main:
     LOAD s0, 59
     STORE s0, 0'd
@@ -231,4 +214,18 @@ main:
     STORE s0, 98'd
     LOAD s0, a
     STORE s0, 99'd
-    CALL loopThrough
+    loopThrough:
+        LOAD s2, 0
+        LOAD s3, 0
+
+        loop:
+            FETCH s0, s2
+            ADD s2, 1
+            FETCH s1, s2
+            COMPARE s1, s0
+            CALL C, shouldSwap
+            COMPARE s2, 99'd    ; Has s2 reached the last memory location?
+            JUMP C, loop
+
+        TEST s3, FF             ; Have there been any swaps?
+        JUMP NZ, loopThrough

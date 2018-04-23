@@ -26,7 +26,8 @@ routine:
     TEST s0, s1
     RETURN NZ
     RL sF
-    RETURN
+    ;RETURN
+    LOAD&RETURN sF, FF
 
 main:
     CALL routine
@@ -41,3 +42,10 @@ ADD s0, s1
 ADD s2, s3
 ADD s3, s4
 ADD s4, s5
+
+STORE s0, 0
+STORE s1, 1
+STORE s2, 2
+STORE s3, 3
+STORE s4, 4
+STORE sF, F

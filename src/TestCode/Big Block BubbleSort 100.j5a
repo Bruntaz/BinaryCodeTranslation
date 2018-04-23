@@ -18,39 +18,6 @@ shouldSwap:         ; Swap the values in inspected memory locations
     ROT             ; Put pointer back to BOS
     RETURN
 
-loopThrough:
-    SSET 0              ; Both used for address and resetting swaps
-    STORE 7f
-
-    loop:
-        IFETCH          ; Load values to stack
-        SWAP
-        INC
-        IFETCH
-        RROT            ; Put address pointer to bottom of stack
-
-        SWAP
-        COMPARE         ; If second < first, swap
-        CALLCARRY shouldSwap
-        DROP
-        DROP
-
-        SSET 63         ; Test if reached the end of the array
-        COMPARE
-        DROP
-        BRZERO 2
-        LBRANCH loop
-
-    FETCH 7f            ; Have there been any swaps?
-    SSET 0
-    COMPARE
-    DROP
-    DROP
-    DROP
-    BRZERO 2            ; If not, the numbers are sorted
-    LBRANCH loopThrough
-    RETURN
-
 main:
     SSET 59
     STORE 0
@@ -352,4 +319,34 @@ main:
     SSET a
     STORE 63
     DROP
-    CALL loopThrough
+    loopThrough:
+        SSET 0              ; Both used for address and resetting swaps
+        STORE 7f
+
+        loop:
+            IFETCH          ; Load values to stack
+            SWAP
+            INC
+            IFETCH
+            RROT            ; Put address pointer to bottom of stack
+
+            SWAP
+            COMPARE         ; If second < first, swap
+            CALLCARRY shouldSwap
+            DROP
+            DROP
+
+            SSET 63         ; Test if reached the end of the array
+            COMPARE
+            DROP
+            BRZERO 2
+            LBRANCH loop
+
+        FETCH 7f            ; Have there been any swaps?
+        SSET 0
+        COMPARE
+        DROP
+        DROP
+        DROP
+        BRZERO 2            ; If not, the numbers are sorted
+        LBRANCH loopThrough

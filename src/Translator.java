@@ -45,6 +45,8 @@ public class Translator {
         put(PBRegisterName.SF, memorySize+15);
     }};
 
+    private HashMap<String, Integer> staticInstructionFrequency = new HashMap<>();
+    private HashMap<String, Integer> dynamicInstructionFrequency = new HashMap<>();
     private HashMap<J5InstructionPair, Integer> staticPairFrequency = new HashMap<>();
     private HashMap<J5InstructionPair, Integer> dynamicPairFrequency = new HashMap<>();
 
@@ -69,6 +71,52 @@ public class Translator {
             J5InstructionSet.SL0, J5InstructionSet.SL1, J5InstructionSet.SLX, J5InstructionSet.SLA,
             J5InstructionSet.SR0, J5InstructionSet.SR1, J5InstructionSet.SRX, J5InstructionSet.SRA, J5InstructionSet.RL,
             J5InstructionSet.RR, J5InstructionSet.NOP, J5InstructionSet.STOP, J5InstructionSet.PASS)
+    );
+
+    private HashSet<J5InstructionSet> assignmentGroup = new HashSet<>(Collections.singletonList(
+            J5InstructionSet.SSET)
+    );
+
+    private HashSet<J5InstructionSet> logicalGroup = new HashSet<>(Arrays.asList(
+            J5InstructionSet.AND, J5InstructionSet.OR, J5InstructionSet.XOR, J5InstructionSet.NOT)
+    );
+
+    private HashSet<J5InstructionSet> arithmeticGroup = new HashSet<>(Arrays.asList(
+            J5InstructionSet.ADD, J5InstructionSet.ADDCY, J5InstructionSet.SUB, J5InstructionSet.SUBCY,
+            J5InstructionSet.INC, J5InstructionSet.DEC)
+    );
+
+    private HashSet<J5InstructionSet> testAndCompareGroup = new HashSet<>(Arrays.asList(
+            J5InstructionSet.TEST, J5InstructionSet.TESTCY, J5InstructionSet.COMPARE, J5InstructionSet.COMPARECY)
+    );
+
+    private HashSet<J5InstructionSet> shiftAndRotateGroup = new HashSet<>(Arrays.asList(
+            J5InstructionSet.SL0, J5InstructionSet.SL1, J5InstructionSet.SLX, J5InstructionSet.SLA,
+            J5InstructionSet.SR0, J5InstructionSet.SR1, J5InstructionSet.SRX, J5InstructionSet.SRA,
+            J5InstructionSet.RR, J5InstructionSet.RL)
+    );
+
+    private HashSet<J5InstructionSet> scratchPadGroup = new HashSet<>(Arrays.asList(
+            J5InstructionSet.STORE, J5InstructionSet.ISTORE, J5InstructionSet.FETCH, J5InstructionSet.IFETCH)
+    );
+
+    private HashSet<J5InstructionSet> jumpGroup = new HashSet<>(Arrays.asList(
+            J5InstructionSet.BRANCH, J5InstructionSet.BRZERO, J5InstructionSet.BRCARRY, J5InstructionSet.SBRANCH,
+            J5InstructionSet.SBRZERO, J5InstructionSet.SBRCARRY, J5InstructionSet.LBRANCH, J5InstructionSet.IBRANCH)
+    );
+
+    private HashSet<J5InstructionSet> subroutineGroup = new HashSet<>(Arrays.asList(
+            J5InstructionSet.CALL, J5InstructionSet.CALLCARRY, J5InstructionSet.CALLZERO, J5InstructionSet.RETURN)
+    );
+
+    private HashSet<J5InstructionSet> stackManagementGroup = new HashSet<>(Arrays.asList(
+            J5InstructionSet.DROP, J5InstructionSet.SWAP, J5InstructionSet.ROT, J5InstructionSet.RROT,
+            J5InstructionSet.DUP, J5InstructionSet.OVER, J5InstructionSet.UNDER, J5InstructionSet.TUCK,
+            J5InstructionSet.TUCK2, J5InstructionSet.NIP)
+    );
+
+    private HashSet<J5InstructionSet> miscellaneousGroup = new HashSet<>(Arrays.asList(
+            J5InstructionSet.NOP, J5InstructionSet.STOP, J5InstructionSet.PASS)
     );
 
     private String translateRegisterIntoMemory(PBInstructionArgument register, int offset) {
@@ -825,6 +873,15 @@ public class Translator {
                             };
                     }
                 }
+            case LOADANDRETURN:
+                return new J5Instruction[] {
+                        j5Lexer.lex("SSET " + Integer.toHexString(arg1.getIntValue())),
+                        j5Lexer.lex("STORE " + translateRegisterIntoMemory(arg0)),
+                        j5Lexer.lex("DROP"),
+                        j5Lexer.lex("RETURN"),
+                        j5Lexer.lex("STOP"),
+                };
+
 
             // Scratch Pad Memory
             case STORE:
@@ -971,6 +1028,7 @@ public class Translator {
 //            System.out.println("################################################ PBPC = " + pbPC);
 //            System.out.println("PicoBlaze Instruction: " + picoBlazeInstructions[pbPC]);
 
+            countInstructions(j5BlockInstructions[currentBlock], dynamicInstructionFrequency);
             countInstructionPairs(j5BlockInstructions[currentBlock], dynamicPairFrequency);
 
             int j5InstructionPointer = 0;
@@ -1039,7 +1097,18 @@ public class Translator {
                 continue;
             }
 
+            countInstructions(instructions, staticInstructionFrequency);
             countInstructionPairs(instructions, staticPairFrequency);
+        }
+
+        System.out.println("\n\nFrequency of static instructions:");
+        for (String group : staticInstructionFrequency.keySet()) {
+            System.out.println(group + "\t= " + staticInstructionFrequency.get(group));
+        }
+
+        System.out.println("\n\nFrequency of dynamic instructions:");
+        for (String group : dynamicInstructionFrequency.keySet()) {
+            System.out.println(group + "\t= " + dynamicInstructionFrequency.get(group));
         }
 
         System.out.println("\n\nFrequency of static pairs:");
@@ -1058,45 +1127,85 @@ public class Translator {
         System.out.println(J5ScratchPad.getInstance());
     }
 
-    private void countInstructionPairs(J5Instruction[] j5Instructions, HashMap<J5InstructionPair, Integer> map) {
-        for (int i = 0; i < j5Instructions.length - 1; i++) {
-            J5InstructionPair pair = new J5InstructionPair(j5Instructions[i].instruction, j5Instructions[i+1].instruction);
-            if (map.containsKey(pair)) {
-                map.put(pair, map.get(pair) + 1);
+    private <T> void incrementKeyInHashMap(HashMap<T, Integer> map, T key) {
+        if (map.containsKey(key)) {
+            map.put(key, map.get(key) + 1);
+        } else {
+            map.put(key, 1);
+        }
+    }
+
+    private void countInstructions(J5Instruction[] j5Instructions, HashMap<String, Integer> map) {
+        for (J5Instruction instruction : j5Instructions) {
+            J5InstructionSet i = instruction.instruction;
+
+            if (assignmentGroup.contains(i)) {
+                incrementKeyInHashMap(map, "Assignment");
+            } else if (logicalGroup.contains(i)) {
+                incrementKeyInHashMap(map, "Logical");
+            } else if (arithmeticGroup.contains(i)) {
+                incrementKeyInHashMap(map, "Arithmetic");
+            } else if (testAndCompareGroup.contains(i)) {
+                incrementKeyInHashMap(map, "Test and Compare");
+            } else if (shiftAndRotateGroup.contains(i)) {
+                incrementKeyInHashMap(map, "Shift and Rotate");
+            } else if (scratchPadGroup.contains(i)) {
+                incrementKeyInHashMap(map, "Scratch Pad Memory");
+            } else if (jumpGroup.contains(i)) {
+                incrementKeyInHashMap(map, "Jump");
+            } else if (subroutineGroup.contains(i)) {
+                incrementKeyInHashMap(map, "Subroutines");
+            } else if (stackManagementGroup.contains(i)) {
+                incrementKeyInHashMap(map, "Stack Management");
+            } else if (miscellaneousGroup.contains(i)) {
+                incrementKeyInHashMap(map, "Miscellaneous");
             } else {
-                map.put(pair, 1);
+                throw new Error("Instruction " + i + " not in a known group");
             }
         }
     }
 
-    private LinkedHashMap<J5InstructionPair, Integer> sortHashMapByValues(
-            HashMap<J5InstructionPair, Integer> passedMap) {
+    private void countInstructionPairs(J5Instruction[] j5Instructions, HashMap<J5InstructionPair, Integer> map) {
+        for (int i = 0; i < j5Instructions.length - 1; i++) {
+            J5InstructionPair pair = new J5InstructionPair(j5Instructions[i].instruction, j5Instructions[i+1].instruction);
+//            if (map.containsKey(pair)) {
+//                map.put(pair, map.get(pair) + 1);
+//            } else {
+//                map.put(pair, 1);
+//            }
+            incrementKeyInHashMap(map, pair);
+        }
+    }
 
-        HashSet<J5InstructionSet> doNotInclude = new HashSet<>(Arrays.asList(J5InstructionSet.STOP,
-                J5InstructionSet.PASS, J5InstructionSet.NOP));
+    private <T> LinkedHashMap<T, Integer> sortHashMapByValues(
+            HashMap<T, Integer> passedMap) {
 
-        List<J5InstructionPair> mapKeys = new ArrayList<>(passedMap.keySet());
+//        HashSet<J5InstructionSet> doNotInclude = new HashSet<>(Arrays.asList(J5InstructionSet.STOP,
+//                J5InstructionSet.PASS, J5InstructionSet.NOP));
+
+        List<T> mapKeys = new ArrayList<>(passedMap.keySet());
         List<Integer> mapValues = new ArrayList<>(passedMap.values());
 
         mapValues.sort(Collections.reverseOrder());
         mapKeys.sort(Collections.reverseOrder());
 
-        LinkedHashMap<J5InstructionPair, Integer> sortedMap = new LinkedHashMap<>();
+        LinkedHashMap<T, Integer> sortedMap = new LinkedHashMap<>();
 
         for (Integer value : mapValues) {
-            Iterator<J5InstructionPair> keyIterator = mapKeys.iterator();
+            Iterator<T> keyIterator = mapKeys.iterator();
 
             while (keyIterator.hasNext()) {
-                J5InstructionPair key = keyIterator.next();
+                T key = keyIterator.next();
 
                 Integer compareValue = passedMap.get(key);
 
                 if (compareValue.equals(value)) {
                     keyIterator.remove();
 
-                    if (!(doNotInclude.contains(key.instruction1) || doNotInclude.contains(key.instruction2))) {
-                        sortedMap.put(key, value);
-                    }
+//                    if (!(doNotInclude.contains(key.instruction1) || doNotInclude.contains(key.instruction2))) {
+//                        sortedMap.put(key, value);
+//                    }
+                    sortedMap.put(key, value);
 
                     break;
                 }
