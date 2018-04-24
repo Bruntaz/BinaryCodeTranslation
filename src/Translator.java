@@ -292,6 +292,12 @@ public class Translator {
             case REGBANK:
                 // TODO: This toggles register banks instead of setting to the correct one
                 return new J5Instruction[] {
+                        j5Lexer.lex("FETCH 20"),
+                        j5Lexer.lex("SSET " + (arg0.getStringValue().equals("A") ? "0" : "1")),
+                        j5Lexer.lex("COMPARE"),
+                        j5Lexer.lex("BRZERO " + Integer.toHexString(24)),
+                        j5Lexer.lex("STORE 20"),
+
                         j5Lexer.lex("SSET 0"),
 
                         j5Lexer.lex("DUP"),
@@ -316,6 +322,8 @@ public class Translator {
                         j5Lexer.lex("BRZERO 2"),
                         j5Lexer.lex("BRANCH " + Integer.toHexString(19)),
 
+                        j5Lexer.lex("DROP"),
+                        j5Lexer.lex("DROP"),
                         j5Lexer.lex("DROP"),
                 };
 
