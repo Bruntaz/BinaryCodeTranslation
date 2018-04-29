@@ -1,22 +1,87 @@
-SSET FF
-SSET 0
-INC
-CALL 6
-LBRANCH 8
-SSET EE
-RETURN
-SSET FF
+SSET 1
 STORE 0
-FETCH 0
+SSET 2
+STORE 1
+SSET 3
+STORE 2
+SSET 4
+STORE 3
+SSET 5
+STORE 4
+SSET 6
+STORE 5
+SSET 7
+STORE 6
+SSET 8
+STORE 7
+SSET 9
+STORE 8
+SSET A
+STORE 9
+SSET B
+STORE A
+SSET C
+STORE B
+SSET D
+STORE C
+SSET E
+STORE D
+SSET F
+STORE E
+SSET 10
+STORE F
 DROP
-AND
-OR
-XOR
-NOT
-RL
-RR
-SL0
-SR1
-DUP
-INC
-UNDER
+DROP
+DROP
+DROP
+DROP
+DROP
+DROP
+DROP
+DROP
+DROP
+DROP
+DROP
+DROP
+DROP
+DROP
+DROP
+SSET 1
+STORE A0
+DROP
+REGBANK:
+FETCH A0  ; (1)    A0 stores which register is currently active
+SSET 0    ; (1, 0) This line is 0 or 1 depending on REGBANK arg
+COMPARE   ; (1, 0) If active bank = selected bank
+BRZERO 1D ; (1, 0) Jump to cleanUpFromREGBANK
+STORE A0  ; (1, 0) Else, update currently active register
+LBRANCH swapAllRegisters ; Swap register banks
+swapRegisters:
+DUP       ; (X, X)              Duplicate memory location
+IFETCH    ; (X, X, sXA)         Fetch A value of register
+SWAP      ; (X, sXA, X)         Get memory pointer to top
+SSET 10   ; (X, sXA, X, 10)
+ADD       ; (X, sXA, X+10)      Add offset to mem pointer
+IFETCH    ; (X, sXA, X+10, sXB) Fetch B value of register
+ROT       ; (X, sXB, sXA, X+10) Rotate top 3 values
+ISTORE    ; (X, sXB, sXA, X+10) Store A in B location
+DROP      ; (X, sXB, sXA)
+DROP      ; (X, sXB)            Drop A and offset pointer
+SWAP      ; (sXB, X)
+ISTORE    ; (sXB, X)            Store B in A location
+SWAP      ; (X, sXB)
+DROP      ; (X)                 Drop B to reset stack
+RETURN    ; (X)
+swapAllRegisters:
+SSET 0    ; (0)          First memory address on top
+CALL swapRegisters;      Call swapRegisters subroutine
+INC       ; (1)          Increment memory pointer
+SSET 10    ; (1, F)
+COMPARE   ; (1, F)       Have all registers been swapped?
+DROP      ; (1)
+BRZERO 2  ; (1)          If so, jump to end
+BRANCH 6  ; (1)          If not, jump to line 26
+DROP      ; ()
+cleanUpFromREGBANK:
+DROP      ; (1)
+DROP      ; ()

@@ -977,9 +977,18 @@ public class Translator {
 
         J5Instruction[] instructions = j5Lexer.lex(file);
 
+        J5ScratchPad j5ScratchPad = J5ScratchPad.getInstance();
+
         j5Parser.parse(instructions);
-        System.out.println(String.format("With %d memory reads and %d writes", J5ScratchPad.getInstance().getMemoryReads(),
-                J5ScratchPad.getInstance().getMemoryWrites()));
+        int actualCCs = j5Parser.getClockCycles();
+        int newCCs = actualCCs + (10-1)*(j5ScratchPad.getMemoryReads() + j5ScratchPad.getMemoryWrites());
+        double percentageIncrease = (newCCs-actualCCs) / (double) actualCCs * 100;
+        System.out.println(String.format("\nFinished in %d clock cycles", actualCCs));
+        System.out.println(String.format("With %d memory reads and %d writes", j5ScratchPad.getMemoryReads(),
+                j5ScratchPad.getMemoryWrites()));
+        System.out.println(String.format("\nIncrease of %f in CC", percentageIncrease));
+//        System.out.println(String.format("With %d memory reads and %d writes", J5ScratchPad.getInstance().getMemoryReads(),
+//                J5ScratchPad.getInstance().getMemoryWrites()));
         System.out.println(J5ScratchPad.getInstance());
     }
 
@@ -1121,9 +1130,13 @@ public class Translator {
             System.out.println(pair.toString() + " = " + dynamicPairFrequency.get(pair));
         }
 
-        System.out.println(String.format("\nFinished in %d clock cycles", j5Parser.getClockCycles()));
+        int actualCCs = j5Parser.getClockCycles();
+        int newCCs = actualCCs + (2-1)*(j5ScratchPad.getMemoryReads() + j5ScratchPad.getMemoryWrites());
+        double percentageIncrease = (newCCs-actualCCs) / (double) actualCCs * 100;
+        System.out.println(String.format("\nFinished in %d clock cycles", actualCCs));
         System.out.println(String.format("With %d memory reads and %d writes", j5ScratchPad.getMemoryReads(),
                 j5ScratchPad.getMemoryWrites()));
+        System.out.println(String.format("\nIncrease of %f in CC", percentageIncrease));
         System.out.println(J5ScratchPad.getInstance());
     }
 
